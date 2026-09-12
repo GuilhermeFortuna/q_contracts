@@ -6,9 +6,9 @@ table is updated with the consumer commit and verification evidence.
 
 | Repository | Repository commit | Contracts commit |
 | --- | --- | --- |
-| `q_contracts` | `bd8082863e58a596079de34d782df4ef2524c635` | `bd8082863e58a596079de34d782df4ef2524c635` |
-| `q_frontend` | `40f9e1d` | `bd8082863e58a596079de34d782df4ef2524c635` |
-| `q_backend` | `142f4f1` | `bd8082863e58a596079de34d782df4ef2524c635` |
+| `q_contracts` | `998a50570905524bfb9af0465a725b170f2970df` | `998a50570905524bfb9af0465a725b170f2970df` |
+| `q_frontend` | `aea7bfe70ec7fae81b6c28d24bd3bb10cdeff7c3` | `998a50570905524bfb9af0465a725b170f2970df` |
+| `q_backend` | `d70f0d00c80e001d668049e77cd59663a4c4e641` | `998a50570905524bfb9af0465a725b170f2970df` |
 
 ## Generation scope decisions
 
