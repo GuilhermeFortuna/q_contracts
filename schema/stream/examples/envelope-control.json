@@ -1,0 +1,19 @@
+{
+  "topic": "orders",
+  "schema_major": 1,
+  "seq": 205,
+  "epoch": "outbox-epoch-42",
+  "producer_id": "execution-service-prod",
+  "origin_ts": "2026-09-12T10:00:01.500000Z",
+  "payload_kind": "control",
+  "payload_schema": "schema/stream/control/subscribed.schema.json",
+  "payload": {
+    "topics": {
+      "orders": {
+        "cursor": "1710000000000-0",
+        "epoch": "outbox-epoch-42",
+        "last_seq": 204
+      }
+    }
+  }
+}

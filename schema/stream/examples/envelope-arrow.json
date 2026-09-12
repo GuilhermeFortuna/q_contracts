@@ -1,0 +1,11 @@
+{
+  "topic": "bars.completed",
+  "schema_major": 1,
+  "seq": 1042,
+  "epoch": "ep-pub-2026-09-12-001",
+  "producer_id": "market-data-relay-1",
+  "origin_ts": "2026-09-12T10:00:00.000000Z",
+  "payload_kind": "arrow_ipc",
+  "payload_schema": "schema/stream/envelope.schema.json",
+  "payload": "/////wAAAAA="
+}
