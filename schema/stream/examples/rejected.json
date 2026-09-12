@@ -1,0 +1,5 @@
+{
+  "reason": "unknown_topic",
+  "topic": "nope",
+  "detail": "Topic 'nope' is not declared in topic policy."
+}

@@ -1,4 +1,4 @@
-# GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json, schema/stream/payloads/job-progress.schema.json, schema/stream/payloads/job-terminal.schema.json
+# GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/rejected.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json, schema/stream/payloads/job-progress.schema.json, schema/stream/payloads/job-terminal.schema.json
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -63,6 +63,13 @@ class LaggingFrame:
 
 
 @dataclass(frozen=True)
+class RejectedFrame:
+    reason: Literal["unknown_topic", "unsupported_schema_major", "stream_unavailable"]
+    detail: str | None = None
+    topic: str | None = None
+
+
+@dataclass(frozen=True)
 class StreamEnvelope:
     epoch: str
     origin_ts: str
@@ -91,6 +98,7 @@ class StreamEnvelope:
 @dataclass(frozen=True)
 class SubscribeFrame:
     topics: list[str]
+    cursors: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)

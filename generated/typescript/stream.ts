@@ -1,4 +1,4 @@
-// GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json, schema/stream/payloads/job-progress.schema.json, schema/stream/payloads/job-terminal.schema.json
+// GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/rejected.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json, schema/stream/payloads/job-progress.schema.json, schema/stream/payloads/job-terminal.schema.json
 
 export interface CursorExpiredFrame {
   cursor?: string
@@ -32,6 +32,12 @@ export interface LaggingFrame {
   topic: string
 }
 
+export interface RejectedFrame {
+  detail?: string
+  reason: "unknown_topic" | "unsupported_schema_major" | "stream_unavailable"
+  topic?: string
+}
+
 export interface StreamEnvelope {
   epoch: string
   key?: { job_id?: string; kind?: string; symbol?: string; timeframe?: string }
@@ -46,6 +52,7 @@ export interface StreamEnvelope {
 }
 
 export interface SubscribeFrame {
+  cursors?: Record<string, unknown>
   topics: Array<string>
 }
 

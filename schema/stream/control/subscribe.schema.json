@@ -16,6 +16,13 @@
       "minItems": 1,
       "uniqueItems": true,
       "description": "List of topic names to subscribe to."
+    },
+    "cursors": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Optional resume cursors keyed by topic name, allowing reconnecting clients to resume stream consumption."
     }
   },
   "additionalProperties": false

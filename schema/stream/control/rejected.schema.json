@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stream/control/rejected",
+  "title": "RejectedFrame",
+  "description": "Server frame rejecting a subscription or a topic within it.",
+  "type": "object",
+  "required": [
+    "reason"
+  ],
+  "properties": {
+    "reason": {
+      "type": "string",
+      "enum": [
+        "unknown_topic",
+        "unsupported_schema_major",
+        "stream_unavailable"
+      ],
+      "description": "Closed vocabulary of subscription rejection reasons."
+    },
+    "topic": {
+      "type": "string",
+      "description": "Topic name if rejection pertains to a specific topic."
+    },
+    "detail": {
+      "type": "string",
+      "description": "Optional human-readable explanation of the rejection."
+    }
+  },
+  "additionalProperties": false
+}
