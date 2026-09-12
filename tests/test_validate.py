@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from tools.validate import SchemaProblem, check_file, discover
+from tools.validate import check_file, discover
 
 
 def test_discover_mixed_tree(tmp_path: Path):

@@ -4,18 +4,21 @@ from __future__ import annotations
 
 import argparse
 import json
-from pathlib import Path
 import sys
-from typing import NamedTuple, Sequence
+from collections.abc import Sequence
+from pathlib import Path
+from typing import NamedTuple
 
 import jsonschema
 import yaml
 
 BOUNDARIES: tuple[str, ...] = ("api", "stream", "edge", "catalog")
-SUPPORTED_DIALECTS: frozenset[str] = frozenset({
-    "https://json-schema.org/draft/2020-12/schema",
-    "https://json-schema.org/draft/2020-12/schema#",
-})
+SUPPORTED_DIALECTS: frozenset[str] = frozenset(
+    {
+        "https://json-schema.org/draft/2020-12/schema",
+        "https://json-schema.org/draft/2020-12/schema#",
+    }
+)
 
 
 class SchemaProblem(NamedTuple):
@@ -120,7 +123,9 @@ def check_file(path: Path, schema_root: Path) -> list[SchemaProblem]:
     try:
         jsonschema.Draft202012Validator.check_schema(data)
     except jsonschema.exceptions.SchemaError as exc:
-        return [SchemaProblem(path=report_path, reason=f"Schema invalid: {exc.message}")]
+        return [
+            SchemaProblem(path=report_path, reason=f"Schema invalid: {exc.message}")
+        ]
 
     return []
 
