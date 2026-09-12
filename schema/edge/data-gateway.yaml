@@ -1,0 +1,210 @@
+# Data Gateway Wire Contract
+# Captured from q_backend/gateway/mt5_gateway.py
+# Schema major: 1, version: "1.0"
+# Governed by process-level obligations in schema/edge/OBLIGATIONS.md
+
+schema_name: data-gateway
+schema_major: 1
+schema_version: "1.0"
+obligations: schema/edge/OBLIGATIONS.md
+
+description: >
+  Wire contract for the read-only market data gateway running alongside a
+  MetaTrader 5 terminal under Windows/Wine. The gateway exposes read-only
+  historical and reference market data via HTTP endpoints. Breaking changes
+  require a schema major bump and endpoint prefix migration.
+
+authentication:
+  header: X-Gateway-Token
+  optional: true
+  description: >
+    When the gateway process is configured with a shared secret (--token / MT5_GATEWAY_TOKEN),
+    every incoming request must supply this header matching the secret. Missing or
+    mismatched token results in HTTP 401 unauthorized.
+
+timestamp_convention:
+  interpretation: naive wall-clock
+  timezone: America/Sao_Paulo (Brasília)
+  timezone_conversion: none
+  description: >
+    All start and end query parameters are ISO-8601 naive Brasília wall-clock strings.
+    The gateway applies a naive wall-clock interpretation with no timezone conversion:
+    datetimes are parsed with datetime.fromisoformat and passed directly to MT5 API calls.
+    Raw MT5 timestamps (epoch seconds or milliseconds) are returned in binary payloads
+    without timezone conversion.
+
+error_response:
+  content_type: application/json
+  schema: schema/edge/common/error.schema.json
+  status_codes:
+    400:
+      - invalid_timeframe
+      - invalid_flags
+      - tick_range_too_large
+    401:
+      - unauthorized
+    404:
+      - symbol_not_found
+      - range_unavailable
+      - not_found
+    503:
+      - mt5_unavailable: >
+          Returned when MT5 terminal is not initialized. Note that /v1/health continues
+          to answer HTTP 200 with mt5_connected: false.
+    500:
+      - internal_error
+
+endpoints:
+  /v1/health:
+    method: GET
+    description: Service health and terminal connectivity probe. Always answers HTTP 200.
+    query_parameters: {}
+    response:
+      status: 200
+      content_type: application/json
+      schema: schema/edge/common/health.schema.json
+
+  /v1/symbol_info:
+    method: GET
+    description: Fetch metadata and trading parameters for a selectable symbol.
+    query_parameters:
+      symbol:
+        type: string
+        required: true
+        description: Financial instrument ticker symbol.
+    response:
+      status: 200
+      content_type: application/json
+      description: Plain dictionary of symbol properties returned by mt5.symbol_info.
+
+  /v1/symbols/search:
+    method: GET
+    description: Search available instruments matching pattern query.
+    query_parameters:
+      query:
+        type: string
+        required: true
+        description: Search substring matched case-insensitively against symbol names.
+    response:
+      status: 200
+      content_type: application/json
+      description: Array of symbol summary objects ({name, description, path, custom}).
+
+  /v1/available_range:
+    method: GET
+    description: Probe earliest and latest OHLCV bar boundaries and total bar count.
+    query_parameters:
+      symbol:
+        type: string
+        required: true
+        description: Financial instrument ticker symbol.
+      timeframe:
+        type: string
+        required: true
+        description: Bar timeframe name (e.g. M1, M5, H1, D1).
+    response:
+      status: 200
+      content_type: application/json
+      description: Object containing {symbol, timeframe, start, end, bar_count}.
+
+  /v1/ohlcv:
+    method: GET
+    description: Bulk OHLCV bar history chunked and compressed.
+    query_parameters:
+      symbol:
+        type: string
+        required: true
+        description: Financial instrument ticker symbol.
+      timeframe:
+        type: string
+        required: true
+        description: Bar timeframe name (e.g. M1, M5, H1, D1).
+      start:
+        type: string
+        required: true
+        description: Range start as ISO-8601 naive Brasília wall-clock string.
+      end:
+        type: string
+        required: true
+        description: Range end as ISO-8601 naive Brasília wall-clock string.
+    response:
+      status: 200
+      content_type: application/octet-stream
+      format: npz
+      equal_length_requirement: true
+      arrays:
+        time:
+          dtype: int64
+          description: Raw MT5 epoch seconds.
+        open:
+          dtype: float64
+          description: Bar open price.
+        high:
+          dtype: float64
+          description: Bar high price.
+        low:
+          dtype: float64
+          description: Bar low price.
+        close:
+          dtype: float64
+          description: Bar close price.
+        tick_volume:
+          dtype: int64
+          description: Bar tick volume count.
+        spread:
+          dtype: int64
+          optional: true
+          description: Bar spread, present only if provided by MT5 rates.
+        real_volume:
+          dtype: int64
+          optional: true
+          description: Bar real volume, present only if provided by MT5 rates.
+
+  /v1/ticks:
+    method: GET
+    description: Bulk columnar tick history compressed as an npz archive.
+    query_parameters:
+      symbol:
+        type: string
+        required: true
+        description: Financial instrument ticker symbol.
+      start:
+        type: string
+        required: true
+        description: Range start as ISO-8601 naive Brasília wall-clock string.
+      end:
+        type: string
+        required: true
+        description: Range end as ISO-8601 naive Brasília wall-clock string.
+      flags:
+        type: string
+        required: false
+        default: all
+        enum:
+          - all
+          - trade
+        description: Filter flags (COPY_TICKS_ALL or COPY_TICKS_TRADE).
+    response:
+      status: 200
+      content_type: application/octet-stream
+      format: npz
+      equal_length_requirement: true
+      arrays:
+        time_msc:
+          dtype: int64
+          description: Raw MT5 tick timestamp in milliseconds.
+        bid:
+          dtype: float64
+          description: Bid price.
+        ask:
+          dtype: float64
+          description: Ask price.
+        last:
+          dtype: float64
+          description: Last trade price (0.0 if absent).
+        volume:
+          dtype: float64
+          description: Tick volume (0.0 if absent).
+        flags:
+          dtype: int32
+          description: Tick state and event flags.
