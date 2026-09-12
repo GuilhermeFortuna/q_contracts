@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stream/payloads/job-terminal",
+  "title": "JobTerminalPayload",
+  "description": "Durable terminal job state payload.",
+  "type": "object"
+}

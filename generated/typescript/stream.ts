@@ -1,4 +1,4 @@
-// GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json
+// GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json, schema/stream/payloads/job-progress.schema.json, schema/stream/payloads/job-terminal.schema.json
 
 export interface CursorExpiredFrame {
   cursor?: string
@@ -11,6 +11,12 @@ export interface EpochChangedFrame {
   topic: string
 }
 
+export interface JobProgressPayload {
+}
+
+export interface JobTerminalPayload {
+}
+
 export interface LaggingFrame {
   from_seq: number
   topic: string
@@ -18,6 +24,7 @@ export interface LaggingFrame {
 
 export interface StreamEnvelope {
   epoch: string
+  key?: { job_id?: string; kind?: string; symbol?: string; timeframe?: string }
   origin_ts: string
   payload: string | Record<string, unknown>
   payload_kind: "arrow_ipc" | "control"

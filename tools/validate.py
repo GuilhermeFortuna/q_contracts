@@ -308,6 +308,91 @@ def check_stream_consistency(schema_root: Path) -> list[SchemaProblem]:
     return problems
 
 
+def check_stream_routing(schema_root: Path) -> list[SchemaProblem]:
+    """Cross-document rules for stream routing and payload schemas:
+    - every coalesce_key field is an allowed property of the envelope "key" object
+    - job topics declare dedicated payload schemas, not the envelope itself
+    """
+    topics_file = schema_root / "stream" / "topics.yaml"
+    envelope_file = schema_root / "stream" / "envelope.schema.json"
+
+    if not topics_file.is_file() or not envelope_file.is_file():
+        return []
+
+    try:
+        report_topics_path = topics_file.relative_to(Path.cwd())
+    except ValueError:
+        report_topics_path = topics_file
+
+    try:
+        topics_data = yaml.safe_load(topics_file.read_text(encoding="utf-8"))
+    except (yaml.YAMLError, OSError):
+        return []
+
+    try:
+        envelope_data = json.loads(envelope_file.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return []
+
+    if (
+        not isinstance(topics_data, dict)
+        or "topics" not in topics_data
+        or not isinstance(topics_data["topics"], dict)
+    ):
+        return []
+
+    if not isinstance(envelope_data, dict):
+        return []
+
+    key_schema = envelope_data.get("properties", {}).get("key", {})
+    allowed_key_properties: set[str] = set()
+    if isinstance(key_schema, dict):
+        props = key_schema.get("properties")
+        if isinstance(props, dict):
+            allowed_key_properties = set(props.keys())
+
+    problems: list[SchemaProblem] = []
+
+    for topic_name, entry in topics_data["topics"].items():
+        if not isinstance(entry, dict):
+            continue
+
+        backpressure = entry.get("backpressure") or {}
+        coalesce = backpressure.get("coalesce", False)
+        coalesce_key = backpressure.get("coalesce_key")
+
+        if coalesce and isinstance(coalesce_key, list):
+            for field in coalesce_key:
+                if field not in allowed_key_properties:
+                    problems.append(
+                        SchemaProblem(
+                            path=report_topics_path,
+                            reason=(
+                                f"Topic '{topic_name}' declares coalesce_key field '{field}' which is "
+                                f"not an allowed property of the envelope key schema"
+                            ),
+                        )
+                    )
+
+        payload_schema = entry.get("payload_schema")
+        if (
+            topic_name.startswith("jobs.")
+            and payload_schema is not None
+            and str(payload_schema).endswith("envelope.schema.json")
+        ):
+            problems.append(
+                SchemaProblem(
+                    path=report_topics_path,
+                    reason=(
+                        f"Topic '{topic_name}' must declare a dedicated payload schema, "
+                        f"not the envelope itself"
+                    ),
+                )
+            )
+
+    return problems
+
+
 def check_api_consistency(schema_root: Path) -> list[SchemaProblem]:
     """Every failing operation references error.schema.json; every arrow schema
     resolves under the identifier form topics.yaml uses; every declared field
@@ -870,6 +955,7 @@ def check_tree(schema_root: Path) -> list[SchemaProblem]:
     for file_path in discover(schema_root):
         problems.extend(check_file(file_path, schema_root))
     problems.extend(check_stream_consistency(schema_root))
+    problems.extend(check_stream_routing(schema_root))
     problems.extend(check_api_consistency(schema_root))
     problems.extend(check_edge_consistency(schema_root))
     problems.extend(check_catalog_consistency(schema_root))

@@ -1,4 +1,4 @@
-// GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json
+// GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json, schema/stream/payloads/job-progress.schema.json, schema/stream/payloads/job-terminal.schema.json
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -15,6 +15,14 @@ pub struct EpochChangedFrame {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct JobProgressPayload {
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct JobTerminalPayload {
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LaggingFrame {
     pub from_seq: i64,
     pub topic: String,
@@ -23,6 +31,7 @@ pub struct LaggingFrame {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StreamEnvelope {
     pub epoch: String,
+    pub key: Option<serde_json::Value>,
     pub origin_ts: String,
     pub payload: serde_json::Value,
     pub payload_kind: String,

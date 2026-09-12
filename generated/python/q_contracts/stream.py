@@ -1,4 +1,4 @@
-# GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json
+# GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json, schema/stream/payloads/job-progress.schema.json, schema/stream/payloads/job-terminal.schema.json
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -16,6 +16,16 @@ class EpochChangedFrame:
     new_epoch: str
     topic: str
     previous_epoch: str | None = None
+
+
+@dataclass(frozen=True)
+class JobProgressPayload:
+    pass
+
+
+@dataclass(frozen=True)
+class JobTerminalPayload:
+    pass
 
 
 @dataclass(frozen=True)
@@ -47,6 +57,7 @@ class StreamEnvelope:
         "quotes",
         "risk",
     ]
+    key: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)

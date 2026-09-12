@@ -78,6 +78,29 @@
           "type": "object"
         }
       ]
+    },
+    "key": {
+      "type": "object",
+      "description": "Optional routing values corresponding to the topic's coalesce_key, enabling servers to coalesce entries without decoding payloads. All values are strings.",
+      "properties": {
+        "symbol": {
+          "type": "string",
+          "description": "Symbol for market data routing (e.g. WINZ25, PETR4)."
+        },
+        "timeframe": {
+          "type": "string",
+          "description": "Timeframe for bar routing (e.g. M1, H1)."
+        },
+        "kind": {
+          "type": "string",
+          "description": "Job kind for job event routing."
+        },
+        "job_id": {
+          "type": "string",
+          "description": "Job identifier for job event routing."
+        }
+      },
+      "additionalProperties": false
     }
   },
   "additionalProperties": false
