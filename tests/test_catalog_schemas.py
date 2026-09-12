@@ -64,3 +64,53 @@ def test_manifest_missing_file_checksum_fails_with_checksum_named(
     assert any(
         "checksum" in err.message for err in errors
     ), f"Missing 'checksum' error not found in: {[e.message for e in errors]}"
+
+
+def test_file_entry_absolute_path_fails(
+    manifest_schema: dict, two_file_manifest: dict
+) -> None:
+    mutant = copy.deepcopy(two_file_manifest)
+    mutant["files"][0]["path"] = "/abs/x.parquet"
+    validator = jsonschema.Draft202012Validator(manifest_schema)
+    errors = list(validator.iter_errors(mutant))
+    assert len(errors) >= 1
+
+
+def test_file_entry_parent_dir_segment_fails(
+    manifest_schema: dict, two_file_manifest: dict
+) -> None:
+    mutant = copy.deepcopy(two_file_manifest)
+    mutant["files"][0]["path"] = "a/../b.parquet"
+    validator = jsonschema.Draft202012Validator(manifest_schema)
+    errors = list(validator.iter_errors(mutant))
+    assert len(errors) >= 1
+
+
+def test_file_entry_valid_relative_path_passes(
+    manifest_schema: dict, two_file_manifest: dict
+) -> None:
+    mutant = copy.deepcopy(two_file_manifest)
+    mutant["files"][0]["path"] = "bars/2024.parquet"
+    validator = jsonschema.Draft202012Validator(manifest_schema)
+    errors = list(validator.iter_errors(mutant))
+    assert errors == []
+
+
+def test_dataset_id_path_like_fails(
+    manifest_schema: dict, two_file_manifest: dict
+) -> None:
+    mutant = copy.deepcopy(two_file_manifest)
+    mutant["dataset_id"] = "WINFUT/M15/2024"
+    validator = jsonschema.Draft202012Validator(manifest_schema)
+    errors = list(validator.iter_errors(mutant))
+    assert len(errors) >= 1
+
+
+def test_dataset_id_uuid_form_passes(
+    manifest_schema: dict, two_file_manifest: dict
+) -> None:
+    mutant = copy.deepcopy(two_file_manifest)
+    mutant["dataset_id"] = "123e4567-e89b-12d3-a456-426614174000"
+    validator = jsonschema.Draft202012Validator(manifest_schema)
+    errors = list(validator.iter_errors(mutant))
+    assert errors == []
