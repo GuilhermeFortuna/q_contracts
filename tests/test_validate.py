@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from tools.validate import check_file, discover
+from tools.validate import check_file, check_tree, discover
 
 
 def test_discover_mixed_tree(tmp_path: Path):
@@ -102,8 +102,9 @@ def test_check_tree_and_main_with_malformed_file(tmp_path: Path, monkeypatch, ca
     monkeypatch.chdir(tmp_path)
 
     problems = check_tree(Path("schema"))
-    assert len(problems) == 1
-    assert "parse" in problems[0].reason.lower()
+    parse_problems = [p for p in problems if "parse" in p.reason.lower()]
+    assert len(parse_problems) == 1
+    assert parse_problems[0].path == Path("schema/stream/broken.schema.json")
 
     exit_code = main([])
     assert exit_code == 1
@@ -160,3 +161,64 @@ def test_check_file_json_schema_in_stream_still_checked(tmp_path: Path):
     problems = check_file(bad_schema, schema_root)
     assert len(problems) == 1
     assert "schema invalid" in problems[0].reason.lower()
+
+
+def _write_stream_anchors(schema_root: Path) -> Path:
+    """A stream boundary carrying both of its anchor documents."""
+    stream_dir = schema_root / "stream"
+    stream_dir.mkdir(parents=True)
+    (stream_dir / "envelope.schema.json").write_text(
+        '{"$schema": "https://json-schema.org/draft/2020-12/schema",'
+        ' "$id": "stream/envelope", "type": "object",'
+        ' "properties": {"topic": {"type": "string", "enum": []}}}'
+    )
+    (stream_dir / "topics.yaml").write_text("topics: {}\n")
+    return stream_dir
+
+
+def test_check_tree_reports_a_populated_boundary_missing_an_anchor_document(
+    tmp_path: Path,
+):
+    schema_root = tmp_path / "schema"
+    stream_dir = _write_stream_anchors(schema_root)
+    (stream_dir / "topics.yaml").unlink()
+
+    problems = check_tree(schema_root)
+
+    assert len(problems) == 1
+    assert problems[0].reason.startswith("Required document")
+    assert "stream/topics.yaml" in problems[0].reason
+
+
+def test_check_tree_reports_every_missing_anchor_of_a_populated_boundary(
+    tmp_path: Path,
+):
+    schema_root = tmp_path / "schema"
+    edge_dir = schema_root / "edge"
+    edge_dir.mkdir(parents=True)
+    (edge_dir / "unrelated.schema.json").write_text(
+        '{"$schema": "https://json-schema.org/draft/2020-12/schema",'
+        ' "$id": "edge/unrelated", "type": "object"}'
+    )
+
+    reasons = " ".join(p.reason for p in check_tree(schema_root))
+
+    assert "edge/execution.yaml" in reasons
+    assert "edge/data-gateway.yaml" in reasons
+
+
+def test_check_tree_requires_no_anchor_from_an_unpopulated_boundary(tmp_path: Path):
+    schema_root = tmp_path / "schema"
+    _write_stream_anchors(schema_root)
+    (schema_root / "catalog").mkdir()
+
+    assert check_tree(schema_root) == []
+
+
+def test_check_tree_passes_when_every_populated_boundary_carries_its_anchors(
+    tmp_path: Path,
+):
+    schema_root = tmp_path / "schema"
+    _write_stream_anchors(schema_root)
+
+    assert check_tree(schema_root) == []

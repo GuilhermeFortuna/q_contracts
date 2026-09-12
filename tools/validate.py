@@ -13,6 +13,16 @@ import jsonschema
 import yaml
 
 BOUNDARIES: tuple[str, ...] = ("api", "stream", "edge", "catalog")
+# The documents each boundary's cross-document checks read. Absence is a failure
+# rather than a silent skip, because every check below returns no problems when
+# its anchor is missing, so a deleted anchor would otherwise pass validation.
+# This is not a schema registry: adding a schema still requires no edit here.
+REQUIRED_DOCUMENTS: dict[str, tuple[str, ...]] = {
+    "api": ("openapi.yaml", "error.schema.json"),
+    "stream": ("topics.yaml", "envelope.schema.json"),
+    "edge": ("execution.yaml", "data-gateway.yaml"),
+    "catalog": ("lifecycle.yaml", "dataset-manifest.schema.json"),
+}
 SUPPORTED_DIALECTS: frozenset[str] = frozenset(
     {
         "https://json-schema.org/draft/2020-12/schema",
@@ -818,9 +828,45 @@ def check_catalog_consistency(schema_root: Path) -> list[SchemaProblem]:
     return problems
 
 
+def check_required_documents(schema_root: Path) -> list[SchemaProblem]:
+    """Every populated boundary carries the documents its consistency check reads.
+
+    A boundary with no files at all requires nothing, so an empty tree stays
+    valid; a boundary that holds schemas must hold its anchors, so deleting one
+    fails the check by name instead of disabling it.
+    """
+    problems: list[SchemaProblem] = []
+    for boundary, required in REQUIRED_DOCUMENTS.items():
+        boundary_root = schema_root / boundary
+        if not boundary_root.is_dir():
+            continue
+        if not any(path.is_file() for path in boundary_root.rglob("*")):
+            continue
+        for name in required:
+            document = boundary_root / name
+            if document.is_file():
+                continue
+            try:
+                report_path = document.relative_to(Path.cwd())
+            except ValueError:
+                report_path = document
+            problems.append(
+                SchemaProblem(
+                    path=report_path,
+                    reason=(
+                        f"Required document '{boundary}/{name}' is absent; the "
+                        f"{boundary} boundary holds schemas, so its cross-document "
+                        "checks cannot be skipped"
+                    ),
+                )
+            )
+    return problems
+
+
 def check_tree(schema_root: Path) -> list[SchemaProblem]:
     """discover() then check_file() over everything, plus cross-document consistency."""
     problems: list[SchemaProblem] = []
+    problems.extend(check_required_documents(schema_root))
     for file_path in discover(schema_root):
         problems.extend(check_file(file_path, schema_root))
     problems.extend(check_stream_consistency(schema_root))
