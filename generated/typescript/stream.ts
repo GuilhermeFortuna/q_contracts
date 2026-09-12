@@ -1,4 +1,4 @@
-// GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/rejected.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json, schema/stream/payloads/job-progress.schema.json, schema/stream/payloads/job-terminal.schema.json
+// GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/rejected.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json, schema/stream/payloads/job-progress.schema.json, schema/stream/payloads/job-terminal.schema.json, schema/stream/replay/history-expired.schema.json, schema/stream/replay/history-page.schema.json, schema/stream/replay/latest.schema.json, schema/stream/replay/watermark.schema.json
 
 export interface CursorExpiredFrame {
   cursor?: string
@@ -8,6 +8,19 @@ export interface CursorExpiredFrame {
 export interface EpochChangedFrame {
   new_epoch: string
   previous_epoch?: string
+  topic: string
+}
+
+export interface HistoryExpiredResponse {
+  oldest_available_seq?: number | null
+  requested_from_seq: number
+  topic: string
+}
+
+export interface HistoryPageResponse {
+  entries: Array<StreamEnvelope>
+  epoch: string
+  next_seq: number | null
   topic: string
 }
 
@@ -32,10 +45,18 @@ export interface LaggingFrame {
   topic: string
 }
 
+export interface LatestValuesResponse {
+  entries: Record<string, unknown>
+  topic: string
+}
+
 export interface RejectedFrame {
   detail?: string
   reason: "unknown_topic" | "unsupported_schema_major" | "stream_unavailable"
   topic?: string
+}
+
+export interface SnapshotWatermark {
 }
 
 export interface StreamEnvelope {

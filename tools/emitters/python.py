@@ -69,7 +69,9 @@ def _type_for(
                 "object": "dict[str, Any]",
                 "string": "str",
             }.get(kind, "Any")
-    return f"{result} | None" if optional else result
+    if optional and not (result.endswith(" | None") or result == "None"):
+        return f"{result} | None"
+    return result
 
 
 def _emit_object(

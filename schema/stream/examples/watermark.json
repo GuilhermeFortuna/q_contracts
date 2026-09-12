@@ -1,0 +1,10 @@
+{
+  "jobs.terminal": {
+    "epoch": "e1",
+    "seq": 42
+  },
+  "orders": {
+    "epoch": "outbox-epoch-42",
+    "seq": 102
+  }
+}

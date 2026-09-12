@@ -1,4 +1,4 @@
-// GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/rejected.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json, schema/stream/payloads/job-progress.schema.json, schema/stream/payloads/job-terminal.schema.json
+// GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/rejected.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json, schema/stream/payloads/job-progress.schema.json, schema/stream/payloads/job-terminal.schema.json, schema/stream/replay/history-expired.schema.json, schema/stream/replay/history-page.schema.json, schema/stream/replay/latest.schema.json, schema/stream/replay/watermark.schema.json
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -11,6 +11,21 @@ pub struct CursorExpiredFrame {
 pub struct EpochChangedFrame {
     pub new_epoch: String,
     pub previous_epoch: Option<String>,
+    pub topic: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct HistoryExpiredResponse {
+    pub oldest_available_seq: Option<serde_json::Value>,
+    pub requested_from_seq: i64,
+    pub topic: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct HistoryPageResponse {
+    pub entries: Vec<StreamEnvelope>,
+    pub epoch: String,
+    pub next_seq: serde_json::Value,
     pub topic: String,
 }
 
@@ -39,10 +54,20 @@ pub struct LaggingFrame {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct LatestValuesResponse {
+    pub entries: serde_json::Value,
+    pub topic: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RejectedFrame {
     pub detail: Option<String>,
     pub reason: String,
     pub topic: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SnapshotWatermark {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

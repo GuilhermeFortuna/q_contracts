@@ -1,4 +1,4 @@
-# GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/rejected.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json, schema/stream/payloads/job-progress.schema.json, schema/stream/payloads/job-terminal.schema.json
+# GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/rejected.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json, schema/stream/payloads/job-progress.schema.json, schema/stream/payloads/job-terminal.schema.json, schema/stream/replay/history-expired.schema.json, schema/stream/replay/history-page.schema.json, schema/stream/replay/latest.schema.json, schema/stream/replay/watermark.schema.json
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -16,6 +16,21 @@ class EpochChangedFrame:
     new_epoch: str
     topic: str
     previous_epoch: str | None = None
+
+
+@dataclass(frozen=True)
+class HistoryExpiredResponse:
+    requested_from_seq: int
+    topic: str
+    oldest_available_seq: int | None = None
+
+
+@dataclass(frozen=True)
+class HistoryPageResponse:
+    entries: list[StreamEnvelope]
+    epoch: str
+    next_seq: int | None
+    topic: str
 
 
 @dataclass(frozen=True)
@@ -63,10 +78,21 @@ class LaggingFrame:
 
 
 @dataclass(frozen=True)
+class LatestValuesResponse:
+    entries: dict[str, Any]
+    topic: str
+
+
+@dataclass(frozen=True)
 class RejectedFrame:
     reason: Literal["unknown_topic", "unsupported_schema_major", "stream_unavailable"]
     detail: str | None = None
     topic: str | None = None
+
+
+@dataclass(frozen=True)
+class SnapshotWatermark:
+    pass
 
 
 @dataclass(frozen=True)

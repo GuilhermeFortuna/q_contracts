@@ -1,0 +1,37 @@
+{
+  "topic": "orders",
+  "epoch": "outbox-epoch-42",
+  "entries": [
+    {
+      "topic": "orders",
+      "schema_major": 1,
+      "seq": 101,
+      "epoch": "outbox-epoch-42",
+      "producer_id": "execution-service-prod",
+      "origin_ts": "2026-09-12T10:00:01.000000Z",
+      "payload_kind": "control",
+      "payload_schema": "schema/stream/control/subscribe.schema.json",
+      "payload": {
+        "topics": [
+          "orders"
+        ]
+      }
+    },
+    {
+      "topic": "orders",
+      "schema_major": 1,
+      "seq": 102,
+      "epoch": "outbox-epoch-42",
+      "producer_id": "execution-service-prod",
+      "origin_ts": "2026-09-12T10:00:02.000000Z",
+      "payload_kind": "control",
+      "payload_schema": "schema/stream/control/subscribe.schema.json",
+      "payload": {
+        "topics": [
+          "orders"
+        ]
+      }
+    }
+  ],
+  "next_seq": null
+}
