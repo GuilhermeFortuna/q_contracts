@@ -7,6 +7,7 @@ import pytest
 
 from tools.generate import GenerationError, plan_units
 from tools.emitters.python import emit
+from tools.emitters.typescript import emit as emit_typescript
 
 
 SCHEMA_ROOT = Path(__file__).parents[1] / "schema"
@@ -72,3 +73,34 @@ def test_python_emitter_generates_the_stream_envelope_deterministically() -> Non
         assert f"    {field}:" in first
     assert "    seq: int" in first
     assert "    epoch: str" in first
+
+
+def test_typescript_emitter_generates_the_stream_envelope_and_optional_fields() -> None:
+    units = plan_units(SCHEMA_ROOT)
+    stream = next(unit for unit in units if unit.name == "stream")
+
+    first = emit_typescript(stream)
+    second = emit_typescript(stream)
+
+    assert first == second
+    assert first.splitlines()[0].startswith("// ")
+    assert "GENERATED FILE - DO NOT EDIT" in first.splitlines()[0]
+    assert "schema/stream/envelope.schema.json" in first.splitlines()[0]
+    assert "export interface StreamEnvelope" in first
+    for field in (
+        "topic",
+        "schema_major",
+        "seq",
+        "epoch",
+        "producer_id",
+        "origin_ts",
+        "payload_kind",
+        "payload_schema",
+        "payload",
+    ):
+        assert f"  {field}:" in first
+    assert "  seq: number" in first
+    assert "  epoch: string" in first
+    assert "export interface CursorExpiredFrame" in first
+    assert "  cursor?: string" in first
+    assert "cursor: string | undefined" not in first
