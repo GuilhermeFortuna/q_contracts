@@ -9,6 +9,7 @@ table is updated with the consumer commit and verification evidence.
 | `q_contracts` | `998a50570905524bfb9af0465a725b170f2970df` | `998a50570905524bfb9af0465a725b170f2970df` |
 | `q_frontend` | `aea7bfe70ec7fae81b6c28d24bd3bb10cdeff7c3` | `998a50570905524bfb9af0465a725b170f2970df` |
 | `q_backend` | `2841245d5ce67f134cddcc9d18c67cf3ce69d0ad` | `998a50570905524bfb9af0465a725b170f2970df` |
+| `q_core` | `9758e45c0693fcb5793aa1d95c755b19e0070817` (`v2026.09.12`) | `998a50570905524bfb9af0465a725b170f2970df` |
 
 ## Generation scope decisions
 
@@ -35,4 +36,4 @@ generated-type adoption with no frontend test file modified; `q_backend` `make
 contracts-check CONTRACTS_REPO=/home/gui/projects/q/q_contracts` — clean, and
 `UV_CACHE_DIR=/tmp/q-uv-cache uv run pytest` — 1,580 passed, 1 failed, 14
 skipped. The one backend failure is the pre-existing
-`test_factory_gemini_missing_api_key` configuration assertion.
+`test_factory_gemini_missing_api_key` configuration assertion; `q_core` `make check CONTRACTS_REPO=/home/gui/projects/q/q_contracts` — clean rustfmt, clippy, workspace tests, release wheel build, virtualenv wheel integration test, Qt staticlib C++ harness assertions, and contracts-check.
