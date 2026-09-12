@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CheckRequest {
     pub intent_id: String,
-    pub order: Order,
+    pub order: ExecutionOrder,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -23,7 +23,7 @@ pub struct DealsRequest {
     pub window_start: serde_json::Value,
 }
 
-pub type DealsResponse = Vec<Deal>;
+pub type DealsResponse = Vec<ExecutionDeal>;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EdgeErrorResponse {
@@ -96,7 +96,7 @@ pub struct ExecutionPosition {
 pub enum LookupOutcome {
     Filled {
         pub closes_intent: String,
-        pub deals: Vec<Deal>,
+        pub deals: Vec<ExecutionDeal>,
     },
     Rejected {
         pub closes_intent: String,
@@ -125,7 +125,7 @@ pub struct PositionsRequest {
     pub symbol: Option<String>,
 }
 
-pub type PositionsResponse = Vec<Position>;
+pub type PositionsResponse = Vec<ExecutionPosition>;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct QuoteRequest {
@@ -160,5 +160,5 @@ pub enum SubmitOutcome {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SubmitRequest {
     pub intent_id: String,
-    pub order: Order,
+    pub order: ExecutionOrder,
 }

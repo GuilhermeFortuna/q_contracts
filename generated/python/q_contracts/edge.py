@@ -4,31 +4,37 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal
 
+
 @dataclass(frozen=True)
 class CheckRequest:
     intent_id: str
-    order: Order
+    order: ExecutionOrder
+
 
 @dataclass(frozen=True)
 class CheckResponse:
     allowed: bool
     margin: float
-    reason: str | None = None
     retcode: int
+    reason: str | None = None
+
 
 @dataclass(frozen=True)
 class DealsRequest:
-    magic: int | None = None
-    symbol: str | None = None
     window_end: str | int
     window_start: str | int
+    magic: int | None = None
+    symbol: str | None = None
 
-DealsResponse = list[Deal]
+
+DealsResponse = list["ExecutionDeal"]
+
 
 @dataclass(frozen=True)
 class EdgeErrorResponse:
     code: Literal['invalid_timeframe', 'symbol_not_found', 'range_unavailable', 'tick_range_too_large', 'invalid_flags', 'mt5_unavailable', 'unauthorized', 'not_found', 'internal_error', 'duplicate_intent', 'schema_major_mismatch']
     error: str
+
 
 @dataclass(frozen=True)
 class EdgeHealthResponse:
@@ -37,71 +43,80 @@ class EdgeHealthResponse:
     status: str
     terminal_build: int | None
 
+
 @dataclass(frozen=True)
 class ExecutionDeal:
+    order_ticket: int
+    price: float
+    symbol: str
+    ticket: int
+    volume: float
     comment: str | None = None
     commission: float | None = None
     entry: int | None = None
     fee: float | None = None
     magic: int | None = None
-    order_ticket: int
-    price: float
     profit: float | None = None
     swap: float | None = None
-    symbol: str
-    ticket: int
     time_msc: int | None = None
     type: int | None = None
-    volume: float
+
 
 @dataclass(frozen=True)
 class ExecutionOrder:
+    symbol: str
+    volume: float
     comment: str | None = None
     deviation: int | None = None
     magic: int | None = None
     price: float | None = None
     side: Literal['buy', 'sell'] | None = None
     sl: float | None = None
-    symbol: str
     tp: float | None = None
     type: int | None = None
     type_filling: int | None = None
     type_time: int | None = None
-    volume: float
+
 
 @dataclass(frozen=True)
 class ExecutionPosition:
+    price_open: float
+    symbol: str
+    ticket: int
+    type: int
+    volume: float
     comment: str | None = None
     magic: int | None = None
     price_current: float | None = None
-    price_open: float
     profit: float | None = None
     sl: float | None = None
-    symbol: str
-    ticket: int
     time: int | None = None
     tp: float | None = None
-    type: int
-    volume: float
+
 
 LookupOutcome = dict[str, Any] | dict[str, Any] | dict[str, Any] | dict[str, Any]
+
 
 @dataclass(frozen=True)
 class LookupRequest:
     intent_id: str
-    magic: int | None = None
     window_end: str | int
     window_start: str | int
+    magic: int | None = None
+
 
 @dataclass(frozen=True)
 class PositionsRequest:
     symbol: str | None = None
 
-PositionsResponse = list[Position]
+
+PositionsResponse = list["ExecutionPosition"]
+
 
 @dataclass(frozen=True)
 class QuoteRequest:
     symbol: str
+
 
 @dataclass(frozen=True)
 class QuoteResponse:
@@ -112,9 +127,11 @@ class QuoteResponse:
     symbol: str
     time_msc: int
 
+
 SubmitOutcome = dict[str, Any] | dict[str, Any] | dict[str, Any]
+
 
 @dataclass(frozen=True)
 class SubmitRequest:
     intent_id: str
-    order: Order
+    order: ExecutionOrder

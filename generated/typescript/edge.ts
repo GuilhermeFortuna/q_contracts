@@ -2,7 +2,7 @@
 
 export interface CheckRequest {
   intent_id: string
-  order: Order
+  order: ExecutionOrder
 }
 
 export interface CheckResponse {
@@ -19,7 +19,7 @@ export interface DealsRequest {
   window_start: string | number
 }
 
-export type DealsResponse = Array<Deal>
+export type DealsResponse = Array<ExecutionDeal>
 
 export interface EdgeErrorResponse {
   code: "invalid_timeframe" | "symbol_not_found" | "range_unavailable" | "tick_range_too_large" | "invalid_flags" | "mt5_unavailable" | "unauthorized" | "not_found" | "internal_error" | "duplicate_intent" | "schema_major_mismatch"
@@ -80,7 +80,7 @@ export interface ExecutionPosition {
   volume: number
 }
 
-export type LookupOutcome = { closes_intent: true; deals: Array<Deal>; outcome: "filled" } | { closes_intent: true; outcome: "rejected"; reason?: string; retcode: number } | { closes_intent: true; outcome: "not_found" } | { closes_intent: false; outcome: "unavailable"; reason: string }
+export type LookupOutcome = { closes_intent: true; deals: Array<ExecutionDeal>; outcome: "filled" } | { closes_intent: true; outcome: "rejected"; reason?: string; retcode: number } | { closes_intent: true; outcome: "not_found" } | { closes_intent: false; outcome: "unavailable"; reason: string }
 
 export interface LookupRequest {
   intent_id: string
@@ -93,7 +93,7 @@ export interface PositionsRequest {
   symbol?: string
 }
 
-export type PositionsResponse = Array<Position>
+export type PositionsResponse = Array<ExecutionPosition>
 
 export interface QuoteRequest {
   symbol: string
@@ -112,5 +112,5 @@ export type SubmitOutcome = { order_ticket: number; outcome: "accepted"; retcode
 
 export interface SubmitRequest {
   intent_id: string
-  order: Order
+  order: ExecutionOrder
 }

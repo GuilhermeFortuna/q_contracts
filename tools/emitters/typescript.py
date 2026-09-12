@@ -12,29 +12,30 @@ def _pascal(name: str) -> str:
     return "".join(word[:1].upper() + word[1:] for word in words) or "GeneratedType"
 
 
-def _ref_name(ref: str) -> str:
-    return _pascal(ref.rsplit("/", 1)[-1].removesuffix(".schema.json"))
+def _ref_name(ref: str, ref_map: dict[str, str]) -> str:
+    stem = ref.rsplit("/", 1)[-1].removesuffix(".schema.json")
+    return ref_map.get(stem, _pascal(stem))
 
 
 def _literal(value: Any) -> str:
     return json.dumps(value, separators=(",", ":"))
 
 
-def _type_for(schema: dict[str, Any]) -> str:
+def _type_for(schema: dict[str, Any], ref_map: dict[str, str]) -> str:
     if "$ref" in schema:
-        return _ref_name(str(schema["$ref"]))
+        return _ref_name(str(schema["$ref"]), ref_map)
     if "const" in schema:
         return _literal(schema["const"])
     if "enum" in schema:
         return " | ".join(_literal(value) for value in schema["enum"]) or "never"
     if "oneOf" in schema or "anyOf" in schema:
         choices = schema.get("oneOf", schema.get("anyOf", []))
-        return " | ".join(_type_for(choice) for choice in choices) or "unknown"
+        return " | ".join(_type_for(choice, ref_map) for choice in choices) or "unknown"
     kind = schema.get("type")
     if isinstance(kind, list):
-        return " | ".join(_type_for({"type": item}) for item in kind)
+        return " | ".join(_type_for({"type": item}, ref_map) for item in kind)
     if kind == "array":
-        return f"Array<{_type_for(schema.get('items', {}))}>"
+        return f"Array<{_type_for(schema.get('items', {}), ref_map)}>"
     if kind == "boolean":
         return "boolean"
     if kind == "integer" or kind == "number":
@@ -49,14 +50,16 @@ def _type_for(schema: dict[str, Any]) -> str:
         required = set(schema.get("required", []))
         for field in sorted(properties):
             suffix = "" if field in required else "?"
-            fields.append(f"{field}{suffix}: {_type_for(properties[field])}")
+            fields.append(f"{field}{suffix}: {_type_for(properties[field], ref_map)}")
         return "{ " + "; ".join(fields) + " }"
     if kind == "string":
         return "string"
     return "unknown"
 
 
-def _emit_object(name: str, schema: dict[str, Any]) -> list[str]:
+def _emit_object(
+    name: str, schema: dict[str, Any], ref_map: dict[str, str]
+) -> list[str]:
     properties = schema.get("properties", {})
     required = set(schema.get("required", []))
     if not isinstance(properties, dict):
@@ -64,7 +67,7 @@ def _emit_object(name: str, schema: dict[str, Any]) -> list[str]:
     lines = [f"export interface {name} {{"]
     for field in sorted(properties):
         suffix = "" if field in required else "?"
-        lines.append(f"  {field}{suffix}: {_type_for(properties[field])}")
+        lines.append(f"  {field}{suffix}: {_type_for(properties[field], ref_map)}")
     lines.append("}")
     return lines
 
@@ -75,6 +78,11 @@ def emit(unit: GenerationUnit) -> str:
         f"// GENERATED FILE - DO NOT EDIT. Source schemas: {source_list}",
         "",
     ]
+    ref_map = {
+        path.name.removesuffix(".schema.json"): _pascal(document.get("title", ""))
+        for path, document in zip(unit.sources, unit.documents, strict=False)
+        if path.name.endswith(".schema.json") and isinstance(document.get("title"), str)
+    }
     definitions: list[tuple[str, dict[str, Any]]] = []
     for document in unit.documents:
         title = document.get("title")
@@ -82,8 +90,8 @@ def emit(unit: GenerationUnit) -> str:
             definitions.append((_pascal(title), document))
     for name, document in sorted(definitions):
         if document.get("type") == "object":
-            lines.extend(_emit_object(name, document))
+            lines.extend(_emit_object(name, document, ref_map))
         else:
-            lines.append(f"export type {name} = {_type_for(document)}")
+            lines.append(f"export type {name} = {_type_for(document, ref_map)}")
         lines.append("")
     return "\n".join(lines).rstrip() + "\n"

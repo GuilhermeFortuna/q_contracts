@@ -1,14 +1,13 @@
 """Generate consumer types from q_contracts schemas."""
 
 import argparse
-from dataclasses import dataclass
 import json
-from pathlib import Path
 import sys
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import yaml
-
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).parents[1]))
@@ -66,7 +65,10 @@ def plan_units(schema_root: Path) -> list[GenerationUnit]:
                 else:
                     document = json.loads(path.read_text(encoding="utf-8"))
                     dialect = document.get("$schema")
-                    if dialect is not None and dialect not in SUPPORTED_JSON_SCHEMA_DIALECTS:
+                    if (
+                        dialect is not None
+                        and dialect not in SUPPORTED_JSON_SCHEMA_DIALECTS
+                    ):
                         raise GenerationError(
                             f"Unsupported schema dialect in {relative} for languages: "
                             f"{', '.join(LANGUAGES)}"
@@ -98,7 +100,9 @@ def plan_units(schema_root: Path) -> list[GenerationUnit]:
                 documents.append(document)
         if sources:
             units.append(
-                GenerationUnit(name=name, sources=tuple(sources), documents=tuple(documents))
+                GenerationUnit(
+                    name=name, sources=tuple(sources), documents=tuple(documents)
+                )
             )
     return units
 
@@ -137,7 +141,9 @@ def generate(
         "rust": rust_emitter.emit,
     }
     for language in languages:
-        selected_units = [unit for unit in units if not (language == "python" and unit.name == "api")]
+        selected_units = [
+            unit for unit in units if not (language == "python" and unit.name == "api")
+        ]
         for unit in selected_units:
             content = emitters[language](unit)
             if language == "python":
@@ -165,7 +171,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--out", type=Path, default=Path(__file__).parents[1] / "generated"
     )
-    parser.add_argument("--language", choices=LANGUAGES, action="append", dest="languages")
+    parser.add_argument(
+        "--language", choices=LANGUAGES, action="append", dest="languages"
+    )
     args = parser.parse_args(argv)
     try:
         paths = generate(args.schema_root, args.out, tuple(args.languages or LANGUAGES))

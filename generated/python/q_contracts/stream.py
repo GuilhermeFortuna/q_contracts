@@ -4,21 +4,25 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal
 
+
 @dataclass(frozen=True)
 class CursorExpiredFrame:
-    cursor: str | None = None
     topic: str
+    cursor: str | None = None
+
 
 @dataclass(frozen=True)
 class EpochChangedFrame:
     new_epoch: str
-    previous_epoch: str | None = None
     topic: str
+    previous_epoch: str | None = None
+
 
 @dataclass(frozen=True)
 class LaggingFrame:
     from_seq: int
     topic: str
+
 
 @dataclass(frozen=True)
 class StreamEnvelope:
@@ -32,9 +36,11 @@ class StreamEnvelope:
     seq: int
     topic: Literal['bars.completed', 'bars.forming', 'decisions', 'deployments', 'fills', 'jobs.progress', 'jobs.terminal', 'ledger', 'orders', 'quotes', 'risk']
 
+
 @dataclass(frozen=True)
 class SubscribeFrame:
     topics: list[str]
+
 
 @dataclass(frozen=True)
 class SubscribedFrame:

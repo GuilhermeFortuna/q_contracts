@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import re
+from pathlib import Path
 
 import pytest
 
-from tools.generate import LANGUAGES, GenerationError, generate, plan_units
 from tools.emitters.python import emit
-from tools.emitters.typescript import emit as emit_typescript
 from tools.emitters.rust import emit as emit_rust
-
+from tools.emitters.typescript import emit as emit_typescript
+from tools.generate import LANGUAGES, GenerationError, generate, plan_units
 
 SCHEMA_ROOT = Path(__file__).parents[1] / "schema"
 
@@ -125,15 +124,19 @@ def test_rust_emitter_generates_structs_and_outcome_enums() -> None:
     assert "pub seq: i64" in stream_output
     assert "pub epoch: String" in stream_output
 
-    submit_body = re.search(r"pub enum SubmitOutcome \{(.*?)\n\}", edge_output, re.S)
-    lookup_body = re.search(r"pub enum LookupOutcome \{(.*?)\n\}", edge_output, re.S)
+    submit_body = re.search(
+        r"pub enum SubmitOutcome \{(.*?)\n\}", edge_output, re.DOTALL
+    )
+    lookup_body = re.search(
+        r"pub enum LookupOutcome \{(.*?)\n\}", edge_output, re.DOTALL
+    )
     assert submit_body and lookup_body
-    assert re.findall(r"^    (\w+)(?:\s*\{|,)", submit_body.group(1), re.M) == [
+    assert re.findall(r"^    (\w+)(?:\s*\{|,)", submit_body.group(1), re.MULTILINE) == [
         "Accepted",
         "Rejected",
         "Indeterminate",
     ]
-    assert re.findall(r"^    (\w+)(?:\s*\{|,)", lookup_body.group(1), re.M) == [
+    assert re.findall(r"^    (\w+)(?:\s*\{|,)", lookup_body.group(1), re.MULTILINE) == [
         "Filled",
         "Rejected",
         "NotFound",
@@ -149,7 +152,9 @@ def _tree_bytes(root: Path) -> dict[str, bytes]:
     }
 
 
-def test_generate_produces_byte_identical_trees_on_repeated_runs(tmp_path: Path) -> None:
+def test_generate_produces_byte_identical_trees_on_repeated_runs(
+    tmp_path: Path,
+) -> None:
     first_root = tmp_path / "first"
     second_root = tmp_path / "second"
 

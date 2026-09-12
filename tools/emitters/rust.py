@@ -5,7 +5,6 @@ from typing import Any
 
 from tools.generate import GenerationUnit
 
-
 RUST_KEYWORDS = frozenset(
     {
         "as",
@@ -56,30 +55,31 @@ def _pascal(name: str) -> str:
     return "".join(word[:1].upper() + word[1:] for word in words) or "GeneratedType"
 
 
-def _ref_name(ref: str) -> str:
-    return _pascal(ref.rsplit("/", 1)[-1].removesuffix(".schema.json"))
+def _ref_name(ref: str, ref_map: dict[str, str]) -> str:
+    stem = ref.rsplit("/", 1)[-1].removesuffix(".schema.json")
+    return ref_map.get(stem, _pascal(stem))
 
 
 def _field_name(name: str) -> str:
     return f"r#{name}" if name in RUST_KEYWORDS else name
 
 
-def _type_for(schema: dict[str, Any]) -> str:
+def _type_for(schema: dict[str, Any], ref_map: dict[str, str]) -> str:
     if "$ref" in schema:
-        return _ref_name(str(schema["$ref"]))
+        return _ref_name(str(schema["$ref"]), ref_map)
     if "const" in schema or "enum" in schema:
         return "String"
     if "oneOf" in schema or "anyOf" in schema:
         choices = schema.get("oneOf", schema.get("anyOf", []))
         non_null = [choice for choice in choices if choice.get("type") != "null"]
         if len(non_null) == 1 and len(non_null) != len(choices):
-            return f"Option<{_type_for(non_null[0])}>"
+            return f"Option<{_type_for(non_null[0], ref_map)}>"
         return "serde_json::Value"
     kind = schema.get("type")
     if isinstance(kind, list):
         return "serde_json::Value"
     if kind == "array":
-        return f"Vec<{_type_for(schema.get('items', {}))}>"
+        return f"Vec<{_type_for(schema.get('items', {}), ref_map)}>"
     if kind == "boolean":
         return "bool"
     if kind == "integer":
@@ -91,7 +91,9 @@ def _type_for(schema: dict[str, Any]) -> str:
     return "serde_json::Value"
 
 
-def _emit_object(name: str, schema: dict[str, Any]) -> list[str]:
+def _emit_object(
+    name: str, schema: dict[str, Any], ref_map: dict[str, str]
+) -> list[str]:
     properties = schema.get("properties", {})
     required = set(schema.get("required", []))
     if not isinstance(properties, dict):
@@ -104,7 +106,7 @@ def _emit_object(name: str, schema: dict[str, Any]) -> list[str]:
         rust_field = _field_name(field)
         if rust_field != field:
             lines.append(f'    #[serde(rename = "{field}")]')
-        annotation = _type_for(properties[field])
+        annotation = _type_for(properties[field], ref_map)
         if field not in required and not annotation.startswith("Option<"):
             annotation = f"Option<{annotation}>"
         lines.append(f"    pub {rust_field}: {annotation},")
@@ -112,7 +114,9 @@ def _emit_object(name: str, schema: dict[str, Any]) -> list[str]:
     return lines
 
 
-def _emit_outcome(name: str, schema: dict[str, Any]) -> list[str]:
+def _emit_outcome(
+    name: str, schema: dict[str, Any], ref_map: dict[str, str]
+) -> list[str]:
     lines = [
         "#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]",
         f"pub enum {name} {{",
@@ -126,7 +130,7 @@ def _emit_outcome(name: str, schema: dict[str, Any]) -> list[str]:
         for field in sorted(properties):
             if field == "outcome":
                 continue
-            annotation = _type_for(properties[field])
+            annotation = _type_for(properties[field], ref_map)
             if field not in required and not annotation.startswith("Option<"):
                 annotation = f"Option<{annotation}>"
             fields.append(f"        pub {_field_name(field)}: {annotation},")
@@ -147,6 +151,11 @@ def emit(unit: GenerationUnit) -> str:
         "use serde::{Deserialize, Serialize};",
         "",
     ]
+    ref_map = {
+        path.name.removesuffix(".schema.json"): _pascal(document.get("title", ""))
+        for path, document in zip(unit.sources, unit.documents, strict=False)
+        if path.name.endswith(".schema.json") and isinstance(document.get("title"), str)
+    }
     definitions: list[tuple[str, dict[str, Any]]] = []
     for document in unit.documents:
         title = document.get("title")
@@ -158,12 +167,12 @@ def emit(unit: GenerationUnit) -> str:
             and branch.get("properties", {}).get("outcome", {}).get("const")
             for branch in document["oneOf"]
         ):
-            lines.extend(_emit_outcome(name, document))
+            lines.extend(_emit_outcome(name, document, ref_map))
         elif document.get("type") == "object":
-            lines.extend(_emit_object(name, document))
+            lines.extend(_emit_object(name, document, ref_map))
         elif document.get("type") == "array":
-            lines.append(f"pub type {name} = {_type_for(document)};")
+            lines.append(f"pub type {name} = {_type_for(document, ref_map)};")
         else:
-            lines.append(f"pub type {name} = {_type_for(document)};")
+            lines.append(f"pub type {name} = {_type_for(document, ref_map)};")
         lines.append("")
     return "\n".join(lines).rstrip() + "\n"

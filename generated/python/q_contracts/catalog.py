@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal
 
+
 @dataclass(frozen=True)
 class DatasetManifest:
     arrow_schema: dict[str, Any]
