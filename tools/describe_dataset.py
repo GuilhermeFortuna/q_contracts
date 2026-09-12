@@ -39,6 +39,41 @@ def _format_time_bound(val: Any) -> str:
     return str(val)
 
 
+def bars_datasets(root: Path) -> list[tuple[dict[str, Any], list[Path]]]:
+    """Every OHLCV bar series the lake holds, as (subject, files-relative-to-root).
+
+    The lake keeps bars under ``ohlcv/<symbol>/<timeframe>/``; other parquet
+    lives elsewhere under the same root, so a series is identified by that
+    layout rather than by scanning for parquet and hoping.
+    """
+    series_root = root / "ohlcv"
+    if not series_root.is_dir():
+        return []
+
+    datasets: list[tuple[dict[str, Any], list[Path]]] = []
+    for timeframe_dir in sorted(series_root.glob("*/*")):
+        if not timeframe_dir.is_dir():
+            continue
+        rel_paths = [
+            path.relative_to(root)
+            for path in sorted(timeframe_dir.glob("*.parquet"))
+            if path.is_file()
+        ]
+        if not rel_paths:
+            continue
+        datasets.append(
+            (
+                {
+                    "kind": "bars",
+                    "symbol": timeframe_dir.parent.name,
+                    "timeframe": timeframe_dir.name,
+                },
+                rel_paths,
+            )
+        )
+    return datasets
+
+
 def manifest_from_directory(
     root: Path,
     rel_paths: Sequence[Path],
