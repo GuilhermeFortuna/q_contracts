@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import re
 
 import pytest
 
 from tools.generate import GenerationError, plan_units
 from tools.emitters.python import emit
 from tools.emitters.typescript import emit as emit_typescript
+from tools.emitters.rust import emit as emit_rust
 
 
 SCHEMA_ROOT = Path(__file__).parents[1] / "schema"
@@ -104,3 +106,36 @@ def test_typescript_emitter_generates_the_stream_envelope_and_optional_fields() 
     assert "export interface CursorExpiredFrame" in first
     assert "  cursor?: string" in first
     assert "cursor: string | undefined" not in first
+
+
+def test_rust_emitter_generates_structs_and_outcome_enums() -> None:
+    units = plan_units(SCHEMA_ROOT)
+    stream = next(unit for unit in units if unit.name == "stream")
+    edge = next(unit for unit in units if unit.name == "edge")
+
+    stream_output = emit_rust(stream)
+    edge_output = emit_rust(edge)
+
+    assert stream_output == emit_rust(stream)
+    assert stream_output.splitlines()[0].startswith("// ")
+    assert "GENERATED FILE - DO NOT EDIT" in stream_output.splitlines()[0]
+    assert "schema/stream/envelope.schema.json" in stream_output.splitlines()[0]
+    assert "#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]" in stream_output
+    assert "pub struct StreamEnvelope" in stream_output
+    assert "pub seq: i64" in stream_output
+    assert "pub epoch: String" in stream_output
+
+    submit_body = re.search(r"pub enum SubmitOutcome \{(.*?)\n\}", edge_output, re.S)
+    lookup_body = re.search(r"pub enum LookupOutcome \{(.*?)\n\}", edge_output, re.S)
+    assert submit_body and lookup_body
+    assert re.findall(r"^    (\w+)(?:\s*\{|,)", submit_body.group(1), re.M) == [
+        "Accepted",
+        "Rejected",
+        "Indeterminate",
+    ]
+    assert re.findall(r"^    (\w+)(?:\s*\{|,)", lookup_body.group(1), re.M) == [
+        "Filled",
+        "Rejected",
+        "NotFound",
+        "Unavailable",
+    ]
