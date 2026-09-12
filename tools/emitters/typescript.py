@@ -31,6 +31,8 @@ def _type_for(schema: dict[str, Any]) -> str:
         choices = schema.get("oneOf", schema.get("anyOf", []))
         return " | ".join(_type_for(choice) for choice in choices) or "unknown"
     kind = schema.get("type")
+    if isinstance(kind, list):
+        return " | ".join(_type_for({"type": item}) for item in kind)
     if kind == "array":
         return f"Array<{_type_for(schema.get('items', {}))}>"
     if kind == "boolean":

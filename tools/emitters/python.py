@@ -31,7 +31,9 @@ def _type_for(schema: dict[str, Any], *, optional: bool = False) -> str:
         result = " | ".join(_type_for(choice) for choice in choices) or "Any"
     else:
         kind = schema.get("type")
-        if kind == "array":
+        if isinstance(kind, list):
+            result = " | ".join(_type_for({"type": item}) for item in kind)
+        elif kind == "array":
             result = f"list[{_type_for(schema.get('items', {}))}]"
         else:
             result = {

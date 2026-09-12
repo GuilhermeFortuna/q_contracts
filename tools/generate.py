@@ -1,11 +1,17 @@
 """Generate consumer types from q_contracts schemas."""
 
+import argparse
 from dataclasses import dataclass
 import json
 from pathlib import Path
+import sys
 from typing import Any
 
 import yaml
+
+
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).parents[1]))
 
 
 LANGUAGES: tuple[str, ...] = ("python", "typescript", "rust")
@@ -74,9 +80,101 @@ def plan_units(schema_root: Path) -> list[GenerationUnit]:
                     f"Schema {relative} is not an object for languages: {', '.join(LANGUAGES)}"
                 )
             sources.append(relative)
-            documents.append(document)
+            if path.name == "openapi.yaml":
+                components = document.get("components", {}).get("schemas", {})
+                if not isinstance(components, dict):
+                    raise GenerationError(
+                        f"OpenAPI schemas missing in {relative} for languages: {', '.join(LANGUAGES)}"
+                    )
+                for title in sorted(components):
+                    component = components[title]
+                    if not isinstance(component, dict):
+                        raise GenerationError(
+                            f"Schema {relative} component {title} is not an object for languages: "
+                            f"{', '.join(LANGUAGES)}"
+                        )
+                    documents.append({"title": title, **component})
+            else:
+                documents.append(document)
         if sources:
             units.append(
                 GenerationUnit(name=name, sources=tuple(sources), documents=tuple(documents))
             )
     return units
+
+
+def _write(path: Path, content: str) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8", newline="\n")
+    return path
+
+
+def _index(language: str, units: list[GenerationUnit]) -> str:
+    source_list = ", ".join(path.as_posix() for unit in units for path in unit.sources)
+    if language == "python":
+        return f"# {HEADER}. Source schemas: {source_list}\n"
+    return f"// {HEADER}. Source schemas: {source_list}\n"
+
+
+def generate(
+    schema_root: Path, out_root: Path, languages: tuple[str, ...] | list[str]
+) -> list[Path]:
+    """Generate each requested language into a clean, deterministic output tree."""
+    from tools.emitters import python as python_emitter
+    from tools.emitters import rust as rust_emitter
+    from tools.emitters import typescript as typescript_emitter
+
+    unknown = sorted(set(languages) - set(LANGUAGES))
+    if unknown:
+        raise GenerationError(
+            f"Unsupported target language(s): {', '.join(unknown)}; supported: {', '.join(LANGUAGES)}"
+        )
+    units = plan_units(schema_root)
+    written: list[Path] = []
+    emitters = {
+        "python": python_emitter.emit,
+        "typescript": typescript_emitter.emit,
+        "rust": rust_emitter.emit,
+    }
+    for language in languages:
+        selected_units = [unit for unit in units if not (language == "python" and unit.name == "api")]
+        for unit in selected_units:
+            content = emitters[language](unit)
+            if language == "python":
+                destination = out_root / "python" / "q_contracts" / f"{unit.name}.py"
+            elif language == "typescript":
+                destination = out_root / "typescript" / f"{unit.name}.ts"
+            else:
+                destination = out_root / "rust" / f"{unit.name}.rs"
+            written.append(_write(destination, content))
+        if language == "python":
+            destination = out_root / "python" / "q_contracts" / "__init__.py"
+        elif language == "typescript":
+            destination = out_root / "typescript" / "index.ts"
+        else:
+            destination = out_root / "rust" / "mod.rs"
+        written.append(_write(destination, _index(language, selected_units)))
+    return sorted(written)
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--schema-root", type=Path, default=Path(__file__).parents[1] / "schema"
+    )
+    parser.add_argument(
+        "--out", type=Path, default=Path(__file__).parents[1] / "generated"
+    )
+    parser.add_argument("--language", choices=LANGUAGES, action="append", dest="languages")
+    args = parser.parse_args(argv)
+    try:
+        paths = generate(args.schema_root, args.out, tuple(args.languages or LANGUAGES))
+    except GenerationError as exc:
+        print(f"generation failed: {exc}", file=sys.stderr)
+        return 1
+    print(f"generated {len(paths)} files")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

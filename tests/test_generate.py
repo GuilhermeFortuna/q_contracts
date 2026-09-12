@@ -6,7 +6,7 @@ import re
 
 import pytest
 
-from tools.generate import GenerationError, plan_units
+from tools.generate import LANGUAGES, GenerationError, generate, plan_units
 from tools.emitters.python import emit
 from tools.emitters.typescript import emit as emit_typescript
 from tools.emitters.rust import emit as emit_rust
@@ -139,3 +139,31 @@ def test_rust_emitter_generates_structs_and_outcome_enums() -> None:
         "NotFound",
         "Unavailable",
     ]
+
+
+def _tree_bytes(root: Path) -> dict[str, bytes]:
+    return {
+        path.relative_to(root).as_posix(): path.read_bytes()
+        for path in sorted(root.rglob("*"))
+        if path.is_file()
+    }
+
+
+def test_generate_produces_byte_identical_trees_on_repeated_runs(tmp_path: Path) -> None:
+    first_root = tmp_path / "first"
+    second_root = tmp_path / "second"
+
+    first_paths = generate(SCHEMA_ROOT, first_root, LANGUAGES)
+    second_paths = generate(SCHEMA_ROOT, second_root, LANGUAGES)
+
+    assert [path.relative_to(first_root) for path in first_paths] == sorted(
+        path.relative_to(first_root) for path in first_paths
+    )
+    assert [path.relative_to(first_root) for path in first_paths] == [
+        path.relative_to(second_root) for path in second_paths
+    ]
+    assert _tree_bytes(first_root) == _tree_bytes(second_root)
+    assert _tree_bytes(first_root) == _tree_bytes(SCHEMA_ROOT.parent / "generated")
+    assert (first_root / "typescript" / "api.ts").is_file()
+    assert (first_root / "python" / "q_contracts" / "stream.py").is_file()
+    assert (first_root / "rust" / "stream.rs").is_file()

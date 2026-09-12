@@ -76,6 +76,8 @@ def _type_for(schema: dict[str, Any]) -> str:
             return f"Option<{_type_for(non_null[0])}>"
         return "serde_json::Value"
     kind = schema.get("type")
+    if isinstance(kind, list):
+        return "serde_json::Value"
     if kind == "array":
         return f"Vec<{_type_for(schema.get('items', {}))}>"
     if kind == "boolean":
