@@ -1,0 +1,131 @@
+# Execution Edge Wire Contract
+# Schema major: 1, version: "1.0"
+# Governed by process-level obligations in schema/edge/OBLIGATIONS.md
+
+schema_name: execution-edge
+schema_major: 1
+schema_version: "1.0"
+obligations: schema/edge/OBLIGATIONS.md
+
+description: >
+  Wire contract for the live order execution edge process running alongside
+  a MetaTrader 5 terminal under Windows/Wine. The execution edge exposes quote
+  retrieval, pre-submission checks, order submission, intent outcome lookup,
+  open positions, and deal history.
+
+network:
+  binding: loopback_only
+  address: 127.0.0.1
+  description: >
+    The execution edge handles order routing and capital. It must bind strictly
+    to loopback (127.0.0.1) and must never listen on non-localhost interfaces.
+
+safety_invariants:
+  at_most_one_submission: >
+    Every order submission request carries an intent_id minted by the caller.
+    The execution edge maintains an in-memory intent registry for its process
+    lifetime and attempts at most one submission per intent_id. If a second
+    submission request arrives with an already-seen intent_id, the edge answers
+    with an HTTP 400 error response carrying machine code duplicate_intent
+    rather than submitting again to the broker.
+
+  never_retry_never_resubmit: >
+    The edge process never retries a submission, never resubmits an order on
+    timeout or error, and never invents an outcome. Any ambiguity or error
+    preventing confirmation from the terminal is reported as indeterminate.
+
+  transport_timeout_and_indeterminate: >
+    A network or transport timeout between the caller and the edge is
+    indistinguishable from an indeterminate outcome; in both cases the order
+    may or may not have reached the terminal. The caller must never immediately
+    retry or mint a new intent. Instead, the caller is obligated to treat the
+    intent as pending and resolve its state via the lookup operation over the
+    time window.
+
+  stateless_across_restarts: >
+    The execution edge does not persist intent history across process restarts.
+    Its deduplication is scoped strictly to its process lifetime. Authoritative
+    persistent deduplication is the responsibility of the Linux execution worker
+    and transactional ledger.
+
+  intent_placement: >
+    Every order sent to the MetaTrader terminal must place the intent_id into
+    broker-visible fields: magic number via intent_magic(order_id) and comment
+    via intent_comment(order_id), enabling retroactive matching during lookup.
+
+operations:
+  quote:
+    method: GET
+    path: /v1/quote
+    description: Current pricing snapshot with edge-calculated quote freshness age.
+    request: schema/edge/execution/quote-request.schema.json
+    response: schema/edge/execution/quote-response.schema.json
+
+  check:
+    method: POST
+    path: /v1/check
+    description: Pre-check order parameters and margin requirements prior to submission.
+    request: schema/edge/execution/check-request.schema.json
+    response: schema/edge/execution/check-response.schema.json
+
+  submit:
+    method: POST
+    path: /v1/submit
+    description: Submit an order with intent-at-most-once semantics.
+    request: schema/edge/execution/submit-request.schema.json
+    response: schema/edge/execution/submit-outcome.schema.json
+
+  lookup:
+    method: POST
+    path: /v1/lookup
+    description: Query intent execution outcome against terminal history over a time window.
+    request: schema/edge/execution/lookup-request.schema.json
+    response: schema/edge/execution/lookup-outcome.schema.json
+
+  positions:
+    method: GET
+    path: /v1/positions
+    description: List open positions currently held in the terminal account.
+    request: schema/edge/execution/positions-request.schema.json
+    response: schema/edge/execution/positions-response.schema.json
+
+  deals:
+    method: POST
+    path: /v1/deals
+    description: Query terminal deal history within a specified time window.
+    request: schema/edge/execution/deals-request.schema.json
+    response: schema/edge/execution/deals-response.schema.json
+
+endpoints:
+  /v1/health:
+    method: GET
+    description: Health and terminal connectivity probe. Always answers HTTP 200.
+    query_parameters: {}
+    response:
+      status: 200
+      content_type: application/json
+      schema: schema/edge/common/health.schema.json
+  /v1/quote:
+    method: GET
+    request: schema/edge/execution/quote-request.schema.json
+    response: schema/edge/execution/quote-response.schema.json
+  /v1/check:
+    method: POST
+    request: schema/edge/execution/check-request.schema.json
+    response: schema/edge/execution/check-response.schema.json
+  /v1/submit:
+    method: POST
+    request: schema/edge/execution/submit-request.schema.json
+    response: schema/edge/execution/submit-outcome.schema.json
+  /v1/lookup:
+    method: POST
+    request: schema/edge/execution/lookup-request.schema.json
+    response: schema/edge/execution/lookup-outcome.schema.json
+  /v1/positions:
+    method: GET
+    request: schema/edge/execution/positions-request.schema.json
+    response: schema/edge/execution/positions-response.schema.json
+  /v1/deals:
+    method: POST
+    request: schema/edge/execution/deals-request.schema.json
+    response: schema/edge/execution/deals-response.schema.json
