@@ -1,0 +1,24 @@
+[project]
+name = "q-contracts"
+version = "0.1.0"
+description = "Single source of truth for cross-process payload contracts"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "black>=24.0.0",
+    "jsonschema>=4.23.0",
+    "pytest>=8.0.0",
+    "pyyaml>=6.0",
+    "ruff>=0.9.0",
+]
+
+[tool.black]
+target-version = ["py312"]
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
