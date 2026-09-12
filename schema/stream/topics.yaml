@@ -2,7 +2,7 @@
 # Authoritative policy declaring topic class, retention bounds, backpressure, and replay.
 # Invariants enforced by tools/validate.py:
 #   - Every topic declared here must be in the envelope topic enum, and vice versa.
-#   - Durable topics must have coalesce: false and unbounded replay.
+#   - Durable topics must have non-coalescing backpressure and unbounded replay.
 #   - Ephemeral topics must have retention_only replay.
 #   - coalesce_key is present iff coalesce is true.
 #   - payload_schema must resolve to an existing schema file in this repository.
