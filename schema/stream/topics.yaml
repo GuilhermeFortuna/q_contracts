@@ -1,0 +1,153 @@
+# Stream Topic Policy Declarations
+# Authoritative policy declaring topic class, retention bounds, backpressure, and replay.
+# Invariants enforced by tools/validate.py:
+#   - Every topic declared here must be in the envelope topic enum, and vice versa.
+#   - Durable topics must have coalesce: false and unbounded replay.
+#   - Ephemeral topics must have retention_only replay.
+#   - coalesce_key is present iff coalesce is true.
+#   - payload_schema must resolve to an existing schema file in this repository.
+
+topics:
+  # --- Durable Topics (Transactional Outbox in Postgres) ---
+  # Retained in Postgres outbox for 30 days (served via REST history); bounded in Redis.
+  # Never coalesced and never dropped on backpressure; marked lagging on overflow.
+  decisions:
+    class: durable
+    retention:
+      duration: P1D
+      entries: 200000
+    backpressure:
+      coalesce: false
+      on_overflow: lag
+    payload_schema: schema/stream/envelope.schema.json
+    replay: unbounded
+    notes: "Durable trading decisions; replayable unbounded via REST history."
+
+  orders:
+    class: durable
+    retention:
+      duration: P1D
+      entries: 200000
+    backpressure:
+      coalesce: false
+      on_overflow: lag
+    payload_schema: schema/stream/envelope.schema.json
+    replay: unbounded
+    notes: "Durable order lifecycle events; replayable unbounded via REST history."
+
+  fills:
+    class: durable
+    retention:
+      duration: P1D
+      entries: 200000
+    backpressure:
+      coalesce: false
+      on_overflow: lag
+    payload_schema: schema/stream/envelope.schema.json
+    replay: unbounded
+    notes: "Durable fill events; must never be coalesced or dropped; replayable unbounded via REST history."
+
+  risk:
+    class: durable
+    retention:
+      duration: P1D
+      entries: 200000
+    backpressure:
+      coalesce: false
+      on_overflow: lag
+    payload_schema: schema/stream/envelope.schema.json
+    replay: unbounded
+    notes: "Durable risk events and limit evaluations; replayable unbounded via REST history."
+
+  ledger:
+    class: durable
+    retention:
+      duration: P1D
+      entries: 200000
+    backpressure:
+      coalesce: false
+      on_overflow: lag
+    payload_schema: schema/stream/envelope.schema.json
+    replay: unbounded
+    notes: "Durable ledger balance entries and cash movements; replayable unbounded via REST history."
+
+  deployments:
+    class: durable
+    retention:
+      duration: P1D
+      entries: 200000
+    backpressure:
+      coalesce: false
+      on_overflow: lag
+    payload_schema: schema/stream/envelope.schema.json
+    replay: unbounded
+    notes: "Durable strategy deployment lifecycle states; replayable unbounded via REST history."
+
+  jobs.terminal:
+    class: durable
+    retention:
+      duration: P1D
+      entries: 200000
+    backpressure:
+      coalesce: false
+      on_overflow: lag
+    payload_schema: schema/stream/envelope.schema.json
+    replay: unbounded
+    notes: "Terminal states of jobs (completed, failed). Sourced durably from Postgres outbox; paired with ephemeral jobs.progress. Unlike progress updates, terminal job states are never coalesced or dropped."
+
+  # --- Ephemeral Topics (Live Single-Publisher Process) ---
+  # Replay is Redis retention only; older historical data available via REST, not the stream.
+  quotes:
+    class: ephemeral
+    retention:
+      duration: PT1H
+      entries: 100000
+    backpressure:
+      coalesce: true
+      coalesce_key:
+        - symbol
+      on_overflow: coalesce
+    payload_schema: schema/stream/envelope.schema.json
+    replay: retention_only
+    notes: "Live market quotes; coalesced per symbol keeping latest. Replay bounded to Redis retention window (~1h)."
+
+  bars.forming:
+    class: ephemeral
+    retention:
+      duration: PT1H
+      entries: 10000
+    backpressure:
+      coalesce: true
+      coalesce_key:
+        - symbol
+        - timeframe
+      on_overflow: coalesce
+    payload_schema: schema/stream/envelope.schema.json
+    replay: retention_only
+    notes: "Live forming OHLCV bars; coalesced per (symbol, timeframe) keeping latest forming bar. Bounded to Redis retention window (~1h)."
+
+  bars.completed:
+    class: ephemeral
+    retention:
+      duration: P1D
+      entries: 100000
+    backpressure:
+      coalesce: false
+      on_overflow: lag
+    payload_schema: schema/stream/envelope.schema.json
+    replay: retention_only
+    notes: "Completed OHLCV bars. Ephemeral live stream but never coalesced; on backpressure overflow consumer is marked lagging to fetch gap from REST history. Bounded to Redis retention window (~24h)."
+
+  jobs.progress:
+    class: ephemeral
+    retention:
+      duration: P1D
+      entries: 50000
+    backpressure:
+      coalesce: true
+      coalesce_key:
+        - job_id
+      on_overflow: coalesce
+    payload_schema: schema/stream/envelope.schema.json
+    replay: retention_only
+    notes: "Ephemeral job progress updates; coalesced per job_id keeping latest. Paired with durable jobs.terminal for non-droppable terminal states."
