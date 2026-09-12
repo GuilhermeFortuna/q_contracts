@@ -623,6 +623,201 @@ def check_edge_consistency(schema_root: Path) -> list[SchemaProblem]:
     return problems
 
 
+def check_catalog_consistency(schema_root: Path) -> list[SchemaProblem]:
+    """Every state named in an example exists in lifecycle.yaml; every lifecycle
+    invariant holds for every committed example; the manifest's arrow_schema
+    field uses the same declaration form as schema/api/arrow/*."""
+    problems: list[SchemaProblem] = []
+    catalog_dir = schema_root / "catalog"
+    if not catalog_dir.is_dir():
+        return problems
+
+    lifecycle_file = catalog_dir / "lifecycle.yaml"
+    if not lifecycle_file.is_file():
+        return problems
+
+    try:
+        lifecycle_data = yaml.safe_load(lifecycle_file.read_text(encoding="utf-8"))
+    except (yaml.YAMLError, OSError):
+        return problems
+
+    if not isinstance(lifecycle_data, dict):
+        return problems
+
+    states_list = lifecycle_data.get("states", [])
+    states = set(states_list) if isinstance(states_list, list) else set()
+    transitions = lifecycle_data.get("transitions", {})
+    if not isinstance(transitions, dict):
+        transitions = {}
+
+    examples_dir = catalog_dir / "examples"
+    if not examples_dir.is_dir():
+        return problems
+
+    example_files = sorted(
+        [
+            p
+            for p in examples_dir.rglob("*")
+            if p.is_file() and p.suffix in (".json", ".yaml", ".yml")
+        ]
+    )
+
+    for example_file in example_files:
+        try:
+            report_path = example_file.relative_to(Path.cwd())
+        except ValueError:
+            report_path = example_file
+
+        try:
+            content = example_file.read_text(encoding="utf-8")
+            doc = (
+                yaml.safe_load(content)
+                if example_file.suffix in (".yaml", ".yml")
+                else json.loads(content)
+            )
+        except (yaml.YAMLError, json.JSONDecodeError, OSError) as exc:
+            problems.append(
+                SchemaProblem(path=report_path, reason=f"Parse failure: {exc}")
+            )
+            continue
+
+        if not isinstance(doc, dict):
+            continue
+
+        # 1. State existence check
+        state = doc.get("state")
+        if state is not None and state not in states:
+            problems.append(
+                SchemaProblem(
+                    path=report_path,
+                    reason=f"State '{state}' in example is not declared in lifecycle.yaml",
+                )
+            )
+
+        # 2. Transition legality check if example asserts a transition
+        from_state = None
+        to_state = None
+        if "transition" in doc and isinstance(doc["transition"], dict):
+            from_state = doc["transition"].get("from") or doc["transition"].get(
+                "from_state"
+            )
+            to_state = doc["transition"].get("to") or doc["transition"].get("to_state")
+        elif "previous_state" in doc and "state" in doc:
+            from_state = doc.get("previous_state")
+            to_state = doc.get("state")
+        elif "from_state" in doc and "to_state" in doc:
+            from_state = doc.get("from_state")
+            to_state = doc.get("to_state")
+
+        if from_state is not None and to_state is not None:
+            if from_state not in states:
+                problems.append(
+                    SchemaProblem(
+                        path=report_path,
+                        reason=f"Transition source state '{from_state}' is not declared in lifecycle.yaml",
+                    )
+                )
+            if to_state not in states:
+                problems.append(
+                    SchemaProblem(
+                        path=report_path,
+                        reason=f"Transition target state '{to_state}' is not declared in lifecycle.yaml",
+                    )
+                )
+            if from_state in states and to_state in states:
+                legal_targets = transitions.get(from_state, [])
+                if to_state not in legal_targets:
+                    problems.append(
+                        SchemaProblem(
+                            path=report_path,
+                            reason=(
+                                f"Illegal transition from '{from_state}' to '{to_state}' "
+                                f"(legal transitions: {legal_targets})"
+                            ),
+                        )
+                    )
+
+        # 3. Lifecycle invariants check
+        if state == "tombstoned":
+            tombstone = doc.get("tombstone")
+            if tombstone is None:
+                problems.append(
+                    SchemaProblem(
+                        path=report_path,
+                        reason="Manifest with state 'tombstoned' violates lifecycle invariant: tombstone is null",
+                    )
+                )
+            elif isinstance(tombstone, dict) and "deletable_after" not in tombstone:
+                problems.append(
+                    SchemaProblem(
+                        path=report_path,
+                        reason="Manifest with state 'tombstoned' violates lifecycle invariant: tombstone lacks 'deletable_after'",
+                    )
+                )
+        elif state == "published":
+            if doc.get("tombstone") is not None:
+                problems.append(
+                    SchemaProblem(
+                        path=report_path,
+                        reason="Manifest with state 'published' violates lifecycle invariant: tombstone is not null",
+                    )
+                )
+
+        if state is not None and state != "deleted" and "files" in doc:
+            files = doc.get("files")
+            if not isinstance(files, list) or len(files) == 0:
+                problems.append(
+                    SchemaProblem(
+                        path=report_path,
+                        reason=f"Manifest with state '{state}' violates lifecycle invariant: files is empty",
+                    )
+                )
+
+        # 4. Arrow schema declaration form check
+        if "arrow_schema" in doc and isinstance(doc["arrow_schema"], dict):
+            arrow_schema = doc["arrow_schema"]
+            fields = arrow_schema.get("fields")
+            if not isinstance(fields, list) or len(fields) == 0:
+                problems.append(
+                    SchemaProblem(
+                        path=report_path,
+                        reason="Manifest 'arrow_schema' must declare a non-empty 'fields' list",
+                    )
+                )
+            else:
+                for field in fields:
+                    if not isinstance(field, dict):
+                        continue
+                    fname = field.get("name", "unnamed")
+                    if "name" not in field or not field["name"]:
+                        problems.append(
+                            SchemaProblem(
+                                path=report_path,
+                                reason="Manifest 'arrow_schema' field lacks 'name'",
+                            )
+                        )
+                    if "type" not in field or not field["type"]:
+                        problems.append(
+                            SchemaProblem(
+                                path=report_path,
+                                reason=f"Manifest 'arrow_schema' field '{fname}' lacks 'type'",
+                            )
+                        )
+                    else:
+                        ftype = str(field["type"])
+                        if ftype.startswith("timestamp") and (
+                            "tz" not in field or not field["tz"]
+                        ):
+                            problems.append(
+                                SchemaProblem(
+                                    path=report_path,
+                                    reason=f"Manifest 'arrow_schema' timestamp field '{fname}' lacks 'tz'",
+                                )
+                            )
+
+    return problems
+
+
 def check_tree(schema_root: Path) -> list[SchemaProblem]:
     """discover() then check_file() over everything, plus cross-document consistency."""
     problems: list[SchemaProblem] = []
@@ -631,6 +826,7 @@ def check_tree(schema_root: Path) -> list[SchemaProblem]:
     problems.extend(check_stream_consistency(schema_root))
     problems.extend(check_api_consistency(schema_root))
     problems.extend(check_edge_consistency(schema_root))
+    problems.extend(check_catalog_consistency(schema_root))
     return problems
 
 

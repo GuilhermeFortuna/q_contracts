@@ -114,3 +114,41 @@ def test_dataset_id_uuid_form_passes(
     validator = jsonschema.Draft202012Validator(manifest_schema)
     errors = list(validator.iter_errors(mutant))
     assert errors == []
+
+
+def test_manifest_tombstoned_with_null_tombstone_fails(
+    manifest_schema: dict, two_file_manifest: dict
+) -> None:
+    mutant = copy.deepcopy(two_file_manifest)
+    mutant["state"] = "tombstoned"
+    mutant["tombstone"] = None
+    validator = jsonschema.Draft202012Validator(manifest_schema)
+    errors = list(validator.iter_errors(mutant))
+    assert len(errors) >= 1
+
+
+def test_manifest_published_with_non_null_tombstone_fails(
+    manifest_schema: dict, two_file_manifest: dict
+) -> None:
+    mutant = copy.deepcopy(two_file_manifest)
+    mutant["state"] = "published"
+    mutant["tombstone"] = {
+        "tombstoned_at": "2026-09-12T11:00:00Z",
+        "deletable_after": "2026-09-19T11:00:00Z",
+    }
+    validator = jsonschema.Draft202012Validator(manifest_schema)
+    errors = list(validator.iter_errors(mutant))
+    assert len(errors) >= 1
+
+
+def test_manifest_tombstoned_lacking_deletable_after_fails(
+    manifest_schema: dict, two_file_manifest: dict
+) -> None:
+    mutant = copy.deepcopy(two_file_manifest)
+    mutant["state"] = "tombstoned"
+    mutant["tombstone"] = {
+        "tombstoned_at": "2026-09-12T11:00:00Z",
+    }
+    validator = jsonschema.Draft202012Validator(manifest_schema)
+    errors = list(validator.iter_errors(mutant))
+    assert len(errors) >= 1
