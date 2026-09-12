@@ -107,7 +107,7 @@ topics:
       coalesce_key:
         - symbol
       on_overflow: coalesce
-    payload_schema: schema/stream/envelope.schema.json
+    payload_schema: schema/api/arrow/ticks.schema.json
     replay: retention_only
     notes: "Live market quotes; coalesced per symbol keeping latest. Replay bounded to Redis retention window (~1h)."
 
@@ -122,7 +122,7 @@ topics:
         - symbol
         - timeframe
       on_overflow: coalesce
-    payload_schema: schema/stream/envelope.schema.json
+    payload_schema: schema/api/arrow/bars.schema.json
     replay: retention_only
     notes: "Live forming OHLCV bars; coalesced per (symbol, timeframe) keeping latest forming bar. Bounded to Redis retention window (~1h)."
 
@@ -134,7 +134,7 @@ topics:
     backpressure:
       coalesce: false
       on_overflow: lag
-    payload_schema: schema/stream/envelope.schema.json
+    payload_schema: schema/api/arrow/bars.schema.json
     replay: retention_only
     notes: "Completed OHLCV bars. Ephemeral live stream but never coalesced; on backpressure overflow consumer is marked lagging to fetch gap from REST history. Bounded to Redis retention window (~24h)."
 

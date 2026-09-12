@@ -298,12 +298,175 @@ def check_stream_consistency(schema_root: Path) -> list[SchemaProblem]:
     return problems
 
 
+def check_api_consistency(schema_root: Path) -> list[SchemaProblem]:
+    """Every failing operation references error.schema.json; every arrow schema
+    resolves under the identifier form topics.yaml uses; every declared field
+    carries a type, and timestamp fields carry a tz."""
+    problems: list[SchemaProblem] = []
+
+    # 1. Check arrow schemas under schema/api/arrow/
+    arrow_dir = schema_root / "api" / "arrow"
+    if arrow_dir.is_dir():
+        for schema_file in sorted(arrow_dir.glob("*.schema.json")):
+            try:
+                report_path = schema_file.relative_to(Path.cwd())
+            except ValueError:
+                report_path = schema_file
+            try:
+                data = json.loads(schema_file.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                continue
+            if not isinstance(data, dict):
+                continue
+            fields = data.get("fields", [])
+            if isinstance(fields, list):
+                for field in fields:
+                    if not isinstance(field, dict):
+                        continue
+                    field_name = field.get("name", "unnamed")
+                    if "type" not in field or not field["type"]:
+                        problems.append(
+                            SchemaProblem(
+                                path=report_path,
+                                reason=f"Arrow schema '{schema_file.name}' field '{field_name}' lacks a 'type'",
+                            )
+                        )
+                    else:
+                        field_type = str(field["type"])
+                        if field_type.startswith("timestamp") and (
+                            "tz" not in field or not field["tz"]
+                        ):
+                            problems.append(
+                                SchemaProblem(
+                                    path=report_path,
+                                    reason=f"Arrow schema '{schema_file.name}' timestamp field '{field_name}' lacks 'tz'",
+                                )
+                            )
+
+    # 2. Check topic payload_schema resolution under schema/api/arrow/
+    topics_file = schema_root / "stream" / "topics.yaml"
+    if topics_file.is_file():
+        try:
+            report_topics_path = topics_file.relative_to(Path.cwd())
+        except ValueError:
+            report_topics_path = topics_file
+        try:
+            topics_data = yaml.safe_load(topics_file.read_text(encoding="utf-8"))
+        except (yaml.YAMLError, OSError):
+            topics_data = None
+        if (
+            isinstance(topics_data, dict)
+            and "topics" in topics_data
+            and isinstance(topics_data["topics"], dict)
+        ):
+            for topic_name, entry in topics_data["topics"].items():
+                if not isinstance(entry, dict):
+                    continue
+                payload_schema = entry.get("payload_schema")
+                if (
+                    payload_schema
+                    and (
+                        str(payload_schema).startswith("schema/api/arrow/")
+                        or str(payload_schema).startswith("api/arrow/")
+                    )
+                    and not _resolve_schema_ref(schema_root, str(payload_schema))
+                ):
+                    problems.append(
+                        SchemaProblem(
+                            path=report_topics_path,
+                            reason=(
+                                f"Topic '{topic_name}' payload_schema '{payload_schema}' does not resolve to a file under schema/api/arrow/"
+                            ),
+                        )
+                    )
+
+    # 3. Check failing operations reference error.schema.json in OpenAPI doc
+    openapi_file = schema_root / "api" / "openapi.yaml"
+    if not openapi_file.is_file():
+        openapi_file = schema_root / "api" / "openapi.json"
+    if openapi_file.is_file():
+        try:
+            report_openapi_path = openapi_file.relative_to(Path.cwd())
+        except ValueError:
+            report_openapi_path = openapi_file
+        try:
+            content = openapi_file.read_text(encoding="utf-8")
+            doc = (
+                yaml.safe_load(content)
+                if openapi_file.name.endswith((".yaml", ".yml"))
+                else json.loads(content)
+            )
+        except (yaml.YAMLError, json.JSONDecodeError, OSError):
+            doc = None
+        if isinstance(doc, dict):
+            paths = doc.get("paths", {})
+            if isinstance(paths, dict):
+                for path, path_item in paths.items():
+                    if not isinstance(path_item, dict):
+                        continue
+                    for method, op in path_item.items():
+                        if method.lower() not in {
+                            "get",
+                            "post",
+                            "put",
+                            "delete",
+                            "patch",
+                            "head",
+                            "options",
+                            "trace",
+                        } or not isinstance(op, dict):
+                            continue
+                        op_id = op.get("operationId", f"{method.upper()} {path}")
+                        responses = op.get("responses", {})
+                        if not isinstance(responses, dict):
+                            continue
+                        for status_code_raw, resp in responses.items():
+                            if not isinstance(resp, dict):
+                                continue
+                            status_code = str(status_code_raw)
+                            is_failing_code = status_code in {"500", "default"} or (
+                                status_code.startswith(("4", "5"))
+                                and status_code not in {"422", "502", "503"}
+                            )
+                            if not is_failing_code:
+                                continue
+                            ref = resp.get("$ref")
+                            if not ref:
+                                schema = (
+                                    resp.get("content", {})
+                                    .get("application/json", {})
+                                    .get("schema", {})
+                                )
+                                if isinstance(schema, dict):
+                                    ref = schema.get("$ref")
+                            ref_str = str(ref) if ref else ""
+                            is_valid_error_ref = ref_str in {
+                                "error.schema.json",
+                                "api/error",
+                                "#/components/schemas/ApiError",
+                            } or ref_str.endswith(
+                                ("/error.schema.json", "#/components/schemas/ApiError")
+                            )
+                            if not is_valid_error_ref:
+                                problems.append(
+                                    SchemaProblem(
+                                        path=report_openapi_path,
+                                        reason=(
+                                            f"Operation '{op_id}' declares failure response '{status_code}' that does not reference error.schema.json"
+                                        ),
+                                    )
+                                )
+
+    return problems
+
+
 def check_tree(schema_root: Path) -> list[SchemaProblem]:
     """discover() then check_file() over everything, plus cross-document consistency."""
     problems: list[SchemaProblem] = []
     for file_path in discover(schema_root):
         problems.extend(check_file(file_path, schema_root))
     problems.extend(check_stream_consistency(schema_root))
+    problems.extend(check_api_consistency(schema_root))
     return problems
 
 
