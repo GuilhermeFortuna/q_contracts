@@ -1,4 +1,4 @@
-.PHONY: check check-live generate-check
+.PHONY: check check-live generate-check hooks
 
 check: generate-check
 	uv run black --check .
@@ -14,3 +14,7 @@ generate-check:
 
 check-live:
 	uv run pytest tests/test_api_drift.py -v
+
+hooks:
+	git config core.hooksPath .githooks
+	@echo "Git hooks enabled from .githooks"

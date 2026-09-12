@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# The full suite runs in a few seconds, so the pre-commit hook runs all of it
+# rather than a cheaper subset. Nothing reaches a commit that `make check`
+# would reject.
+echo "==> Running pre-commit hook (make check)..."
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+make check

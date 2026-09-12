@@ -80,3 +80,23 @@ This runs:
 4. `pytest` (Unit tests)
 
 Continuous integration (CI) executes this exact command on all pushes and pull requests.
+
+## Running the Suite and Enabling Hooks
+
+`make check` is the whole suite. `scripts/ci.sh` is a wrapper around it that
+adds no steps of its own, and exists so the entry point matches `q_frontend`
+and `q_backend`:
+
+```bash
+./scripts/ci.sh
+```
+
+Git hooks live in `.githooks/` and are not active in a fresh clone until the
+hook path is configured. Enable them once per checkout:
+
+```bash
+make hooks
+```
+
+`pre-commit` runs `make check`; `pre-push` runs `scripts/ci.sh`. The suite takes
+a few seconds, so the commit hook runs all of it rather than a cheaper subset.
