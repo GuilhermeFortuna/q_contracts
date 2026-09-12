@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stream/control/lagging",
+  "title": "LaggingFrame",
+  "description": "Backpressure overflow notification marking a consumer as lagging on a topic. Names both the topic and the sequence watermark from which data was dropped, enabling bounded fetch recovery from REST history.",
+  "type": "object",
+  "required": [
+    "topic",
+    "from_seq"
+  ],
+  "properties": {
+    "topic": {
+      "type": "string",
+      "description": "The topic on which the consumer has fallen behind or overflowed."
+    },
+    "from_seq": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The sequence watermark from which the consumer's view is incomplete."
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stream/control/subscribe",
+  "title": "SubscribeFrame",
+  "description": "Client subscription request frame sent over the WebSocket to initiate stream forwarding for one or more topics.",
+  "type": "object",
+  "required": [
+    "topics"
+  ],
+  "properties": {
+    "topics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "List of topic names to subscribe to."
+    }
+  },
+  "additionalProperties": false
+}

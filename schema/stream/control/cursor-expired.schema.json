@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stream/control/cursor-expired",
+  "title": "CursorExpiredFrame",
+  "description": "Notification that a requested subscription cursor is older than the stream retention window. Client must perform a full snapshot resynchronization for this topic.",
+  "type": "object",
+  "required": [
+    "topic"
+  ],
+  "properties": {
+    "topic": {
+      "type": "string",
+      "description": "The topic whose cursor has expired."
+    },
+    "cursor": {
+      "type": "string",
+      "description": "The expired cursor provided by the client, if available."
+    }
+  },
+  "additionalProperties": false
+}

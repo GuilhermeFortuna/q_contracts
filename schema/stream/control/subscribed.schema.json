@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stream/control/subscribed",
+  "title": "SubscribedFrame",
+  "description": "Server subscription acknowledgement frame. Carries per-topic forwarding cursor, current epoch, and last sequence watermark necessary for snapshot reconciliation.",
+  "type": "object",
+  "required": [
+    "topics"
+  ],
+  "properties": {
+    "topics": {
+      "type": "object",
+      "description": "Map from subscribed topic name to its subscription cursor and sequence watermark state.",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "cursor",
+          "epoch",
+          "last_seq"
+        ],
+        "properties": {
+          "cursor": {
+            "type": "string",
+            "description": "Transport replay cursor (e.g. Redis stream ID) from which live forwarding begins."
+          },
+          "epoch": {
+            "type": "string",
+            "description": "Current epoch of the topic at subscription time."
+          },
+          "last_seq": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Last sequence watermark recorded for this topic at subscription time."
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

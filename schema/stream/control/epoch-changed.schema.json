@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stream/control/epoch-changed",
+  "title": "EpochChangedFrame",
+  "description": "Notification broadcast when a topic's epoch has changed (e.g. after a Redis restart or publisher restart). Invalidates all previous sequence numbers for this topic and forces connected clients to re-snapshot.",
+  "type": "object",
+  "required": [
+    "topic",
+    "new_epoch"
+  ],
+  "properties": {
+    "topic": {
+      "type": "string",
+      "description": "The topic whose epoch has changed."
+    },
+    "new_epoch": {
+      "type": "string",
+      "description": "The new epoch value."
+    },
+    "previous_epoch": {
+      "type": "string",
+      "description": "The previous epoch value, if known."
+    }
+  },
+  "additionalProperties": false
+}
