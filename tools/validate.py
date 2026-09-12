@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
-from typing import NamedTuple
+import sys
+from typing import NamedTuple, Sequence
 
 import jsonschema
 import yaml
@@ -55,10 +57,15 @@ def check_file(path: Path, schema_root: Path) -> list[SchemaProblem]:
             rel_path = path
             file_path = schema_root / path if (schema_root / path).is_file() else path
 
+    try:
+        report_path = path.relative_to(Path.cwd())
+    except ValueError:
+        report_path = path
+
     if not rel_path.parts or rel_path.parts[0] not in BOUNDARIES:
         return [
             SchemaProblem(
-                path=path,
+                path=report_path,
                 reason=(
                     f"File sits outside boundary directories; boundary must be one of {BOUNDARIES}"
                 ),
@@ -68,23 +75,23 @@ def check_file(path: Path, schema_root: Path) -> list[SchemaProblem]:
     try:
         content = file_path.read_text(encoding="utf-8")
     except OSError as exc:
-        return [SchemaProblem(path=path, reason=f"Cannot read file: {exc}")]
+        return [SchemaProblem(path=report_path, reason=f"Cannot read file: {exc}")]
 
     if file_path.name.endswith(".yaml") or file_path.name.endswith(".yml"):
         try:
             data = yaml.safe_load(content)
         except yaml.YAMLError as exc:
-            return [SchemaProblem(path=path, reason=f"Parse failure: {exc}")]
+            return [SchemaProblem(path=report_path, reason=f"Parse failure: {exc}")]
     else:
         try:
             data = json.loads(content)
         except json.JSONDecodeError as exc:
-            return [SchemaProblem(path=path, reason=f"Parse failure: {exc}")]
+            return [SchemaProblem(path=report_path, reason=f"Parse failure: {exc}")]
 
     if not isinstance(data, dict):
         return [
             SchemaProblem(
-                path=path,
+                path=report_path,
                 reason="Parse failure: schema root must be a JSON object / mapping",
             )
         ]
@@ -93,7 +100,7 @@ def check_file(path: Path, schema_root: Path) -> list[SchemaProblem]:
     if dialect is not None and dialect not in SUPPORTED_DIALECTS:
         return [
             SchemaProblem(
-                path=path,
+                path=report_path,
                 reason=(
                     f"Unsupported schema dialect '{dialect}' (supported: {', '.join(sorted(SUPPORTED_DIALECTS))})"
                 ),
@@ -105,7 +112,7 @@ def check_file(path: Path, schema_root: Path) -> list[SchemaProblem]:
     if declared_id is not None and declared_id != expected_id:
         return [
             SchemaProblem(
-                path=path,
+                path=report_path,
                 reason=f"$id mismatch: declared '{declared_id}', expected '{expected_id}'",
             )
         ]
@@ -113,6 +120,35 @@ def check_file(path: Path, schema_root: Path) -> list[SchemaProblem]:
     try:
         jsonschema.Draft202012Validator.check_schema(data)
     except jsonschema.exceptions.SchemaError as exc:
-        return [SchemaProblem(path=path, reason=f"Schema invalid: {exc.message}")]
+        return [SchemaProblem(path=report_path, reason=f"Schema invalid: {exc.message}")]
 
     return []
+
+
+def check_tree(schema_root: Path) -> list[SchemaProblem]:
+    """discover() then check_file() over everything. Empty tree yields no problems."""
+    problems: list[SchemaProblem] = []
+    for file_path in discover(schema_root):
+        problems.extend(check_file(file_path, schema_root))
+    return problems
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    """Prints one line per problem, returns 0 when there are none."""
+    parser = argparse.ArgumentParser(description="Validate schema contracts")
+    parser.add_argument(
+        "schema_root",
+        nargs="?",
+        type=Path,
+        default=Path("schema"),
+        help="Path to schema root directory (default: schema)",
+    )
+    args = parser.parse_args(argv)
+    problems = check_tree(args.schema_root)
+    for p in problems:
+        sys.stderr.write(f"{p.path}: {p.reason}\n")
+    return 1 if problems else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

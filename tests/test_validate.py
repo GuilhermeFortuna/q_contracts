@@ -77,3 +77,37 @@ def test_check_file_valid(tmp_path: Path):
 
     problems = check_file(envelope, schema_root)
     assert problems == []
+
+
+def test_check_tree_empty(tmp_path: Path, monkeypatch):
+    from tools.validate import check_tree, main
+
+    schema_root = tmp_path / "schema"
+    schema_root.mkdir()
+    assert check_tree(schema_root) == []
+
+    monkeypatch.chdir(tmp_path)
+    assert main([]) == 0
+
+
+def test_check_tree_and_main_with_malformed_file(tmp_path: Path, monkeypatch, capsys):
+    from tools.validate import check_tree, main
+
+    schema_root = tmp_path / "schema"
+    stream_dir = schema_root / "stream"
+    stream_dir.mkdir(parents=True)
+    broken = stream_dir / "broken.schema.json"
+    broken.write_text("{")
+
+    monkeypatch.chdir(tmp_path)
+
+    problems = check_tree(Path("schema"))
+    assert len(problems) == 1
+    assert "parse" in problems[0].reason.lower()
+
+    exit_code = main([])
+    assert exit_code == 1
+
+    captured = capsys.readouterr()
+    rel_path_str = "schema/stream/broken.schema.json"
+    assert rel_path_str in captured.err
