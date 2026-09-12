@@ -1,0 +1,12 @@
+{
+  "symbol": "WIN$N",
+  "timeframe": "M5",
+  "strategy": "MACrossover",
+  "strategy_params": {
+    "fast_period": 9,
+    "slow_period": 21
+  },
+  "initial_capital": 100000.0,
+  "point_value": 0.2,
+  "engine": "candle"
+}
