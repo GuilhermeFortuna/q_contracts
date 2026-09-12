@@ -460,6 +460,169 @@ def check_api_consistency(schema_root: Path) -> list[SchemaProblem]:
     return problems
 
 
+def check_edge_consistency(schema_root: Path) -> list[SchemaProblem]:
+    """Both contracts declare a schema major and a health operation; the submit
+    outcome union has exactly three members and the lookup union exactly four;
+    every lookup member declares closes_intent; the submit request requires
+    intent_id; the quote response requires age_ms."""
+    problems: list[SchemaProblem] = []
+    edge_dir = schema_root / "edge"
+    if not edge_dir.is_dir():
+        return problems
+
+    # 1. Check both contracts declare schema_major and a health operation
+    for contract_name in ("data-gateway.yaml", "execution.yaml"):
+        contract_path = edge_dir / contract_name
+        if not contract_path.is_file():
+            continue
+        try:
+            report_path = contract_path.relative_to(Path.cwd())
+        except ValueError:
+            report_path = contract_path
+
+        try:
+            doc = yaml.safe_load(contract_path.read_text(encoding="utf-8"))
+        except (yaml.YAMLError, OSError):
+            continue
+
+        if not isinstance(doc, dict):
+            continue
+
+        schema_major = doc.get("schema_major")
+        if schema_major is None:
+            problems.append(
+                SchemaProblem(
+                    path=report_path,
+                    reason=f"Edge contract '{contract_name}' must declare 'schema_major'",
+                )
+            )
+
+        endpoints = doc.get("endpoints", {})
+        operations = doc.get("operations", {})
+        has_health = (isinstance(endpoints, dict) and "/v1/health" in endpoints) or (
+            isinstance(operations, dict) and "health" in operations
+        )
+        if not has_health:
+            problems.append(
+                SchemaProblem(
+                    path=report_path,
+                    reason=f"Edge contract '{contract_name}' must declare a health endpoint/operation",
+                )
+            )
+
+    # 2. Check submit-outcome.schema.json union has exactly three members
+    submit_outcome_path = edge_dir / "execution" / "submit-outcome.schema.json"
+    if submit_outcome_path.is_file():
+        try:
+            report_so_path = submit_outcome_path.relative_to(Path.cwd())
+        except ValueError:
+            report_so_path = submit_outcome_path
+        try:
+            so_data = json.loads(submit_outcome_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            so_data = None
+        if isinstance(so_data, dict):
+            one_of = so_data.get("oneOf")
+            count = len(one_of) if isinstance(one_of, list) else 0
+            if count != 3:
+                problems.append(
+                    SchemaProblem(
+                        path=report_so_path,
+                        reason=f"Submit outcome schema oneOf union must have exactly 3 members (found {count})",
+                    )
+                )
+
+    # 3. Check lookup-outcome.schema.json union has exactly four members and each declares closes_intent
+    lookup_outcome_path = edge_dir / "execution" / "lookup-outcome.schema.json"
+    if lookup_outcome_path.is_file():
+        try:
+            report_lo_path = lookup_outcome_path.relative_to(Path.cwd())
+        except ValueError:
+            report_lo_path = lookup_outcome_path
+        try:
+            lo_data = json.loads(lookup_outcome_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            lo_data = None
+        if isinstance(lo_data, dict):
+            one_of = lo_data.get("oneOf")
+            count = len(one_of) if isinstance(one_of, list) else 0
+            if count != 4:
+                problems.append(
+                    SchemaProblem(
+                        path=report_lo_path,
+                        reason=f"Lookup outcome schema oneOf union must have exactly 4 members (found {count})",
+                    )
+                )
+            if isinstance(one_of, list):
+                for idx, branch in enumerate(one_of):
+                    if not isinstance(branch, dict):
+                        continue
+                    props = branch.get("properties", {})
+                    req = branch.get("required", [])
+                    has_closes_intent = (
+                        isinstance(props, dict)
+                        and "closes_intent" in props
+                        and isinstance(req, list)
+                        and "closes_intent" in req
+                    )
+                    if not has_closes_intent:
+                        outcome_name = (
+                            props.get("outcome", {}).get("const", f"member {idx}")
+                            if isinstance(props, dict)
+                            else f"member {idx}"
+                        )
+                        problems.append(
+                            SchemaProblem(
+                                path=report_lo_path,
+                                reason=f"Lookup outcome member '{outcome_name}' must declare and require 'closes_intent'",
+                            )
+                        )
+
+    # 4. Check submit-request.schema.json requires intent_id
+    submit_req_path = edge_dir / "execution" / "submit-request.schema.json"
+    if submit_req_path.is_file():
+        try:
+            report_sr_path = submit_req_path.relative_to(Path.cwd())
+        except ValueError:
+            report_sr_path = submit_req_path
+        try:
+            sr_data = json.loads(submit_req_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            sr_data = None
+        if isinstance(sr_data, dict):
+            req = sr_data.get("required", [])
+            if not isinstance(req, list) or "intent_id" not in req:
+                problems.append(
+                    SchemaProblem(
+                        path=report_sr_path,
+                        reason="Submit request schema must require 'intent_id'",
+                    )
+                )
+
+    # 5. Check quote-response.schema.json requires age_ms
+    quote_resp_path = edge_dir / "execution" / "quote-response.schema.json"
+    if quote_resp_path.is_file():
+        try:
+            report_qr_path = quote_resp_path.relative_to(Path.cwd())
+        except ValueError:
+            report_qr_path = quote_resp_path
+        try:
+            qr_data = json.loads(quote_resp_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            qr_data = None
+        if isinstance(qr_data, dict):
+            req = qr_data.get("required", [])
+            if not isinstance(req, list) or "age_ms" not in req:
+                problems.append(
+                    SchemaProblem(
+                        path=report_qr_path,
+                        reason="Quote response schema must require 'age_ms'",
+                    )
+                )
+
+    return problems
+
+
 def check_tree(schema_root: Path) -> list[SchemaProblem]:
     """discover() then check_file() over everything, plus cross-document consistency."""
     problems: list[SchemaProblem] = []
@@ -467,6 +630,7 @@ def check_tree(schema_root: Path) -> list[SchemaProblem]:
         problems.extend(check_file(file_path, schema_root))
     problems.extend(check_stream_consistency(schema_root))
     problems.extend(check_api_consistency(schema_root))
+    problems.extend(check_edge_consistency(schema_root))
     return problems
 
 
