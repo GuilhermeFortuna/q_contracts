@@ -1,5 +1,6 @@
 """Python source emitter."""
 
+import json
 import re
 from typing import Any
 
@@ -29,22 +30,33 @@ def _type_for(
     elif "const" in schema:
         result = repr(schema["const"])
     elif "enum" in schema:
-        values = ", ".join(repr(value) for value in schema["enum"])
-        result = f"Literal[{values}]"
+        values = [json.dumps(value) for value in schema["enum"]]
+        inline = ", ".join(values)
+        if len(f"Literal[{inline}]") <= 88:
+            result = f"Literal[{inline}]"
+        else:
+            result = (
+                "Literal[\n"
+                + "".join(f"        {value},\n" for value in values)
+                + "    ]"
+            )
     elif "oneOf" in schema or "anyOf" in schema:
         choices = schema.get("oneOf", schema.get("anyOf", []))
         non_null = [choice for choice in choices if choice.get("type") != "null"]
         if len(non_null) == 1 and len(non_null) != len(choices):
             return _type_for(non_null[0], ref_map, optional=True, quote_refs=quote_refs)
         result = (
-            " | ".join(_type_for(choice, ref_map, quote_refs=quote_refs) for choice in choices)
+            " | ".join(
+                _type_for(choice, ref_map, quote_refs=quote_refs) for choice in choices
+            )
             or "Any"
         )
     else:
         kind = schema.get("type")
         if isinstance(kind, list):
             result = " | ".join(
-                _type_for({"type": item}, ref_map, quote_refs=quote_refs) for item in kind
+                _type_for({"type": item}, ref_map, quote_refs=quote_refs)
+                for item in kind
             )
         elif kind == "array":
             result = f"list[{_type_for(schema.get('items', {}), ref_map, quote_refs=quote_refs)}]"
