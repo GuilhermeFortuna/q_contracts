@@ -152,3 +152,32 @@ def test_manifest_tombstoned_lacking_deletable_after_fails(
     validator = jsonschema.Draft202012Validator(manifest_schema)
     errors = list(validator.iter_errors(mutant))
     assert len(errors) >= 1
+
+
+def test_manifest_carrying_bars_arrow_declaration_validates(
+    manifest_schema: dict, two_file_manifest: dict
+) -> None:
+    bars_schema_path = (
+        Path(__file__).parent.parent / "schema" / "api" / "arrow" / "bars.schema.json"
+    )
+    assert (
+        bars_schema_path.is_file()
+    ), f"bars.schema.json must exist at {bars_schema_path}"
+    bars_arrow_doc = json.loads(bars_schema_path.read_text(encoding="utf-8"))
+
+    # Test validating directly against the arrow_schema subschema
+    arrow_subschema = manifest_schema["properties"]["arrow_schema"]
+    sub_validator = jsonschema.Draft202012Validator(arrow_subschema)
+    sub_errors = list(sub_validator.iter_errors(bars_arrow_doc))
+    assert (
+        sub_errors == []
+    ), f"bars.schema.json failed arrow_schema subschema validation: {sub_errors}"
+
+    # Test full manifest carrying the bar Arrow declaration
+    mutant = copy.deepcopy(two_file_manifest)
+    mutant["arrow_schema"] = bars_arrow_doc
+    validator = jsonschema.Draft202012Validator(manifest_schema)
+    errors = list(validator.iter_errors(mutant))
+    assert (
+        errors == []
+    ), f"Manifest carrying bars.schema.json failed validation: {errors}"
