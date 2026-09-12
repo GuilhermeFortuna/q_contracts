@@ -2,14 +2,23 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from pathlib import Path
 
 import pytest
 
+sys.dont_write_bytecode = True
+
 from tools.emitters.python import emit
 from tools.emitters.rust import emit as emit_rust
 from tools.emitters.typescript import emit as emit_typescript
-from tools.generate import LANGUAGES, GenerationError, generate, plan_units
+from tools.generate import (
+    LANGUAGES,
+    GenerationError,
+    generate,
+    plan_policy_units,
+    plan_units,
+)
 
 SCHEMA_ROOT = Path(__file__).parents[1] / "schema"
 
@@ -172,3 +181,27 @@ def test_generate_produces_byte_identical_trees_on_repeated_runs(
     assert (first_root / "typescript" / "api.ts").is_file()
     assert (first_root / "python" / "q_contracts" / "stream.py").is_file()
     assert (first_root / "rust" / "stream.rs").is_file()
+
+
+def test_plan_policy_units_emits_topics_unit() -> None:
+    units = plan_policy_units(SCHEMA_ROOT)
+    assert len(units) == 1
+    assert units[0].name == "topics"
+    assert units[0].sources == (Path("schema/stream/topics.yaml"),)
+
+
+def test_generate_emits_policy_for_all_languages(tmp_path: Path) -> None:
+    out_root = tmp_path / "generated"
+    generate(SCHEMA_ROOT, out_root, LANGUAGES)
+
+    assert (out_root / "python" / "q_contracts" / "topics.py").is_file()
+    assert (out_root / "typescript" / "topics.ts").is_file()
+    assert (out_root / "rust" / "topics.rs").is_file()
+
+
+def test_generated_python_topics_values() -> None:
+    from generated.python.q_contracts.topics import TOPICS
+
+    assert TOPICS["quotes"].retention_entries == 100000
+    assert TOPICS["bars.forming"].coalesce_key == ("symbol", "timeframe")
+    assert TOPICS["jobs.progress"].coalesce_key == ("kind", "job_id")

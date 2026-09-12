@@ -10,7 +10,7 @@ generate-check:
 	generated_tmp="$$(mktemp -d)"; \
 	trap 'rm -rf "$$generated_tmp"' EXIT; \
 	uv run python tools/generate.py --out "$$generated_tmp"; \
-	diff -ru generated "$$generated_tmp"
+	diff -ru -x __pycache__ generated "$$generated_tmp"
 
 check-live:
 	uv run pytest tests/test_api_drift.py -v

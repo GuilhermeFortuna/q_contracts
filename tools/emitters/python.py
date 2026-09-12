@@ -4,7 +4,74 @@ import json
 import re
 from typing import Any
 
-from tools.generate import GenerationUnit
+from tools.generate import HEADER, GenerationUnit
+
+
+def _emit_topics(unit: GenerationUnit) -> str:
+    source_list = ", ".join(path.as_posix() for path in unit.sources)
+    document = unit.documents[0]
+    topics_data = document.get("topics", {})
+
+    lines = [
+        f"# {HEADER}. Source schemas: {source_list}",
+        "from __future__ import annotations",
+        "",
+        "from collections.abc import Mapping",
+        "from dataclasses import dataclass",
+        "from typing import Literal",
+        "",
+        "",
+        "@dataclass(frozen=True)",
+        "class TopicPolicy:",
+        "    name: str",
+        '    topic_class: Literal["durable", "ephemeral"]',
+        "    retention_duration: str",
+        "    retention_entries: int",
+        "    coalesce_key: tuple[str, ...]",
+        '    on_overflow: Literal["lag", "coalesce"]',
+        '    replay: Literal["unbounded", "retention_only"]',
+        "    payload_schema: str",
+        "",
+        "",
+        "TOPICS: Mapping[str, TopicPolicy] = {",
+    ]
+
+    for name in sorted(topics_data):
+        entry = topics_data[name]
+        topic_class = json.dumps(entry.get("class"))
+        retention = entry.get("retention", {})
+        duration = json.dumps(retention.get("duration", ""))
+        entries = retention.get("entries", 0)
+        backpressure = entry.get("backpressure", {})
+        coalesce = backpressure.get("coalesce", False)
+        coalesce_key = tuple(backpressure.get("coalesce_key", [])) if coalesce else ()
+        if coalesce_key:
+            if len(coalesce_key) == 1:
+                coalesce_key_repr = f'("{coalesce_key[0]}",)'
+            else:
+                coalesce_key_repr = (
+                    "(" + ", ".join(json.dumps(k) for k in coalesce_key) + ")"
+                )
+        else:
+            coalesce_key_repr = "()"
+        on_overflow = json.dumps(backpressure.get("on_overflow", "lag"))
+        replay = json.dumps(entry.get("replay", "unbounded"))
+        payload_schema = json.dumps(entry.get("payload_schema", ""))
+
+        lines.append(f'    "{name}": TopicPolicy(')
+        lines.append(f'        name="{name}",')
+        lines.append(f"        topic_class={topic_class},")
+        lines.append(f"        retention_duration={duration},")
+        lines.append(f"        retention_entries={entries},")
+        lines.append(f"        coalesce_key={coalesce_key_repr},")
+        lines.append(f"        on_overflow={on_overflow},")
+        lines.append(f"        replay={replay},")
+        lines.append(f"        payload_schema={payload_schema},")
+        lines.append("    ),")
+
+    lines.append("}")
+    lines.append("")
+    return "\n".join(lines)
 
 
 def _pascal(name: str) -> str:
@@ -94,6 +161,8 @@ def _emit_object(
 
 
 def emit(unit: GenerationUnit) -> str:
+    if unit.name == "topics":
+        return _emit_topics(unit)
     source_list = ", ".join(path.as_posix() for path in unit.sources)
     lines = [
         f"# GENERATED FILE - DO NOT EDIT. Source schemas: {source_list}",

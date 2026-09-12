@@ -107,6 +107,39 @@ def plan_units(schema_root: Path) -> list[GenerationUnit]:
     return units
 
 
+def plan_policy_units(schema_root: Path) -> list[GenerationUnit]:
+    """Emit GenerationUnit for topic policy declarations in topics.yaml.
+
+    Policy YAML documents are excluded by default in plan_units, but topics.yaml
+    is emitted as generated data so relay, endpoints, and frontend don't duplicate
+    retention, backpressure, coalesce_key, or topic classes.
+    """
+    topics_path = schema_root / "stream" / "topics.yaml"
+    if not topics_path.is_file():
+        return []
+    try:
+        relative = topics_path.relative_to(schema_root.parent)
+    except ValueError:
+        relative = topics_path
+    try:
+        data = yaml.safe_load(topics_path.read_text(encoding="utf-8"))
+    except (yaml.YAMLError, OSError) as exc:
+        raise GenerationError(
+            f"Could not read policy {relative} for languages: {', '.join(LANGUAGES)}: {exc}"
+        ) from exc
+    if not isinstance(data, dict):
+        raise GenerationError(
+            f"Policy {relative} is not an object for languages: {', '.join(LANGUAGES)}"
+        )
+    return [
+        GenerationUnit(
+            name="topics",
+            sources=(relative,),
+            documents=(data,),
+        )
+    ]
+
+
 def _write(path: Path, content: str) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8", newline="\n")
@@ -133,7 +166,7 @@ def generate(
         raise GenerationError(
             f"Unsupported target language(s): {', '.join(unknown)}; supported: {', '.join(LANGUAGES)}"
         )
-    units = plan_units(schema_root)
+    units = plan_units(schema_root) + plan_policy_units(schema_root)
     written: list[Path] = []
     emitters = {
         "python": python_emitter.emit,

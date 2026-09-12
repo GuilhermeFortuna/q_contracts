@@ -1,9 +1,74 @@
-"""Rust source emitter."""
-
+import json
 import re
 from typing import Any
 
-from tools.generate import GenerationUnit
+from tools.generate import HEADER, GenerationUnit
+
+
+def _emit_topics(unit: GenerationUnit) -> str:
+    source_list = ", ".join(path.as_posix() for path in unit.sources)
+    document = unit.documents[0]
+    topics_data = document.get("topics", {})
+
+    lines = [
+        f"// {HEADER}. Source schemas: {source_list}",
+        "use serde::{Deserialize, Serialize};",
+        "",
+        "#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]",
+        "pub struct TopicPolicy {",
+        "    pub name: &'static str,",
+        "    pub topic_class: &'static str,",
+        "    pub retention_duration: &'static str,",
+        "    pub retention_entries: usize,",
+        "    pub coalesce_key: &'static [&'static str],",
+        "    pub on_overflow: &'static str,",
+        "    pub replay: &'static str,",
+        "    pub payload_schema: &'static str,",
+        "}",
+        "",
+        "pub const TOPICS: &[TopicPolicy] = &[",
+    ]
+
+    for name in sorted(topics_data):
+        entry = topics_data[name]
+        topic_class = json.dumps(entry.get("class"))
+        retention = entry.get("retention", {})
+        duration = json.dumps(retention.get("duration", ""))
+        entries = retention.get("entries", 0)
+        backpressure = entry.get("backpressure", {})
+        coalesce = backpressure.get("coalesce", False)
+        coalesce_key = list(backpressure.get("coalesce_key", [])) if coalesce else []
+        if coalesce_key:
+            coalesce_key_rust = (
+                "&[" + ", ".join(json.dumps(k) for k in coalesce_key) + "]"
+            )
+        else:
+            coalesce_key_rust = "&[]"
+        on_overflow = json.dumps(backpressure.get("on_overflow", "lag"))
+        replay = json.dumps(entry.get("replay", "unbounded"))
+        payload_schema = json.dumps(entry.get("payload_schema", ""))
+
+        lines.append("    TopicPolicy {")
+        lines.append(f'        name: "{name}",')
+        lines.append(f"        topic_class: {topic_class},")
+        lines.append(f"        retention_duration: {duration},")
+        lines.append(f"        retention_entries: {entries},")
+        lines.append(f"        coalesce_key: {coalesce_key_rust},")
+        lines.append(f"        on_overflow: {on_overflow},")
+        lines.append(f"        replay: {replay},")
+        lines.append(f"        payload_schema: {payload_schema},")
+        lines.append("    },")
+
+    lines.append("];")
+    lines.append("")
+    lines.append("impl TopicPolicy {")
+    lines.append("    pub fn get(name: &str) -> Option<&'static TopicPolicy> {")
+    lines.append("        TOPICS.iter().find(|t| t.name == name)")
+    lines.append("    }")
+    lines.append("}")
+    lines.append("")
+    return "\n".join(lines)
+
 
 RUST_KEYWORDS = frozenset(
     {
@@ -145,6 +210,8 @@ def _emit_outcome(
 
 
 def emit(unit: GenerationUnit) -> str:
+    if unit.name == "topics":
+        return _emit_topics(unit)
     source_list = ", ".join(path.as_posix() for path in unit.sources)
     lines = [
         f"// GENERATED FILE - DO NOT EDIT. Source schemas: {source_list}",
