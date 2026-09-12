@@ -8,7 +8,7 @@ table is updated with the consumer commit and verification evidence.
 | --- | --- | --- |
 | `q_contracts` | `998a50570905524bfb9af0465a725b170f2970df` | `998a50570905524bfb9af0465a725b170f2970df` |
 | `q_frontend` | `aea7bfe70ec7fae81b6c28d24bd3bb10cdeff7c3` | `998a50570905524bfb9af0465a725b170f2970df` |
-| `q_backend` | `d70f0d00c80e001d668049e77cd59663a4c4e641` | `998a50570905524bfb9af0465a725b170f2970df` |
+| `q_backend` | `2841245d5ce67f134cddcc9d18c67cf3ce69d0ad` | `998a50570905524bfb9af0465a725b170f2970df` |
 
 ## Generation scope decisions
 
