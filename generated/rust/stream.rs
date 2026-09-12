@@ -16,10 +16,20 @@ pub struct EpochChangedFrame {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct JobProgressPayload {
+    pub job_id: String,
+    pub kind: String,
+    pub message: Option<String>,
+    pub progress: serde_json::Value,
+    pub status: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct JobTerminalPayload {
+    pub error: Option<String>,
+    pub finished_at: String,
+    pub job_id: String,
+    pub kind: String,
+    pub status: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

@@ -20,12 +20,40 @@ class EpochChangedFrame:
 
 @dataclass(frozen=True)
 class JobProgressPayload:
-    pass
+    job_id: str
+    kind: Literal[
+        "alpha_research",
+        "backtest",
+        "discovery_ab",
+        "encoder_ablation",
+        "neural_training",
+        "optimization",
+        "storage_ingest",
+        "strategy_search",
+        "walkforward",
+    ]
+    progress: float | None
+    status: Literal["queued", "running"]
+    message: str | None = None
 
 
 @dataclass(frozen=True)
 class JobTerminalPayload:
-    pass
+    finished_at: str
+    job_id: str
+    kind: Literal[
+        "alpha_research",
+        "backtest",
+        "discovery_ab",
+        "encoder_ablation",
+        "neural_training",
+        "optimization",
+        "storage_ingest",
+        "strategy_search",
+        "walkforward",
+    ]
+    status: Literal["completed", "failed", "cancelled"]
+    error: str | None = None
 
 
 @dataclass(frozen=True)

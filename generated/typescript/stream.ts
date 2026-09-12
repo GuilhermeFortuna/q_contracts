@@ -12,9 +12,19 @@ export interface EpochChangedFrame {
 }
 
 export interface JobProgressPayload {
+  job_id: string
+  kind: "alpha_research" | "backtest" | "discovery_ab" | "encoder_ablation" | "neural_training" | "optimization" | "storage_ingest" | "strategy_search" | "walkforward"
+  message?: string
+  progress: number | null
+  status: "queued" | "running"
 }
 
 export interface JobTerminalPayload {
+  error?: string
+  finished_at: string
+  job_id: string
+  kind: "alpha_research" | "backtest" | "discovery_ab" | "encoder_ablation" | "neural_training" | "optimization" | "storage_ingest" | "strategy_search" | "walkforward"
+  status: "completed" | "failed" | "cancelled"
 }
 
 export interface LaggingFrame {

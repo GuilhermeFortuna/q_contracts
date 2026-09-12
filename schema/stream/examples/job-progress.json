@@ -1,0 +1,7 @@
+{
+  "kind": "neural_training",
+  "job_id": "job-neural-20260912-001",
+  "status": "running",
+  "progress": 0.45,
+  "message": "Epoch 5/10 - loss: 0.0234"
+}
