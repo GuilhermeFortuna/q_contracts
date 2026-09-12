@@ -1,0 +1,83 @@
+{
+  "dataset_id": "c1a4e235-9831-4c4f-9e6b-a2c6d482ef10",
+  "subject": {
+    "kind": "bars",
+    "symbol": "WINFUT",
+    "timeframe": "M15"
+  },
+  "version": 1,
+  "supersedes": null,
+  "state": "published",
+  "published_at": "2026-09-12T10:00:00Z",
+  "checksum_algorithm": "sha256",
+  "files": [
+    {
+      "path": "ohlcv/WINFUT/M15/2023.parquet",
+      "size_bytes": 1048576,
+      "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "ohlcv/WINFUT/M15/2024.parquet",
+      "size_bytes": 1048576,
+      "checksum": "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069"
+    }
+  ],
+  "arrow_schema": {
+    "name": "bars",
+    "fields": [
+      {
+        "name": "time",
+        "type": "timestamp[us]",
+        "nullable": false,
+        "tz": "naive-wallclock-America/Sao_Paulo",
+        "doc": "raw MT5 epoch seconds as stored in lake Parquet via copy_rates_range; no timezone math applied"
+      },
+      {
+        "name": "open",
+        "type": "float64",
+        "nullable": false
+      },
+      {
+        "name": "high",
+        "type": "float64",
+        "nullable": false
+      },
+      {
+        "name": "low",
+        "type": "float64",
+        "nullable": false
+      },
+      {
+        "name": "close",
+        "type": "float64",
+        "nullable": false
+      },
+      {
+        "name": "tick_volume",
+        "type": "int64",
+        "nullable": false,
+        "unit": "ticks"
+      },
+      {
+        "name": "spread",
+        "type": "int64",
+        "nullable": false,
+        "unit": "points",
+        "doc": "spread in points at bar close"
+      },
+      {
+        "name": "real_volume",
+        "type": "int64",
+        "nullable": false,
+        "unit": "contracts",
+        "doc": "real traded volume in contracts"
+      }
+    ]
+  },
+  "row_count": 25000,
+  "time_range": {
+    "start": "2023-01-02T09:00:00Z",
+    "end": "2024-12-30T18:00:00Z"
+  },
+  "tombstone": null
+}
