@@ -1,0 +1,20 @@
+# Dataset lifecycle states and legal transitions
+states:
+  - publishing
+  - published
+  - tombstoned
+  - deleted
+
+transitions:
+  publishing:
+    - published   # a failed publish leaves no record at all
+  published:
+    - tombstoned
+  tombstoned:
+    - deleted
+  deleted: []
+
+invariants:
+  - state == tombstoned implies tombstone is not null
+  - state == published implies tombstone is null
+  - files is non-empty for every state except deleted
