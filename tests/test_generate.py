@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from tools.generate import GenerationError, plan_units
+from tools.emitters.python import emit
 
 
 SCHEMA_ROOT = Path(__file__).parents[1] / "schema"
@@ -44,3 +45,30 @@ def test_plan_units_rejects_an_unsupported_dialect_with_path_and_language(
     message = str(exc_info.value)
     assert "schema/stream/unsupported.schema.json" in message
     assert "python" in message
+
+
+def test_python_emitter_generates_the_stream_envelope_deterministically() -> None:
+    stream = next(unit for unit in plan_units(SCHEMA_ROOT) if unit.name == "stream")
+
+    first = emit(stream)
+    second = emit(stream)
+
+    assert first == second
+    assert first.splitlines()[0].startswith("# ")
+    assert "GENERATED FILE - DO NOT EDIT" in first.splitlines()[0]
+    assert "schema/stream/envelope.schema.json" in first.splitlines()[0]
+    assert "class StreamEnvelope:" in first
+    for field in (
+        "topic",
+        "schema_major",
+        "seq",
+        "epoch",
+        "producer_id",
+        "origin_ts",
+        "payload_kind",
+        "payload_schema",
+        "payload",
+    ):
+        assert f"    {field}:" in first
+    assert "    seq: int" in first
+    assert "    epoch: str" in first
