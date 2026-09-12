@@ -37,6 +37,7 @@ This document records discrepancies discovered while capturing and auditing the 
 - **Expectation:** §4.2 of the system architecture requires REST history replay endpoints accepting sequence watermarks (`from_seq`) to support the subscribe-then-snapshot sequence and lag gap recovery, as well as `latest` snapshot endpoints for instant state synchronization.
 - **Observed Behavior:** Current execution history endpoints (`/api/v1/execution/deployments/{deployment_id}/decisions`, `orders`, `fills`, `ledger`, `risk-events`) support only timestamp filtering (`from_time`, `to_time`) and `limit`/`offset` pagination. There are no sequence-watermark replay endpoints (`from_seq`), no outbox history endpoints for non-deployment topics, and no `latest` state endpoints matching the stream contract.
 - **Triage Decision:** Later task. Design and build outbox replay and `latest` snapshot endpoints specified in the stream protocol batch.
+  - *Note (Q-009):* The replay and snapshot payload shapes are now canonically defined in `schema/stream/replay/` (`history-page.schema.json`, `history-expired.schema.json`, `latest.schema.json`, `watermark.schema.json`). Implementing the REST endpoints in `q_backend` remains a backend task.
 
 ---
 
