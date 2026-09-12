@@ -1,0 +1,18 @@
+{
+  "outcome": "filled",
+  "deals": [
+    {
+      "ticket": 98765,
+      "order_ticket": 12345678,
+      "symbol": "PETR4",
+      "volume": 100.0,
+      "price": 41.08,
+      "commission": -2.50,
+      "profit": 0.0,
+      "magic": 1001,
+      "comment": "q-intent-018f",
+      "time_msc": 1710000000000
+    }
+  ],
+  "closes_intent": true
+}

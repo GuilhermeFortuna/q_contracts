@@ -1,0 +1,10 @@
+{
+  "intent_id": "018f6c38-89ab-7000-8000-000000000001",
+  "order": {
+    "symbol": "PETR4",
+    "volume": 100.0,
+    "side": "buy",
+    "price": 41.08,
+    "deviation": 5
+  }
+}

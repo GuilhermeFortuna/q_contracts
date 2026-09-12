@@ -1,0 +1,6 @@
+{
+  "outcome": "rejected",
+  "retcode": 10013,
+  "closes_intent": true,
+  "reason": "Invalid volume"
+}

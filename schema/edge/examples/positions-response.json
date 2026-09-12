@@ -1,0 +1,16 @@
+[
+  {
+    "ticket": 123456,
+    "symbol": "PETR4",
+    "type": 0,
+    "volume": 100.0,
+    "price_open": 41.00,
+    "sl": 40.50,
+    "tp": 42.00,
+    "price_current": 41.08,
+    "profit": 8.00,
+    "magic": 1001,
+    "comment": "q-intent-018f",
+    "time": 1710000000
+  }
+]
