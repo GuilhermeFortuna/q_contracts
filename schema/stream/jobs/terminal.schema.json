@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stream/jobs/terminal",
+  "title": "JobTerminalPayload",
+  "description": "Payload for the durable jobs.terminal stream topic, recording the final outcome of a background job. Sourced from the transactional outbox; never coalesced or dropped.",
+  "type": "object",
+  "required": [
+    "job_id",
+    "status"
+  ],
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "description": "Unique job or run identifier."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "completed",
+        "failed",
+        "cancelled"
+      ],
+      "description": "Terminal outcome of the job."
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Error message when status is failed or cancelled due to an error."
+    },
+    "result": {
+      "type": "object",
+      "description": "Optional summary or artifact reference of the completed job result."
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 UTC instant when the job reached terminal state."
+    }
+  },
+  "additionalProperties": false
+}

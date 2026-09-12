@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stream/replay/latest",
+  "title": "LatestResponse",
+  "description": "Latest value replay response for ephemeral stream topics, returning the publisher's current state along with its sequence watermark and publisher epoch for client synchronization.",
+  "type": "object",
+  "required": [
+    "topic",
+    "epoch",
+    "seq",
+    "payload"
+  ],
+  "properties": {
+    "topic": {
+      "type": "string",
+      "description": "Ephemeral stream topic name."
+    },
+    "epoch": {
+      "type": "string",
+      "description": "Current publisher epoch."
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Sequence watermark of the latest value."
+    },
+    "payload": {
+      "description": "Latest payload content: base64-encoded Arrow IPC stream batch or structured JSON object.",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "origin_ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 UTC instant from the publisher's clock."
+    },
+    "routing_key": {
+      "type": "string",
+      "description": "Optional routing or coalesce key of the latest entry."
+    },
+    "producer_id": {
+      "type": "string",
+      "description": "Identifier of the publisher process instance."
+    }
+  },
+  "additionalProperties": false
+}

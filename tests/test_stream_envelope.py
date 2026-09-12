@@ -46,3 +46,26 @@ def test_envelope_mutants_fail_with_field_named(
     assert len(errors) >= 1
     # Ensure failure explicitly names the missing field
     assert any(missing_field in err.message for err in errors)
+
+
+def test_envelope_validates_routing_key_example(envelope_schema: dict) -> None:
+    data = json.loads(
+        (EXAMPLES_DIR / "envelope-routing-key.json").read_text(encoding="utf-8")
+    )
+    validator = jsonschema.Draft202012Validator(envelope_schema)
+    errors = list(validator.iter_errors(data))
+    assert errors == []
+    assert data.get("routing_key") == "WIN$N"
+
+
+def test_envelope_mutant_invalid_routing_key_type_fails(envelope_schema: dict) -> None:
+    data = json.loads(
+        (EXAMPLES_DIR / "envelope-routing-key.json").read_text(encoding="utf-8")
+    )
+    data["routing_key"] = 12345  # integer instead of string
+    validator = jsonschema.Draft202012Validator(envelope_schema)
+    errors = list(validator.iter_errors(data))
+    assert len(errors) >= 1
+    assert any(
+        "routing_key" in str(err.path) or "12345" in err.message for err in errors
+    )

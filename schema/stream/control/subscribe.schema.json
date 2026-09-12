@@ -16,6 +16,13 @@
       "minItems": 1,
       "uniqueItems": true,
       "description": "List of topic names to subscribe to."
+    },
+    "cursors": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Optional map from topic name to transport replay cursor (e.g. Redis stream ID) to resume stream forwarding from a known position."
     }
   },
   "additionalProperties": false

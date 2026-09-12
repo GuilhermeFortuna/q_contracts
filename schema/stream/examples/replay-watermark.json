@@ -1,0 +1,12 @@
+{
+  "epoch": "outbox-epoch-42",
+  "watermarks": {
+    "decisions": 1500,
+    "deployments": 12,
+    "fills": 890,
+    "jobs.terminal": 45,
+    "ledger": 3200,
+    "orders": 1205,
+    "risk": 410
+  }
+}

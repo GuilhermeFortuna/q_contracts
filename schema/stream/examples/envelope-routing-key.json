@@ -1,0 +1,12 @@
+{
+  "topic": "quotes",
+  "schema_major": 1,
+  "seq": 4501,
+  "epoch": "ep-pub-2026-09-12-002",
+  "producer_id": "mt5-gateway-worker-1",
+  "origin_ts": "2026-09-12T10:15:30.123456Z",
+  "payload_kind": "arrow_ipc",
+  "payload_schema": "schema/api/arrow/ticks.schema.json",
+  "payload": "/////wAAAAA=",
+  "routing_key": "WIN$N"
+}

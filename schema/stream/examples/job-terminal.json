@@ -1,0 +1,13 @@
+{
+  "job_id": "0191eb58-132b-7e6e-9ca2-482bc676dbbf",
+  "status": "completed",
+  "error": null,
+  "result": {
+    "artifact_id": "run-20260912-001",
+    "metrics": {
+      "sharpe": 1.84,
+      "trades": 142
+    }
+  },
+  "completed_at": "2026-09-12T10:20:00.000000Z"
+}

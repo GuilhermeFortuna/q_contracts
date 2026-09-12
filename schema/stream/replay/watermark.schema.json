@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stream/replay/watermark",
+  "title": "WatermarkResponse",
+  "description": "Outbox watermark response returning the maximum committed sequence per durable topic visible to a REPEATABLE READ snapshot transaction, enabling race-free reconciliation against live stream buffers.",
+  "type": "object",
+  "required": [
+    "watermarks"
+  ],
+  "properties": {
+    "watermarks": {
+      "type": "object",
+      "description": "Map from durable topic name to its maximum visible sequence watermark.",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "epoch": {
+      "type": "string",
+      "description": "Outbox epoch associated with the watermarks."
+    }
+  },
+  "additionalProperties": false
+}

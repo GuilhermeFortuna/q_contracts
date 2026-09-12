@@ -28,7 +28,7 @@ payload-handling role.
 ## Verified by
 
 Verified by: `q_contracts` `UV_CACHE_DIR=/tmp/q-uv-cache make check` — Black,
-Ruff, schema validation, and `93 passed, 7 skipped`; `q_frontend` `make
+Ruff, schema validation, and `146 passed, 7 skipped`; `q_frontend` `make
 contracts-check CONTRACTS_REPO=/home/gui/projects/q/q_contracts` — clean,
 `pnpm typecheck` — passed, `pnpm lint` — 0 errors and 45 warnings, and `TZ=America/Sao_Paulo
 pnpm test:run` — 188 files and 886 tests passed, both before and after the

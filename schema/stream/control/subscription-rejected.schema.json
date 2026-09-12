@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stream/control/subscription-rejected",
+  "title": "SubscriptionRejectedFrame",
+  "description": "Server subscription rejection frame sent when one or more requested topic subscriptions cannot be established (e.g. unknown topic, expired or invalid resume cursor, or unauthorized access).",
+  "type": "object",
+  "required": [
+    "topics",
+    "reason"
+  ],
+  "properties": {
+    "topics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "List of topic names whose subscription was rejected."
+    },
+    "reason": {
+      "type": "string",
+      "description": "Human-readable explanation of why the subscription was rejected."
+    },
+    "code": {
+      "type": "string",
+      "description": "Optional machine-readable rejection code (e.g. unknown_topic, invalid_cursor, unauthorized)."
+    }
+  },
+  "additionalProperties": false
+}

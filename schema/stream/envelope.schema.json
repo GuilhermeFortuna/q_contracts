@@ -78,6 +78,10 @@
           "type": "object"
         }
       ]
+    },
+    "routing_key": {
+      "type": "string",
+      "description": "Optional routing or partition key (e.g. symbol, symbol:timeframe, or job_id) used for topic dispatch, client-side filtering, and backpressure coalescing."
     }
   },
   "additionalProperties": false

@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stream/framing",
+  "title": "WebSocketBinaryHeader",
+  "description": "Header metadata preceding raw binary payload (e.g. unencoded Arrow IPC stream batch) in WebSocket binary framing (opcode 0x02). Framing format: [4 bytes uint32-be: header_length] [header_length bytes: JSON header conforming to this schema] [raw binary payload bytes]. Eliminates base64 expansion overhead for high-throughput streaming.",
+  "type": "object",
+  "required": [
+    "topic",
+    "schema_major",
+    "seq",
+    "epoch",
+    "producer_id",
+    "origin_ts",
+    "payload_kind",
+    "payload_schema",
+    "payload_length"
+  ],
+  "properties": {
+    "topic": {
+      "type": "string",
+      "enum": [
+        "bars.completed",
+        "bars.forming",
+        "decisions",
+        "deployments",
+        "fills",
+        "jobs.progress",
+        "jobs.terminal",
+        "ledger",
+        "orders",
+        "quotes",
+        "risk"
+      ],
+      "description": "Stream topic name. Must be a declared topic in schema/stream/topics.yaml."
+    },
+    "schema_major": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Schema major version of the envelope (integer >= 1)."
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Monotonic sequence number per (topic, epoch)."
+    },
+    "epoch": {
+      "type": "string",
+      "description": "Outbox epoch for durable topics, publisher epoch for ephemeral topics."
+    },
+    "producer_id": {
+      "type": "string",
+      "description": "Identifier of the process instance that wrote the entry."
+    },
+    "origin_ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 UTC instant from the producer's clock."
+    },
+    "payload_kind": {
+      "type": "string",
+      "enum": [
+        "arrow_ipc",
+        "control"
+      ],
+      "description": "Payload encoding kind ('arrow_ipc' or 'control')."
+    },
+    "payload_schema": {
+      "type": "string",
+      "description": "Schema identifier the payload conforms to."
+    },
+    "payload_length": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Length in bytes of the following binary payload segment."
+    },
+    "routing_key": {
+      "type": "string",
+      "description": "Optional routing or coalesce key."
+    }
+  },
+  "additionalProperties": false
+}

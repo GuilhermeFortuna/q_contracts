@@ -1,5 +1,6 @@
 """Rust source emitter."""
 
+import json
 import re
 from typing import Any
 
@@ -144,6 +145,102 @@ def _emit_outcome(
     return lines
 
 
+def _emit_topic_policies(topics: dict[str, Any]) -> list[str]:
+    lines = [
+        "#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]",
+        "pub struct TopicRetention {",
+        "    pub duration: String,",
+        "    pub entries: i64,",
+        "}",
+        "",
+        "#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]",
+        "pub struct TopicBackpressure {",
+        "    pub coalesce: bool,",
+        "    pub coalesce_key: Option<Vec<String>>,",
+        "    pub on_overflow: String,",
+        "}",
+        "",
+        "#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]",
+        "pub struct TopicPolicy {",
+        "    pub backpressure: TopicBackpressure,",
+        '    #[serde(rename = "class")]',
+        "    pub r#class: String,",
+        "    pub notes: Option<String>,",
+        "    pub payload_schema: String,",
+        "    pub replay: String,",
+        "    pub retention: TopicRetention,",
+        "}",
+        "",
+        "pub const TOPIC_NAMES: &[&str] = &[",
+    ]
+    for topic_name in sorted(topics):
+        lines.append(f'    "{topic_name}",')
+    lines.extend(
+        [
+            "];",
+            "",
+            "pub fn get_topic_policy(topic: &str) -> Option<TopicPolicy> {",
+            "    match topic {",
+        ]
+    )
+    for topic_name in sorted(topics):
+        entry = topics[topic_name]
+        bp = entry.get("backpressure", {})
+        coalesce = "true" if bp.get("coalesce", False) else "false"
+        on_overflow = json.dumps(bp.get("on_overflow", ""))
+        coalesce_key = bp.get("coalesce_key")
+        if coalesce_key is not None:
+            ck_items = ", ".join(f"{json.dumps(k)}.to_string()" for k in coalesce_key)
+            ck_str = f"Some(vec![{ck_items}])"
+        else:
+            ck_str = "None"
+        ret = entry.get("retention", {})
+        duration = json.dumps(ret.get("duration", ""))
+        entries = ret.get("entries", 0)
+        cls = json.dumps(entry.get("class", ""))
+        ps = json.dumps(entry.get("payload_schema", ""))
+        replay = json.dumps(entry.get("replay", ""))
+        notes = entry.get("notes")
+        notes_str = (
+            f"Some({json.dumps(notes)}.to_string())" if notes is not None else "None"
+        )
+
+        lines.extend(
+            [
+                f'        "{topic_name}" => Some(TopicPolicy {{',
+                "            backpressure: TopicBackpressure {",
+                f"                coalesce: {coalesce},",
+                f"                coalesce_key: {ck_str},",
+                f"                on_overflow: {on_overflow}.to_string(),",
+                "            },",
+                f"            r#class: {cls}.to_string(),",
+                f"            notes: {notes_str},",
+                f"            payload_schema: {ps}.to_string(),",
+                f"            replay: {replay}.to_string(),",
+                "            retention: TopicRetention {",
+                f"                duration: {duration}.to_string(),",
+                f"                entries: {entries},",
+                "            },",
+                "        }),",
+            ]
+        )
+    lines.extend(
+        [
+            "        _ => None,",
+            "    }",
+            "}",
+            "",
+            "pub fn all_topic_policies() -> Vec<(&'static str, TopicPolicy)> {",
+            "    TOPIC_NAMES",
+            "        .iter()",
+            "        .filter_map(|&name| get_topic_policy(name).map(|policy| (name, policy)))",
+            "        .collect()",
+            "}",
+        ]
+    )
+    return lines
+
+
 def emit(unit: GenerationUnit) -> str:
     source_list = ", ".join(path.as_posix() for path in unit.sources)
     lines = [
@@ -157,7 +254,11 @@ def emit(unit: GenerationUnit) -> str:
         if path.name.endswith(".schema.json") and isinstance(document.get("title"), str)
     }
     definitions: list[tuple[str, dict[str, Any]]] = []
+    topics_doc: dict[str, Any] | None = None
     for document in unit.documents:
+        if document.get("$type") == "topics_policy":
+            topics_doc = document
+            continue
         title = document.get("title")
         if isinstance(title, str) and title:
             definitions.append((_pascal(title), document))
@@ -174,5 +275,8 @@ def emit(unit: GenerationUnit) -> str:
             lines.append(f"pub type {name} = {_type_for(document, ref_map)};")
         else:
             lines.append(f"pub type {name} = {_type_for(document, ref_map)};")
+        lines.append("")
+    if topics_doc is not None:
+        lines.extend(_emit_topic_policies(topics_doc.get("topics", {})))
         lines.append("")
     return "\n".join(lines).rstrip() + "\n"

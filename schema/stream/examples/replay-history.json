@@ -1,0 +1,36 @@
+{
+  "topic": "orders",
+  "epoch": "outbox-epoch-42",
+  "from_seq": 100,
+  "to_seq": 101,
+  "entries": [
+    {
+      "topic": "orders",
+      "schema_major": 1,
+      "seq": 100,
+      "epoch": "outbox-epoch-42",
+      "producer_id": "execution-worker-1",
+      "origin_ts": "2026-09-12T10:00:00.000000Z",
+      "payload_kind": "control",
+      "payload_schema": "schema/stream/envelope.schema.json",
+      "payload": {
+        "intent_id": "0191eb58-132b-7e6e-9ca2-482bc676dbbf",
+        "action": "submitted"
+      }
+    },
+    {
+      "topic": "orders",
+      "schema_major": 1,
+      "seq": 101,
+      "epoch": "outbox-epoch-42",
+      "producer_id": "execution-worker-1",
+      "origin_ts": "2026-09-12T10:00:01.000000Z",
+      "payload_kind": "control",
+      "payload_schema": "schema/stream/envelope.schema.json",
+      "payload": {
+        "intent_id": "0191eb58-132b-7e6e-9ca2-482bc676dbbf",
+        "action": "filled"
+      }
+    }
+  ]
+}

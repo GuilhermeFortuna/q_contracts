@@ -91,6 +91,82 @@ def _emit_object(
     return lines
 
 
+def _emit_topic_policies(topics: dict[str, Any]) -> list[str]:
+    lines = [
+        "@dataclass(frozen=True)",
+        "class TopicRetention:",
+        "    duration: str",
+        "    entries: int",
+        "",
+        "",
+        "@dataclass(frozen=True)",
+        "class TopicBackpressure:",
+        "    coalesce: bool",
+        "    on_overflow: str",
+        "    coalesce_key: list[str] | None = None",
+        "",
+        "",
+        "@dataclass(frozen=True)",
+        "class TopicPolicy:",
+        "    backpressure: TopicBackpressure",
+        "    class_: str",
+        "    payload_schema: str",
+        "    replay: str",
+        "    retention: TopicRetention",
+        "    notes: str | None = None",
+        "",
+        "",
+        "TOPIC_NAMES: tuple[str, ...] = (",
+    ]
+    for topic_name in sorted(topics):
+        lines.append(f'    "{topic_name}",')
+    lines.extend(
+        [
+            ")",
+            "",
+            "",
+            "TOPIC_POLICIES: dict[str, TopicPolicy] = {",
+        ]
+    )
+    for topic_name in sorted(topics):
+        entry = topics[topic_name]
+        bp = entry.get("backpressure", {})
+        coalesce = bp.get("coalesce", False)
+        on_overflow = json.dumps(bp.get("on_overflow", ""))
+        coalesce_key = bp.get("coalesce_key")
+        ck_repr = json.dumps(coalesce_key) if coalesce_key is not None else "None"
+        ret = entry.get("retention", {})
+        duration = json.dumps(ret.get("duration", ""))
+        entries = ret.get("entries", 0)
+        cls = json.dumps(entry.get("class", ""))
+        ps = json.dumps(entry.get("payload_schema", ""))
+        replay = json.dumps(entry.get("replay", ""))
+        notes = entry.get("notes")
+        notes_repr = json.dumps(notes) if notes is not None else "None"
+
+        lines.extend(
+            [
+                f'    "{topic_name}": TopicPolicy(',
+                "        backpressure=TopicBackpressure(",
+                f"            coalesce={coalesce},",
+                f"            on_overflow={on_overflow},",
+                f"            coalesce_key={ck_repr},",
+                "        ),",
+                f"        class_={cls},",
+                f"        notes={notes_repr},",
+                f"        payload_schema={ps},",
+                f"        replay={replay},",
+                "        retention=TopicRetention(",
+                f"            duration={duration},",
+                f"            entries={entries},",
+                "        ),",
+                "    ),",
+            ]
+        )
+    lines.append("}")
+    return lines
+
+
 def emit(unit: GenerationUnit) -> str:
     source_list = ", ".join(path.as_posix() for path in unit.sources)
     lines = [
@@ -108,7 +184,11 @@ def emit(unit: GenerationUnit) -> str:
         if path.name.endswith(".schema.json") and isinstance(document.get("title"), str)
     }
     definitions: list[tuple[str, dict[str, Any]]] = []
+    topics_doc: dict[str, Any] | None = None
     for document in unit.documents:
+        if document.get("$type") == "topics_policy":
+            topics_doc = document
+            continue
         title = document.get("title")
         if isinstance(title, str) and title:
             definitions.append((_pascal(title), document))
@@ -125,5 +205,8 @@ def emit(unit: GenerationUnit) -> str:
             lines.extend([f"{name} = " + " | ".join(variants or ["Any"])])
         else:
             lines.append(f"{name} = {_type_for(document, ref_map, quote_refs=True)}")
+        lines.extend(["", ""])
+    if topics_doc is not None:
+        lines.extend(_emit_topic_policies(topics_doc.get("topics", {})))
         lines.extend(["", ""])
     return "\n".join(lines).rstrip() + "\n"

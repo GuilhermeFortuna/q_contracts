@@ -1,0 +1,8 @@
+{
+  "topics": [
+    "invalid.topic",
+    "unauthorized.topic"
+  ],
+  "reason": "Requested topic 'invalid.topic' is not a declared topic in topics.yaml",
+  "code": "unknown_topic"
+}

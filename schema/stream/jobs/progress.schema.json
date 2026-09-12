@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stream/jobs/progress",
+  "title": "JobProgressPayload",
+  "description": "Payload for the ephemeral jobs.progress stream topic, conveying live progress updates and non-terminal execution status for background jobs. Coalesced per job_id on backpressure overflow.",
+  "type": "object",
+  "required": [
+    "job_id",
+    "status",
+    "progress"
+  ],
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "description": "Unique job or run identifier."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "running",
+        "progress"
+      ],
+      "description": "Current non-terminal execution status of the job."
+    },
+    "progress": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Normalized execution progress between 0.0 and 1.0."
+    },
+    "detail": {
+      "type": "string",
+      "description": "Optional human-readable description of current step or progress detail."
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Transient or non-fatal warning message, if any."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 UTC instant of the progress update."
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,10 @@
+{
+  "topics": [
+    "orders",
+    "quotes"
+  ],
+  "cursors": {
+    "orders": "1710000000000-0",
+    "quotes": "1710000005000-0"
+  }
+}

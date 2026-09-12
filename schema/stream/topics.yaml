@@ -91,7 +91,7 @@ topics:
     backpressure:
       coalesce: false
       on_overflow: lag
-    payload_schema: schema/stream/envelope.schema.json
+    payload_schema: schema/stream/jobs/terminal.schema.json
     replay: unbounded
     notes: "Terminal states of jobs (completed, failed). Sourced durably from Postgres outbox; paired with ephemeral jobs.progress. Unlike progress updates, terminal job states are never coalesced or dropped."
 
@@ -148,6 +148,6 @@ topics:
       coalesce_key:
         - job_id
       on_overflow: coalesce
-    payload_schema: schema/stream/envelope.schema.json
+    payload_schema: schema/stream/jobs/progress.schema.json
     replay: retention_only
     notes: "Ephemeral job progress updates; coalesced per job_id keeping latest. Paired with durable jobs.terminal for non-droppable terminal states."

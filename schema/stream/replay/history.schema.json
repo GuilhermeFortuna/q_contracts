@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stream/replay/history",
+  "title": "HistoryResponse",
+  "description": "Replay response containing a bounded sequence range of stream envelopes from durable outbox history. Used by consumers to catch up across detected sequence gaps or after backpressure lag notifications.",
+  "type": "object",
+  "required": [
+    "topic",
+    "epoch",
+    "from_seq",
+    "to_seq",
+    "entries"
+  ],
+  "properties": {
+    "topic": {
+      "type": "string",
+      "description": "Stream topic name."
+    },
+    "epoch": {
+      "type": "string",
+      "description": "Outbox epoch of the replayed entries."
+    },
+    "from_seq": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Starting sequence watermark of the range (inclusive)."
+    },
+    "to_seq": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Ending sequence watermark of the range (inclusive)."
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "$ref": "../envelope"
+      },
+      "description": "Ordered list of stream envelopes within the requested sequence range [from_seq, to_seq]."
+    }
+  },
+  "additionalProperties": false
+}

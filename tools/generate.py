@@ -47,6 +47,8 @@ def plan_units(schema_root: Path) -> list[GenerationUnit]:
         paths = sorted(boundary.rglob("*.schema.json")) if boundary.is_dir() else []
         if name == "api" and (boundary / "openapi.yaml").is_file():
             paths.append(boundary / "openapi.yaml")
+        if name == "stream" and (boundary / "topics.yaml").is_file():
+            paths.append(boundary / "topics.yaml")
         paths = sorted(paths)
         documents: list[dict[str, Any]] = []
         sources: list[Path] = []
@@ -55,7 +57,16 @@ def plan_units(schema_root: Path) -> list[GenerationUnit]:
             try:
                 if path.suffix == ".yaml":
                     document = yaml.safe_load(path.read_text(encoding="utf-8"))
-                    if not isinstance(document, dict) or not str(
+                    if path.name == "topics.yaml":
+                        if (
+                            not isinstance(document, dict)
+                            or "topics" not in document
+                            or not isinstance(document["topics"], dict)
+                        ):
+                            raise GenerationError(
+                                f"Missing 'topics' mapping in {relative} for languages: {', '.join(LANGUAGES)}"
+                            )
+                    elif not isinstance(document, dict) or not str(
                         document.get("openapi", "")
                     ).startswith("3.1"):
                         raise GenerationError(
@@ -96,6 +107,14 @@ def plan_units(schema_root: Path) -> list[GenerationUnit]:
                             f"{', '.join(LANGUAGES)}"
                         )
                     documents.append({"title": title, **component})
+            elif path.name == "topics.yaml":
+                documents.append(
+                    {
+                        "$type": "topics_policy",
+                        "title": "TopicPolicy",
+                        "topics": document["topics"],
+                    }
+                )
             else:
                 documents.append(document)
         if sources:

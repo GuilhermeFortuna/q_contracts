@@ -172,3 +172,64 @@ def test_generate_produces_byte_identical_trees_on_repeated_runs(
     assert (first_root / "typescript" / "api.ts").is_file()
     assert (first_root / "python" / "q_contracts" / "stream.py").is_file()
     assert (first_root / "rust" / "stream.rs").is_file()
+
+
+def test_python_emitter_generates_topic_policies_as_data() -> None:
+    units = plan_units(SCHEMA_ROOT)
+    stream = next(unit for unit in units if unit.name == "stream")
+    output = emit(stream)
+
+    assert "schema/stream/topics.yaml" in output.splitlines()[0]
+    assert "class TopicPolicy:" in output
+    assert "class TopicRetention:" in output
+    assert "class TopicBackpressure:" in output
+    assert "TOPIC_NAMES: tuple[str, ...] = (" in output
+    assert "TOPIC_POLICIES: dict[str, TopicPolicy] = {" in output
+    assert '"orders": TopicPolicy(' in output
+    assert '"quotes": TopicPolicy(' in output
+    assert 'class_="durable"' in output
+    assert 'class_="ephemeral"' in output
+    assert "JobProgressPayload" in output
+    assert "JobTerminalPayload" in output
+    assert "SubscriptionRejectedFrame" in output
+    assert "HistoryResponse" in output
+    assert "LatestResponse" in output
+    assert "WatermarkResponse" in output
+    assert "WebSocketBinaryHeader" in output
+
+
+def test_typescript_emitter_generates_topic_policies_as_data() -> None:
+    units = plan_units(SCHEMA_ROOT)
+    stream = next(unit for unit in units if unit.name == "stream")
+    output = emit_typescript(stream)
+
+    assert "schema/stream/topics.yaml" in output.splitlines()[0]
+    assert "export interface TopicPolicy {" in output
+    assert "export const TOPIC_NAMES: Array<string> =" in output
+    assert "export const TOPIC_POLICIES: Record<string, TopicPolicy> = {" in output
+    assert '"bars.completed": {' in output
+    assert "export interface JobProgressPayload {" in output
+    assert "export interface JobTerminalPayload {" in output
+    assert "export interface HistoryResponse {" in output
+    assert "export interface LatestResponse {" in output
+    assert "export interface WatermarkResponse {" in output
+    assert "export interface WebSocketBinaryHeader {" in output
+
+
+def test_rust_emitter_generates_topic_policies_as_data() -> None:
+    units = plan_units(SCHEMA_ROOT)
+    stream = next(unit for unit in units if unit.name == "stream")
+    output = emit_rust(stream)
+
+    assert "schema/stream/topics.yaml" in output.splitlines()[0]
+    assert "pub struct TopicPolicy {" in output
+    assert "pub const TOPIC_NAMES: &[&str] = &[" in output
+    assert "pub fn get_topic_policy(topic: &str) -> Option<TopicPolicy> {" in output
+    assert "pub fn all_topic_policies() -> Vec<(&'static str, TopicPolicy)> {" in output
+    assert '"orders" => Some(TopicPolicy {' in output
+    assert "pub struct JobProgressPayload {" in output
+    assert "pub struct JobTerminalPayload {" in output
+    assert "pub struct HistoryResponse {" in output
+    assert "pub struct LatestResponse {" in output
+    assert "pub struct WatermarkResponse {" in output
+    assert "pub struct WebSocketBinaryHeader {" in output
