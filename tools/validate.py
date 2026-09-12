@@ -120,6 +120,11 @@ def check_file(path: Path, schema_root: Path) -> list[SchemaProblem]:
             )
         ]
 
+    # YAML policy files (such as schema/stream/topics.yaml) are policy declarations,
+    # not JSON Schema meta-schemas.
+    if file_path.name.endswith(".yaml") or file_path.name.endswith(".yml"):
+        return []
+
     try:
         jsonschema.Draft202012Validator.check_schema(data)
     except jsonschema.exceptions.SchemaError as exc:

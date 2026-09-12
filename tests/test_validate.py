@@ -111,3 +111,52 @@ def test_check_tree_and_main_with_malformed_file(tmp_path: Path, monkeypatch, ca
     captured = capsys.readouterr()
     rel_path_str = "schema/stream/broken.schema.json"
     assert rel_path_str in captured.err
+
+
+def test_check_file_topics_yaml_valid(tmp_path: Path):
+    schema_root = tmp_path / "schema"
+    stream_dir = schema_root / "stream"
+    stream_dir.mkdir(parents=True)
+    topics = stream_dir / "topics.yaml"
+    topics.write_text("""topics:
+  decisions:
+    class: durable
+    retention:
+      duration: P1D
+      entries: 200000
+    backpressure:
+      coalesce: false
+      on_overflow: lag
+    payload_schema: schema/stream/envelope.schema.json
+    replay: unbounded
+description: 100
+""")
+    problems = check_file(topics, schema_root)
+    assert problems == []
+
+
+def test_check_file_topics_yaml_not_mapping(tmp_path: Path):
+    schema_root = tmp_path / "schema"
+    stream_dir = schema_root / "stream"
+    stream_dir.mkdir(parents=True)
+    topics = stream_dir / "topics.yaml"
+    topics.write_text("- not a mapping\n")
+
+    problems = check_file(topics, schema_root)
+    assert len(problems) == 1
+    assert problems[0].path == topics
+    assert "mapping" in problems[0].reason.lower()
+
+
+def test_check_file_json_schema_in_stream_still_checked(tmp_path: Path):
+    schema_root = tmp_path / "schema"
+    stream_dir = schema_root / "stream"
+    stream_dir.mkdir(parents=True)
+    bad_schema = stream_dir / "bad.schema.json"
+    bad_schema.write_text(
+        '{"$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "stream/bad", "type": 123}'
+    )
+
+    problems = check_file(bad_schema, schema_root)
+    assert len(problems) == 1
+    assert "schema invalid" in problems[0].reason.lower()
