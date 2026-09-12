@@ -135,11 +135,175 @@ def check_file(path: Path, schema_root: Path) -> list[SchemaProblem]:
     return []
 
 
+def _resolve_schema_ref(schema_root: Path, ref: str) -> bool:
+    candidates = [
+        schema_root.parent / ref,
+        schema_root / ref,
+        schema_root / ref.removeprefix("schema/"),
+        Path.cwd() / ref,
+    ]
+    return any(c.is_file() for c in candidates)
+
+
+def check_stream_consistency(schema_root: Path) -> list[SchemaProblem]:
+    """Cross-document rules between topics.yaml and envelope.schema.json.
+
+    Rules enforced, each producing a problem naming the offending topic:
+      - every topics.yaml key is an accepted value of the envelope's `topic` enum
+      - every envelope topic enum value is declared in topics.yaml
+      - class == durable implies backpressure.coalesce is false
+      - class == ephemeral implies replay == retention_only
+      - payload_schema resolves to an existing file under schema/
+      - coalesce_key is present iff coalesce is true
+    """
+    topics_file = schema_root / "stream" / "topics.yaml"
+    envelope_file = schema_root / "stream" / "envelope.schema.json"
+
+    if not topics_file.is_file() or not envelope_file.is_file():
+        return []
+
+    try:
+        report_topics_path = topics_file.relative_to(Path.cwd())
+    except ValueError:
+        report_topics_path = topics_file
+
+    try:
+        report_envelope_path = envelope_file.relative_to(Path.cwd())
+    except ValueError:
+        report_envelope_path = envelope_file
+
+    try:
+        topics_data = yaml.safe_load(topics_file.read_text(encoding="utf-8"))
+    except (yaml.YAMLError, OSError):
+        return []
+
+    try:
+        envelope_data = json.loads(envelope_file.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return []
+
+    if (
+        not isinstance(topics_data, dict)
+        or "topics" not in topics_data
+        or not isinstance(topics_data["topics"], dict)
+    ):
+        return []
+
+    if not isinstance(envelope_data, dict):
+        return []
+
+    envelope_enum = envelope_data.get("properties", {}).get("topic", {}).get("enum", [])
+    envelope_topics = set(envelope_enum) if isinstance(envelope_enum, list) else set()
+    declared_topics = topics_data["topics"]
+    declared_topic_names = set(declared_topics.keys())
+
+    problems: list[SchemaProblem] = []
+
+    # Rule 1: every topics.yaml key is an accepted value of the envelope's `topic` enum
+    for topic_name in sorted(declared_topic_names):
+        if topic_name not in envelope_topics:
+            problems.append(
+                SchemaProblem(
+                    path=report_topics_path,
+                    reason=(
+                        f"Topic '{topic_name}' declared in topics.yaml is not an "
+                        "accepted value of the envelope topic enum"
+                    ),
+                )
+            )
+
+    # Rule 2: every envelope topic enum value is declared in topics.yaml
+    for topic_name in sorted(envelope_topics):
+        if topic_name not in declared_topic_names:
+            problems.append(
+                SchemaProblem(
+                    path=report_envelope_path,
+                    reason=(
+                        f"Envelope topic enum value '{topic_name}' is not declared in topics.yaml"
+                    ),
+                )
+            )
+
+    # Per-topic invariants
+    for topic_name, entry in declared_topics.items():
+        if not isinstance(entry, dict):
+            continue
+
+        topic_class = entry.get("class")
+        backpressure = entry.get("backpressure") or {}
+        coalesce = backpressure.get("coalesce", False)
+        has_coalesce_key = (
+            "coalesce_key" in backpressure and backpressure["coalesce_key"] is not None
+        )
+        replay = entry.get("replay")
+        payload_schema = entry.get("payload_schema")
+
+        # Rule 3: class == durable implies backpressure.coalesce is false
+        if topic_class == "durable" and coalesce:
+            problems.append(
+                SchemaProblem(
+                    path=report_topics_path,
+                    reason=(
+                        f"Durable topic '{topic_name}' must have backpressure coalesce set to false"
+                    ),
+                )
+            )
+
+        # Rule 4: class == ephemeral implies replay == retention_only
+        if topic_class == "ephemeral" and replay != "retention_only":
+            problems.append(
+                SchemaProblem(
+                    path=report_topics_path,
+                    reason=(
+                        f"Ephemeral topic '{topic_name}' must have replay set to "
+                        f"'retention_only' (found '{replay}')"
+                    ),
+                )
+            )
+
+        # Rule 5: payload_schema resolves to an existing file under schema/
+        if payload_schema is None or not _resolve_schema_ref(
+            schema_root, str(payload_schema)
+        ):
+            problems.append(
+                SchemaProblem(
+                    path=report_topics_path,
+                    reason=(
+                        f"Topic '{topic_name}' payload_schema '{payload_schema}' does "
+                        "not resolve to an existing file under schema/"
+                    ),
+                )
+            )
+
+        # Rule 6: coalesce_key is present iff coalesce is true
+        if not coalesce and has_coalesce_key:
+            problems.append(
+                SchemaProblem(
+                    path=report_topics_path,
+                    reason=(
+                        f"Topic '{topic_name}' has coalesce_key present while coalesce is false"
+                    ),
+                )
+            )
+        elif coalesce and not has_coalesce_key:
+            problems.append(
+                SchemaProblem(
+                    path=report_topics_path,
+                    reason=(
+                        f"Topic '{topic_name}' has coalesce set to true but lacks coalesce_key"
+                    ),
+                )
+            )
+
+    return problems
+
+
 def check_tree(schema_root: Path) -> list[SchemaProblem]:
-    """discover() then check_file() over everything. Empty tree yields no problems."""
+    """discover() then check_file() over everything, plus cross-document consistency."""
     problems: list[SchemaProblem] = []
     for file_path in discover(schema_root):
         problems.extend(check_file(file_path, schema_root))
+    problems.extend(check_stream_consistency(schema_root))
     return problems
 
 
