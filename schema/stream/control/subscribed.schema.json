@@ -5,9 +5,14 @@
   "description": "Server subscription acknowledgement frame. Carries per-topic forwarding cursor, current epoch, and last sequence watermark necessary for snapshot reconciliation.",
   "type": "object",
   "required": [
+    "type",
     "topics"
   ],
   "properties": {
+    "type": {
+      "const": "subscribed",
+      "description": "Server control frame discriminator. A text frame carrying `type` is a control frame; a text frame without it is a stream envelope."
+    },
     "topics": {
       "type": "object",
       "description": "Map from subscribed topic name to its subscription cursor and sequence watermark state.",

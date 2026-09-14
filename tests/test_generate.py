@@ -85,6 +85,16 @@ def test_python_emitter_generates_the_stream_envelope_deterministically() -> Non
     assert "    epoch: str" in first
 
 
+def test_python_emitter_types_a_const_property_as_a_literal() -> None:
+    """A bare repr annotation is a forward reference to an undefined name, not a constant type."""
+    stream = next(unit for unit in plan_units(SCHEMA_ROOT) if unit.name == "stream")
+
+    source = emit(stream)
+
+    assert '    type: Literal["lagging"]' in source
+    assert "    type: 'lagging'" not in source
+
+
 def test_typescript_emitter_generates_the_stream_envelope_and_optional_fields() -> None:
     units = plan_units(SCHEMA_ROOT)
     stream = next(unit for unit in units if unit.name == "stream")

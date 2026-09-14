@@ -3,12 +3,14 @@
 export interface CursorExpiredFrame {
   cursor?: string
   topic: string
+  type: "cursor_expired"
 }
 
 export interface EpochChangedFrame {
   new_epoch: string
   previous_epoch?: string
   topic: string
+  type: "epoch_changed"
 }
 
 export interface HistoryExpiredResponse {
@@ -43,6 +45,7 @@ export interface JobTerminalPayload {
 export interface LaggingFrame {
   from_seq: number
   topic: string
+  type: "lagging"
 }
 
 export interface LatestValuesResponse {
@@ -52,8 +55,9 @@ export interface LatestValuesResponse {
 
 export interface RejectedFrame {
   detail?: string
-  reason: "unknown_topic" | "unsupported_schema_major" | "stream_unavailable"
+  reason: "unknown_topic" | "unsupported_schema_major" | "stream_unavailable" | "invalid_frame"
   topic?: string
+  type: "rejected"
 }
 
 export interface SnapshotWatermark {
@@ -79,4 +83,5 @@ export interface SubscribeFrame {
 
 export interface SubscribedFrame {
   topics: Record<string, unknown>
+  type: "subscribed"
 }

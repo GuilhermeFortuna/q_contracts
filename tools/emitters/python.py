@@ -95,7 +95,7 @@ def _type_for(
         ref_name = _ref_name(str(schema["$ref"]), ref_map)
         result = f'"{ref_name}"' if quote_refs else ref_name
     elif "const" in schema:
-        result = repr(schema["const"])
+        result = f"Literal[{json.dumps(schema['const'])}]"
     elif "enum" in schema:
         values = [json.dumps(value) for value in schema["enum"]]
         inline = ", ".join(values)

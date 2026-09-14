@@ -30,6 +30,8 @@ Text WebSocket frames carry UTF-8 encoded JSON. They are used for:
 - Stream envelopes whose `payload_kind` is `"control"` (e.g. `jobs.progress`, `jobs.terminal`).
 - REST replay responses (`HistoryPageResponse`, `HistoryExpiredResponse`, `LatestValuesResponse`, `SnapshotWatermark`).
 
+Every server control frame carries a `type` discriminator: `subscribed`, `rejected`, `cursor_expired`, `lagging`, or `epoch_changed`. Stream envelopes never carry `type` (the envelope schema forbids additional properties). A client therefore classifies a server text frame by one rule: if the parsed object has `type`, it is the control frame that value names; otherwise it is a stream envelope. Clients must not infer a frame's kind from which other keys are present.
+
 ### 2.2 Binary Frames (Header + Arrow IPC)
 
 Binary WebSocket frames carry a binary-packed envelope and are used exclusively when `payload_kind` is `"arrow_ipc"`.

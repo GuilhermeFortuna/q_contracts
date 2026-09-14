@@ -5,9 +5,14 @@
   "description": "Notification that a requested subscription cursor is older than the stream retention window. Client must perform a full snapshot resynchronization for this topic.",
   "type": "object",
   "required": [
+    "type",
     "topic"
   ],
   "properties": {
+    "type": {
+      "const": "cursor_expired",
+      "description": "Server control frame discriminator. A text frame carrying `type` is a control frame; a text frame without it is a stream envelope."
+    },
     "topic": {
       "type": "string",
       "description": "The topic whose cursor has expired."

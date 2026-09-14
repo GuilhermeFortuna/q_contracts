@@ -5,10 +5,15 @@
   "description": "Backpressure overflow notification marking a consumer as lagging on a topic. Names both the topic and the sequence watermark from which data was dropped, enabling bounded fetch recovery from REST history.",
   "type": "object",
   "required": [
+    "type",
     "topic",
     "from_seq"
   ],
   "properties": {
+    "type": {
+      "const": "lagging",
+      "description": "Server control frame discriminator. A text frame carrying `type` is a control frame; a text frame without it is a stream envelope."
+    },
     "topic": {
       "type": "string",
       "description": "The topic on which the consumer has fallen behind or overflowed."

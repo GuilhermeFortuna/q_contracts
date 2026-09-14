@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 pub struct CursorExpiredFrame {
     pub cursor: Option<String>,
     pub topic: String,
+    #[serde(rename = "type")]
+    pub r#type: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -12,6 +14,8 @@ pub struct EpochChangedFrame {
     pub new_epoch: String,
     pub previous_epoch: Option<String>,
     pub topic: String,
+    #[serde(rename = "type")]
+    pub r#type: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -51,6 +55,8 @@ pub struct JobTerminalPayload {
 pub struct LaggingFrame {
     pub from_seq: i64,
     pub topic: String,
+    #[serde(rename = "type")]
+    pub r#type: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -64,6 +70,8 @@ pub struct RejectedFrame {
     pub detail: Option<String>,
     pub reason: String,
     pub topic: Option<String>,
+    #[serde(rename = "type")]
+    pub r#type: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -93,4 +101,6 @@ pub struct SubscribeFrame {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SubscribedFrame {
     pub topics: serde_json::Value,
+    #[serde(rename = "type")]
+    pub r#type: String,
 }

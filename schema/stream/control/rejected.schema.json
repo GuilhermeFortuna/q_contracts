@@ -5,15 +5,21 @@
   "description": "Server frame rejecting a subscription or a topic within it.",
   "type": "object",
   "required": [
+    "type",
     "reason"
   ],
   "properties": {
+    "type": {
+      "const": "rejected",
+      "description": "Server control frame discriminator. A text frame carrying `type` is a control frame; a text frame without it is a stream envelope."
+    },
     "reason": {
       "type": "string",
       "enum": [
         "unknown_topic",
         "unsupported_schema_major",
-        "stream_unavailable"
+        "stream_unavailable",
+        "invalid_frame"
       ],
       "description": "Closed vocabulary of subscription rejection reasons."
     },

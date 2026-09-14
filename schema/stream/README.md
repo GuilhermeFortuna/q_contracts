@@ -8,7 +8,7 @@ This directory holds schemas and policies governing the asynchronous event strea
 - The topic policy configuration (`topics.yaml`) declaring topic classes, retention rules, coalesce keys, and backpressure policies.
 - Dedicated event payload schemas under `payloads/` (`job-progress.schema.json`, `job-terminal.schema.json`).
 - Replay and snapshot response schemas under `replay/` (`history-page.schema.json`, `history-expired.schema.json`, `latest.schema.json`, `watermark.schema.json`).
-- Control payload schemas under `control/` for streaming subscriptions (`subscribe.schema.json` with resume cursors), rejections (`rejected.schema.json`), cursor events, and stream synchronization.
+- Control payload schemas under `control/` for streaming subscriptions (`subscribe.schema.json` with resume cursors), rejections (`rejected.schema.json`), cursor events, and stream synchronization. Every server control frame carries a `type` discriminator; envelopes never do (see `framing.md` §2.1).
 - Transport framing specification (`framing.md`) defining WebSocket text and binary frame formats for raw Arrow IPC delivery.
 
 ## What Does Not Belong Here
