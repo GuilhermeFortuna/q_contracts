@@ -83,9 +83,10 @@ Continuous integration (CI) executes this exact command on all pushes and pull r
 
 ## Running the Suite and Enabling Hooks
 
-`make check` is the whole suite. `scripts/ci.sh` is a wrapper around it that
-adds no steps of its own, and exists so the entry point matches `q_frontend`
-and `q_backend`:
+`make check` is the whole suite (via `scripts/ci.sh` → `make check-suite`). Locally,
+the entrypoint enters the host user `ci.slice` when available — no manual
+`systemd-run` wrapping. `scripts/ci.sh` also exists so the entry point matches
+`q_frontend` and `q_backend`:
 
 ```bash
 ./scripts/ci.sh

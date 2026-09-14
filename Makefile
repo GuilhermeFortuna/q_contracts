@@ -1,6 +1,11 @@
-.PHONY: check check-live generate-check hooks
+.PHONY: check check-suite check-live generate-check hooks
 
-check: generate-check
+# Public entrypoint: routes through scripts/ci.sh for host ci.slice prioritization.
+check:
+	@./scripts/ci.sh
+
+# Actual suite body (invoked by scripts/ci.sh after optional slice enter).
+check-suite: generate-check
 	uv run black --check .
 	uv run ruff check .
 	uv run python tools/validate.py
