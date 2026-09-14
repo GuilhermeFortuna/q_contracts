@@ -8,7 +8,7 @@ table is updated with the consumer commit and verification evidence.
 | --- | --- | --- |
 | `q_contracts` | `09400d7fc16a4b95cae225300ff7834a20f3d1b0` | `09400d7fc16a4b95cae225300ff7834a20f3d1b0` |
 | `q_frontend` | `aea7bfe70ec7fae81b6c28d24bd3bb10cdeff7c3` | `998a50570905524bfb9af0465a725b170f2970df` |
-| `q_backend` | `8367451d26744fc1e513c3cf5b103eb4aa559220` | `Q-015-stream-snapshot-and-history-endpoints-spec` |
+| `q_backend` | `8367451d26744fc1e513c3cf5b103eb4aa559220` | `8a9c45299842184d73a82c9c4d6c9fb49dc16885` |
 | `q_core` | `84bdeb084920fc41f6e1e69a038bf9087532eb51` (`v2026.09.12`) | `998a50570905524bfb9af0465a725b170f2970df` |
 | `q_terminal` | `88aa2730a30b5cecea17ebfc9aafdc3fe3aa6196` | `998a50570905524bfb9af0465a725b170f2970df` |
 
