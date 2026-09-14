@@ -8,7 +8,7 @@ table is updated with the consumer commit and verification evidence.
 | --- | --- | --- |
 | `q_contracts` | `998a50570905524bfb9af0465a725b170f2970df` | `998a50570905524bfb9af0465a725b170f2970df` |
 | `q_frontend` | `aea7bfe70ec7fae81b6c28d24bd3bb10cdeff7c3` | `998a50570905524bfb9af0465a725b170f2970df` |
-| `q_backend` | `2841245d5ce67f134cddcc9d18c67cf3ce69d0ad` | `998a50570905524bfb9af0465a725b170f2970df` |
+| `q_backend` | `1a8d0bce46fda4408b62ed420d744178df29dd6e` | `09400d7fc16a4b95cae225300ff7834a20f3d1b0` |
 | `q_core` | `84bdeb084920fc41f6e1e69a038bf9087532eb51` (`v2026.09.12`) | `998a50570905524bfb9af0465a725b170f2970df` |
 | `q_terminal` | `88aa2730a30b5cecea17ebfc9aafdc3fe3aa6196` (`v2026.09.12`) | `998a50570905524bfb9af0465a725b170f2970df` |
 
@@ -33,9 +33,8 @@ Ruff, schema validation, and `93 passed, 7 skipped`; `q_frontend` `make
 contracts-check CONTRACTS_REPO=/home/gui/projects/q/q_contracts` — clean,
 `pnpm typecheck` — passed, `pnpm lint` — 0 errors and 45 warnings, and `TZ=America/Sao_Paulo
 pnpm test:run` — 188 files and 886 tests passed, both before and after the
-generated-type adoption with no frontend test file modified; `q_backend` `make
-contracts-check CONTRACTS_REPO=/home/gui/projects/q/q_contracts` — clean, and
-`UV_CACHE_DIR=/tmp/q-uv-cache uv run pytest` — 1,580 passed, 1 failed, 14
-skipped. The one backend failure is the pre-existing
-`test_factory_gemini_missing_api_key` configuration assertion; `q_core` `make check CONTRACTS_REPO=/home/gui/projects/q/q_contracts` — clean rustfmt, clippy, workspace tests, release wheel build, virtualenv wheel integration test, Qt staticlib C++ harness assertions, and contracts-check; `q_terminal` `env -u WAYLAND_DISPLAY -u DISPLAY make check CONTRACTS_REPO=/home/gui/projects/q/q_contracts` — clean rustfmt, clippy, build, qmllint (-W 0), test_bridge, test_headless_report, clean contracts-check, and headless-report reporting app version 0.1.0, core version 2026.9.12, contracts rev 998a50570905524bfb9af0465a725b170f2970df, and headless render backend.
+generated-type adoption with no frontend test file modified; `q_backend` at `development`
+`8a1174b8eebf8ea3676683ec7dc8c1c0f7d071f8` (pin commit `1a8d0bc`) `scripts/ci.sh`
+— `make contracts-check` against the published repository clean, migrations
+applied, Ruff and Black clean, and pytest 1,722 passed, 14 skipped; `q_core` `make check CONTRACTS_REPO=/home/gui/projects/q/q_contracts` — clean rustfmt, clippy, workspace tests, release wheel build, virtualenv wheel integration test, Qt staticlib C++ harness assertions, and contracts-check; `q_terminal` `env -u WAYLAND_DISPLAY -u DISPLAY make check CONTRACTS_REPO=/home/gui/projects/q/q_contracts` — clean rustfmt, clippy, build, qmllint (-W 0), test_bridge, test_headless_report, clean contracts-check, and headless-report reporting app version 0.1.0, core version 2026.9.12, contracts rev 998a50570905524bfb9af0465a725b170f2970df, and headless render backend.
 
