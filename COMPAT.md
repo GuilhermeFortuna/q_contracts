@@ -6,11 +6,11 @@ table is updated with the consumer commit and verification evidence.
 
 | Repository | Repository commit | Contracts commit |
 | --- | --- | --- |
-| `q_contracts` | `998a50570905524bfb9af0465a725b170f2970df` | `998a50570905524bfb9af0465a725b170f2970df` |
+| `q_contracts` | `09400d7fc16a4b95cae225300ff7834a20f3d1b0` | `09400d7fc16a4b95cae225300ff7834a20f3d1b0` |
 | `q_frontend` | `aea7bfe70ec7fae81b6c28d24bd3bb10cdeff7c3` | `998a50570905524bfb9af0465a725b170f2970df` |
 | `q_backend` | `1a8d0bce46fda4408b62ed420d744178df29dd6e` | `09400d7fc16a4b95cae225300ff7834a20f3d1b0` |
 | `q_core` | `84bdeb084920fc41f6e1e69a038bf9087532eb51` (`v2026.09.12`) | `998a50570905524bfb9af0465a725b170f2970df` |
-| `q_terminal` | `88aa2730a30b5cecea17ebfc9aafdc3fe3aa6196` (`v2026.09.12`) | `998a50570905524bfb9af0465a725b170f2970df` |
+| `q_terminal` | `88aa2730a30b5cecea17ebfc9aafdc3fe3aa6196` | `998a50570905524bfb9af0465a725b170f2970df` |
 
 ## Generation scope decisions
 
@@ -28,8 +28,8 @@ payload-handling role.
 
 ## Verified by
 
-Verified by: `q_contracts` `UV_CACHE_DIR=/tmp/q-uv-cache make check` — Black,
-Ruff, schema validation, and `93 passed, 7 skipped`; `q_frontend` `make
+Verified by: `q_contracts` at `09400d7` `make check` — clean generated-output
+drift check, Black, Ruff, schema validation, and `131 passed, 7 skipped`; `q_frontend` `make
 contracts-check CONTRACTS_REPO=/home/gui/projects/q/q_contracts` — clean,
 `pnpm typecheck` — passed, `pnpm lint` — 0 errors and 45 warnings, and `TZ=America/Sao_Paulo
 pnpm test:run` — 188 files and 886 tests passed, both before and after the
