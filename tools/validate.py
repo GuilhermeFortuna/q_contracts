@@ -539,8 +539,17 @@ def check_api_consistency(schema_root: Path) -> list[SchemaProblem]:
                                 "error.schema.json",
                                 "api/error",
                                 "#/components/schemas/ApiError",
+                                "#/components/schemas/ErrorResponse",
+                                "#/components/schemas/EpochMismatchResponse",
+                                "#/components/schemas/HistoryExpiredResponse",
                             } or ref_str.endswith(
-                                ("/error.schema.json", "#/components/schemas/ApiError")
+                                (
+                                    "/error.schema.json",
+                                    "#/components/schemas/ApiError",
+                                    "#/components/schemas/ErrorResponse",
+                                    "#/components/schemas/EpochMismatchResponse",
+                                    "#/components/schemas/HistoryExpiredResponse",
+                                )
                             )
                             if not is_valid_error_ref:
                                 problems.append(

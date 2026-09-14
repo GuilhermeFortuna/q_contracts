@@ -611,9 +611,21 @@ export interface EntryManagerConfig {
   params?: Record<string, unknown>
 }
 
+export interface EpochMismatchResponse {
+  current_epoch: string
+  requested_epoch: string
+  topic: string
+}
+
 export interface EquityArtifactPoint {
   equity: number
   time: string
+}
+
+export interface ErrorResponse {
+  code?: string | null
+  details?: unknown | null
+  message: string
 }
 
 export interface ExecutionAssumptions {
@@ -912,6 +924,19 @@ export interface HTTPValidationError {
   detail?: Array<ValidationError>
 }
 
+export interface HistoryExpiredResponse {
+  oldest_available_seq?: number | null
+  requested_from_seq: number
+  topic: string
+}
+
+export interface HistoryPageResponse {
+  entries: Array<Record<string, unknown>>
+  epoch: string
+  next_seq: number | null
+  topic: string
+}
+
 export interface IngestJobRequest {
   end: string
   kind?: "bars" | "ticks"
@@ -959,6 +984,21 @@ export interface InverseVolatilityPositionSizing {
   type?: "inverse_volatility"
 }
 
+export interface JobSnapshotItem {
+  job_id: string
+  kind: string
+  message?: string | null
+  progress?: number | null
+  progress_epoch?: string | null
+  progress_seq?: number | null
+  status: "queued" | "running" | "completed" | "failed" | "cancelled"
+}
+
+export interface JobSnapshotResponse {
+  jobs: Array<JobSnapshotItem>
+  watermark: Record<string, unknown>
+}
+
 export interface KillSwitchResponse {
   enabled: boolean
   reason?: string | null
@@ -987,6 +1027,11 @@ export interface LatentGateResultResponse {
   passed: boolean
   target_horizon?: number | null
   target_name?: string | null
+}
+
+export interface LatestResponse {
+  entries: Record<string, unknown>
+  topic: string
 }
 
 export interface LedgerEntryListResponse {

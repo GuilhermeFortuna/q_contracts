@@ -2291,6 +2291,23 @@ components:
           type: object
       title: EntryManagerConfig
       type: object
+    EpochMismatchResponse:
+      properties:
+        current_epoch:
+          title: Current Epoch
+          type: string
+        requested_epoch:
+          title: Requested Epoch
+          type: string
+        topic:
+          title: Topic
+          type: string
+      required:
+      - topic
+      - requested_epoch
+      - current_epoch
+      title: EpochMismatchResponse
+      type: object
     EquityArtifactPoint:
       properties:
         equity:
@@ -2303,6 +2320,25 @@ components:
       - time
       - equity
       title: EquityArtifactPoint
+      type: object
+    ErrorResponse:
+      properties:
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        details:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Details
+        message:
+          title: Message
+          type: string
+      required:
+      - message
+      title: ErrorResponse
       type: object
     ExecutionAssumptions:
       properties:
@@ -3424,6 +3460,50 @@ components:
           type: array
       title: HTTPValidationError
       type: object
+    HistoryExpiredResponse:
+      properties:
+        oldest_available_seq:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Oldest Available Seq
+        requested_from_seq:
+          title: Requested From Seq
+          type: integer
+        topic:
+          title: Topic
+          type: string
+      required:
+      - topic
+      - requested_from_seq
+      title: HistoryExpiredResponse
+      type: object
+    HistoryPageResponse:
+      properties:
+        entries:
+          items:
+            additionalProperties: true
+            type: object
+          title: Entries
+          type: array
+        epoch:
+          title: Epoch
+          type: string
+        next_seq:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Seq
+        topic:
+          title: Topic
+          type: string
+      required:
+      - topic
+      - epoch
+      - entries
+      - next_seq
+      title: HistoryPageResponse
+      type: object
     IngestJobRequest:
       properties:
         end:
@@ -3588,6 +3668,68 @@ components:
           type: string
       title: InverseVolatilityPositionSizing
       type: object
+    JobSnapshotItem:
+      properties:
+        job_id:
+          title: Job Id
+          type: string
+        kind:
+          title: Kind
+          type: string
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+        progress:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Progress
+        progress_epoch:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Progress Epoch
+        progress_seq:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Progress Seq
+        status:
+          enum:
+          - queued
+          - running
+          - completed
+          - failed
+          - cancelled
+          title: Status
+          type: string
+      required:
+      - kind
+      - job_id
+      - status
+      title: JobSnapshotItem
+      type: object
+    JobSnapshotResponse:
+      properties:
+        jobs:
+          items:
+            $ref: '#/components/schemas/JobSnapshotItem'
+          title: Jobs
+          type: array
+        watermark:
+          additionalProperties:
+            additionalProperties: true
+            type: object
+          description: Snapshot watermark keyed by topic name.
+          title: Watermark
+          type: object
+      required:
+      - jobs
+      - watermark
+      title: JobSnapshotResponse
+      type: object
     KillSwitchResponse:
       properties:
         enabled:
@@ -3687,6 +3829,22 @@ components:
       - n_latents_beating_baseline
       - passed
       title: LatentGateResultResponse
+      type: object
+    LatestResponse:
+      properties:
+        entries:
+          additionalProperties:
+            additionalProperties: true
+            type: object
+          title: Entries
+          type: object
+        topic:
+          title: Topic
+          type: string
+      required:
+      - topic
+      - entries
+      title: LatestResponse
       type: object
     LedgerEntryListResponse:
       properties:
@@ -9633,6 +9791,137 @@ paths:
       summary: Delete Strategy Search
       tags:
       - strategy-search
+  /api/v1/stream/jobs/snapshot:
+    get:
+      operationId: get_job_snapshot_api_v1_stream_jobs_snapshot_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobSnapshotResponse'
+          description: Successful Response
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Service Unavailable
+      summary: Get Job Snapshot
+      tags:
+      - stream
+  /api/v1/stream/{topic}/history:
+    get:
+      operationId: get_history_api_v1_stream__topic__history_get
+      parameters:
+      - in: path
+        name: topic
+        required: true
+        schema:
+          title: Topic
+          type: string
+      - in: query
+        name: epoch
+        required: true
+        schema:
+          title: Epoch
+          type: string
+      - in: query
+        name: from_seq
+        required: true
+        schema:
+          minimum: 1
+          title: From Seq
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 500
+          maximum: 2000
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryPageResponse'
+          description: Successful Response
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad Request
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EpochMismatchResponse'
+          description: Conflict
+        '410':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryExpiredResponse'
+          description: Gone
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get History
+      tags:
+      - stream
+  /api/v1/stream/{topic}/latest:
+    get:
+      operationId: get_latest_api_v1_stream__topic__latest_get
+      parameters:
+      - in: path
+        name: topic
+        required: true
+        schema:
+          title: Topic
+          type: string
+      - in: query
+        name: key
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Key
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LatestResponse'
+          description: Successful Response
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad Request
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Service Unavailable
+      summary: Get Latest
+      tags:
+      - stream
   /api/v1/system/data-source:
     get:
       operationId: get_data_source_setting_api_v1_system_data_source_get
