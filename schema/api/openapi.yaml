@@ -1319,6 +1319,92 @@ components:
       - source
       title: DataSourceUpdateRequest
       type: object
+    DatasetListResponse:
+      properties:
+        datasets:
+          items:
+            $ref: '#/components/schemas/DatasetManifestResponse'
+          title: Datasets
+          type: array
+        root:
+          title: Root
+          type: string
+      required:
+      - root
+      - datasets
+      title: DatasetListResponse
+      type: object
+    DatasetManifestResponse:
+      properties:
+        arrow_schema:
+          additionalProperties: true
+          title: Arrow Schema
+          type: object
+        checksum_algorithm:
+          enum:
+          - sha256
+          - sha512
+          - blake3
+          - md5
+          title: Checksum Algorithm
+          type: string
+        dataset_id:
+          title: Dataset Id
+          type: string
+        files:
+          items:
+            $ref: '#/components/schemas/ManifestFile'
+          title: Files
+          type: array
+        published_at:
+          title: Published At
+          type: string
+        row_count:
+          title: Row Count
+          type: integer
+        state:
+          enum:
+          - publishing
+          - published
+          - tombstoned
+          - deleted
+          title: State
+          type: string
+        subject:
+          additionalProperties: true
+          title: Subject
+          type: object
+        supersedes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Supersedes
+        time_range:
+          additionalProperties: true
+          title: Time Range
+          type: object
+        tombstone:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Tombstone
+        version:
+          title: Version
+          type: integer
+      required:
+      - dataset_id
+      - subject
+      - version
+      - state
+      - published_at
+      - checksum_algorithm
+      - files
+      - arrow_schema
+      - row_count
+      - time_range
+      title: DatasetManifestResponse
+      type: object
     DecisionListResponse:
       properties:
         items:
@@ -3964,6 +4050,23 @@ components:
       - low
       - high
       title: LogFloatParam
+      type: object
+    ManifestFile:
+      properties:
+        checksum:
+          title: Checksum
+          type: string
+        path:
+          title: Path
+          type: string
+        size_bytes:
+          title: Size Bytes
+          type: integer
+      required:
+      - path
+      - size_bytes
+      - checksum
+      title: ManifestFile
       type: object
     MarketSnapshotResponse:
       properties:
@@ -7145,6 +7248,94 @@ paths:
       summary: Get Backtest Trades Artifact
       tags:
       - backtest
+  /api/v1/catalog/datasets:
+    get:
+      operationId: list_datasets_api_v1_catalog_datasets_get
+      parameters:
+      - in: query
+        name: kind
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Kind
+      - in: query
+        name: symbol
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Symbol
+      - in: query
+        name: timeframe
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Timeframe
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetListResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Service Unavailable
+      summary: List Datasets
+      tags:
+      - catalog
+  /api/v1/catalog/datasets/{dataset_id}:
+    get:
+      operationId: get_dataset_by_id_api_v1_catalog_datasets__dataset_id__get
+      parameters:
+      - in: path
+        name: dataset_id
+        required: true
+        schema:
+          title: Dataset Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetManifestResponse'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Service Unavailable
+      summary: Get Dataset By Id
+      tags:
+      - catalog
   /api/v1/execution/accounts:
     get:
       operationId: list_execution_accounts_api_v1_execution_accounts_get
@@ -9267,6 +9458,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Service Unavailable
       summary: Start Storage Ingest
       tags:
       - storage
@@ -9306,6 +9503,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/StorageInventoryResponse'
           description: Successful Response
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Service Unavailable
       summary: Get Storage Inventory
       tags:
       - storage
@@ -9338,6 +9541,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Service Unavailable
       summary: Delete Storage Series
       tags:
       - storage

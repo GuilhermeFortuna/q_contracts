@@ -354,6 +354,26 @@ export interface DataSourceUpdateRequest {
   source: "auto" | "mt5" | "remote" | "local"
 }
 
+export interface DatasetListResponse {
+  datasets: Array<DatasetManifestResponse>
+  root: string
+}
+
+export interface DatasetManifestResponse {
+  arrow_schema: Record<string, unknown>
+  checksum_algorithm: "sha256" | "sha512" | "blake3" | "md5"
+  dataset_id: string
+  files: Array<ManifestFile>
+  published_at: string
+  row_count: number
+  state: "publishing" | "published" | "tombstoned" | "deleted"
+  subject: Record<string, unknown>
+  supersedes?: string | null
+  time_range: Record<string, unknown>
+  tombstone?: Record<string, unknown> | null
+  version: number
+}
+
 export interface DecisionListResponse {
   items: Array<DecisionResponse>
   limit: number
@@ -1065,6 +1085,12 @@ export interface LogFloatParam {
   high: number
   low: number
   type?: "log-float"
+}
+
+export interface ManifestFile {
+  checksum: string
+  path: string
+  size_bytes: number
 }
 
 export interface MarketSnapshotResponse {
