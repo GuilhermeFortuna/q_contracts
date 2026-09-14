@@ -12,6 +12,14 @@ table is updated with the consumer commit and verification evidence.
 | `q_core` | `84bdeb084920fc41f6e1e69a038bf9087532eb51` (`v2026.09.12`) | `998a50570905524bfb9af0465a725b170f2970df` |
 | `q_terminal` | `88aa2730a30b5cecea17ebfc9aafdc3fe3aa6196` | `998a50570905524bfb9af0465a725b170f2970df` |
 
+## Reference fixture pins
+
+Cross-repository reference fixture pins used for numerical parity gating and test provenance. Unlike contract vendoring, these pins represent test oracle provenance rather than a code dependency (`q_core` consumes fixtures exported from `q_backend`).
+
+| Consumer | Reference repository | Reference commit (`BACKEND_REV`) | Purpose |
+| --- | --- | --- | --- |
+| `q_core` | `q_backend` | `067e29cdf8db67d8b8c237599fced0b8eabb921f` | Technical indicator reference fixtures & parity gate (Q-021) |
+
 ## Generation scope decisions
 
 Python generation covers the stream envelope and control frames, edge
