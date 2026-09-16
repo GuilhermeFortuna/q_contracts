@@ -4,13 +4,30 @@ This is the only cross-repository pin record for Q. A consumer updates its
 `CONTRACTS_REV` and regenerated vendored output in the same change, then this
 table is updated with the consumer commit and verification evidence.
 
-| Repository | Repository commit | Contracts commit |
-| --- | --- | --- |
-| `q_contracts` | `09400d7fc16a4b95cae225300ff7834a20f3d1b0` | `09400d7fc16a4b95cae225300ff7834a20f3d1b0` |
-| `q_frontend` | `c27633194785db9e01fa476aeae87ba41422a371` | `8a9c45299842184d73a82c9c4d6c9fb49dc16885` |
-| `q_backend` | `f9fb514e1d5f02b2c9929c2079685d536e03634d` | `09400d7fc16a4b95cae225300ff7834a20f3d1b0` |
-| `q_core` | `84bdeb084920fc41f6e1e69a038bf9087532eb51` (`v2026.09.12`) | `998a50570905524bfb9af0465a725b170f2970df` |
-| `q_terminal` | `88aa2730a30b5cecea17ebfc9aafdc3fe3aa6196` | `998a50570905524bfb9af0465a725b170f2970df` |
+| Repository | Repository commit | Contracts commit | `q_core` tag pinned |
+| --- | --- | --- | --- |
+| `q_contracts` | `818b2823d830f90aaea0e84785e36095768f1fb8` | `818b2823d830f90aaea0e84785e36095768f1fb8` | — |
+| `q_frontend` | `b0eb55817db759ff5bbd89f6f4f14611b8e11e42` | `8a9c45299842184d73a82c9c4d6c9fb49dc16885` | — |
+| `q_backend` | `281b7398a01020452b272f8a5ad4b8a28752fc00` | `09400d7fc16a4b95cae225300ff7834a20f3d1b0` | `v2026.09.15.2` |
+| `q_core` | `415aa59a419bf9a9c7d6bef67d157ddafd09bc40` (`v2026.09.15.2`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
+| `q_terminal` | `e510f504259718b4a2f8acd517da3b99bbee8163` | `998a50570905524bfb9af0465a725b170f2970df` | `v2026.09.12` |
+
+Every commit hash above resolves in its repository; verify with
+`git -C <repo> cat-file -t <hash>` before editing a row. An earlier revision of
+this table carried a `q_core` hash that resolved nowhere.
+
+### Open drift
+
+Three different contracts revisions are in use: `q_backend` at `09400d7`,
+`q_core` and `q_terminal` at `998a5057`, and `q_frontend` at `8a9c452`. Each
+repository's `make contracts-check` passes against the revision it pins, so no
+repository is internally inconsistent, but no single revision is shared across
+the workspace. Closing this means re-vendoring `q_core`, `q_terminal` and
+`q_frontend` at `09400d7` and re-verifying each — a change large enough to
+belong to its own board task, not a pin-record edit.
+
+The two `q_core` tags in use also differ: `q_terminal` still links
+`v2026.09.12` while `q_backend` pins `v2026.09.15.2`.
 
 ## Reference fixture pins
 
@@ -36,14 +53,25 @@ payload-handling role.
 
 ## Verified by
 
-Verified by: `q_contracts` at `09400d7` `make check` — clean generated-output
-drift check, Black, Ruff, schema validation, and `131 passed, 7 skipped`; `q_frontend` at
-`c276331` (Q-016) `CONTRACTS_REPO=/home/gui/projects/q/q_contracts scripts/ci.sh` — `make
-contracts-check` clean against the local contracts clone pinned at `8a9c452`, `pnpm
-typecheck` passed, `pnpm lint` 0 errors and 45 warnings, `pnpm format:check` passed,
-`TZ=America/Sao_Paulo pnpm test:run` 196 files and 925 tests passed, and `pnpm build`
-passed; `q_backend` at `development`
-`8a1174b8eebf8ea3676683ec7dc8c1c0f7d071f8` (pin commit `1a8d0bc`) `scripts/ci.sh`
-— `make contracts-check` against the published repository clean, migrations
-applied, Ruff and Black clean, and pytest 1,722 passed, 14 skipped; `q_core` `make check CONTRACTS_REPO=/home/gui/projects/q/q_contracts` — clean rustfmt, clippy, workspace tests, release wheel build, virtualenv wheel integration test, Qt staticlib C++ harness assertions, and contracts-check; `q_terminal` `env -u WAYLAND_DISPLAY -u DISPLAY make check CONTRACTS_REPO=/home/gui/projects/q/q_contracts` — clean rustfmt, clippy, build, qmllint (-W 0), test_bridge, test_headless_report, clean contracts-check, and headless-report reporting app version 0.1.0, core version 2026.9.12, contracts rev 998a50570905524bfb9af0465a725b170f2970df, and headless render backend.
+Every row above was re-verified together on 2026-09-16, each repository at the
+commit its row names:
 
+- `q_contracts` at `818b282` — `make check`: clean generated-output drift check,
+  Black, Ruff, schema validation, `131 passed, 7 skipped`.
+- `q_backend` at `281b739` — `scripts/ci.sh`: `make contracts-check` against the
+  published repository clean, migrations applied, Ruff and Black clean, pytest
+  `1930 passed, 14 skipped` plus `55 passed` serial integration tests.
+- `q_frontend` at `b0eb558` — `TZ=America/Sao_Paulo scripts/ci.sh`:
+  `make contracts-check` clean, cross-repo path check, `pnpm typecheck`, `pnpm
+  lint`, `pnpm format:check`, `pnpm test:run` 200 files and 944 tests passed,
+  and `vite build` passed.
+- `q_core` at `415aa59` (`v2026.09.15.2`) — `make check`: clean rustfmt, clippy,
+  workspace tests, fixture staleness check, parity isolation, release wheel
+  build (`q_core-2026.9.15`, contracts rev `998a5057`), virtualenv wheel
+  integration tests for bar frames, candle engine and tick engine, Qt staticlib
+  C++ harness, and contracts-check.
+- `q_terminal` at `e510f50` — `env -u WAYLAND_DISPLAY -u DISPLAY make check
+  CONTRACTS_REPO=/home/gui/projects/q/q_contracts`: clean rustfmt, clippy,
+  build, qmllint (-W 0), `test_bridge`, `test_headless_report`, clean
+  contracts-check, and headless-report reporting app version 0.1.0, core
+  version 2026.9.12, contracts rev `998a5057`, headless render backend.
