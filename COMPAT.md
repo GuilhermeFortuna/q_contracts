@@ -7,7 +7,7 @@ table is updated with the consumer commit and verification evidence.
 | Repository | Repository commit | Contracts commit | `q_core` tag pinned |
 | --- | --- | --- | --- |
 | `q_contracts` | `818b2823d830f90aaea0e84785e36095768f1fb8` | `818b2823d830f90aaea0e84785e36095768f1fb8` | — |
-| `q_frontend` | `b0eb55817db759ff5bbd89f6f4f14611b8e11e42` | `8a9c45299842184d73a82c9c4d6c9fb49dc16885` | — |
+| `q_frontend` | `5774b580e8443598ce57a0460752f4ec83c898be` | `8a9c45299842184d73a82c9c4d6c9fb49dc16885` | — |
 | `q_backend` | `281b7398a01020452b272f8a5ad4b8a28752fc00` | `09400d7fc16a4b95cae225300ff7834a20f3d1b0` | `v2026.09.15.2` |
 | `q_core` | `415aa59a419bf9a9c7d6bef67d157ddafd09bc40` (`v2026.09.15.2`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
 | `q_terminal` | `e510f504259718b4a2f8acd517da3b99bbee8163` | `998a50570905524bfb9af0465a725b170f2970df` | `v2026.09.12` |
@@ -61,10 +61,11 @@ commit its row names:
 - `q_backend` at `281b739` — `scripts/ci.sh`: `make contracts-check` against the
   published repository clean, migrations applied, Ruff and Black clean, pytest
   `1930 passed, 14 skipped` plus `55 passed` serial integration tests.
-- `q_frontend` at `b0eb558` — `TZ=America/Sao_Paulo scripts/ci.sh`:
+- `q_frontend` at `5774b58` — `TZ=America/Sao_Paulo scripts/ci.sh`:
   `make contracts-check` clean, cross-repo path check, `pnpm typecheck`, `pnpm
   lint`, `pnpm format:check`, `pnpm test:run` 200 files and 944 tests passed,
-  and `vite build` passed.
+  `vite build` passed, and the Tauri shell stage clean (`cargo clippy
+  -D warnings`, `cargo test` including the process-ownership guard).
 - `q_core` at `415aa59` (`v2026.09.15.2`) — `make check`: clean rustfmt, clippy,
   workspace tests, fixture staleness check, parity isolation, release wheel
   build (`q_core-2026.9.15`, contracts rev `998a5057`), virtualenv wheel
