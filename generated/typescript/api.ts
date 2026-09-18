@@ -569,6 +569,13 @@ export interface DiscoveryAbStatusResponse {
   status: "queued" | "running" | "completed" | "failed"
 }
 
+export interface EdgeStatusResponse {
+  checked_at?: string | null
+  mt5_connected?: boolean | null
+  reachable: boolean
+  terminal_build?: number | null
+}
+
 export interface EncoderAblationRequest {
   configs: Array<EncoderConfigSpec>
   horizon?: number
@@ -659,10 +666,13 @@ export interface ExecutionHealthResponse {
   api_status: "ok" | "degraded" | "unavailable"
   checked_at: string
   deployments: Array<DeploymentHealthResponse>
+  edge?: EdgeStatusResponse
   kill_switch_enabled: boolean
   live_capability_locked: boolean
   market_data_status: "online" | "offline" | "stale"
   unknown_order_count: number
+  worker_heartbeat_age_s?: number | null
+  worker_started_at?: string | null
   worker_status: "healthy" | "stale" | "offline"
 }
 

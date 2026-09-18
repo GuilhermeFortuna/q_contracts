@@ -636,6 +636,14 @@ pub struct DiscoveryAbStatusResponse {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct EdgeStatusResponse {
+    pub checked_at: Option<String>,
+    pub mt5_connected: Option<bool>,
+    pub reachable: bool,
+    pub terminal_build: Option<i64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EncoderAblationRequest {
     pub configs: Vec<EncoderConfigSpec>,
     pub horizon: Option<i64>,
@@ -738,10 +746,13 @@ pub struct ExecutionHealthResponse {
     pub api_status: String,
     pub checked_at: String,
     pub deployments: Vec<DeploymentHealthResponse>,
+    pub edge: Option<EdgeStatusResponse>,
     pub kill_switch_enabled: bool,
     pub live_capability_locked: bool,
     pub market_data_status: String,
     pub unknown_order_count: i64,
+    pub worker_heartbeat_age_s: Option<f64>,
+    pub worker_started_at: Option<String>,
     pub worker_status: String,
 }
 

@@ -2162,6 +2162,31 @@ components:
       - status
       title: DiscoveryAbStatusResponse
       type: object
+    EdgeStatusResponse:
+      properties:
+        checked_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Checked At
+        mt5_connected:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Mt5 Connected
+        reachable:
+          title: Reachable
+          type: boolean
+        terminal_build:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Terminal Build
+      required:
+      - reachable
+      title: EdgeStatusResponse
+      type: object
     EncoderAblationRequest:
       properties:
         configs:
@@ -2471,6 +2496,10 @@ components:
             $ref: '#/components/schemas/DeploymentHealthResponse'
           title: Deployments
           type: array
+        edge:
+          $ref: '#/components/schemas/EdgeStatusResponse'
+          default:
+            reachable: false
         kill_switch_enabled:
           title: Kill Switch Enabled
           type: boolean
@@ -2487,6 +2516,17 @@ components:
         unknown_order_count:
           title: Unknown Order Count
           type: integer
+        worker_heartbeat_age_s:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Worker Heartbeat Age S
+        worker_started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Worker Started At
         worker_status:
           enum:
           - healthy
