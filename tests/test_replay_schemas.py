@@ -125,3 +125,41 @@ def test_replay_examples_validate():
         data = json.loads(example_path.read_text(encoding="utf-8"))
         errors = list(validator.iter_errors(data))
         assert errors == [], f"Example {name}.json failed validation: {errors}"
+
+
+def test_execution_snapshot_validates_example():
+    validator = load_replay_validator("execution-snapshot")
+    example_path = EXAMPLES_DIR / "execution-snapshot.json"
+    assert example_path.is_file()
+    data = json.loads(example_path.read_text(encoding="utf-8"))
+    errors = list(validator.iter_errors(data))
+    assert errors == []
+
+
+def test_execution_snapshot_watermark_missing_topic_fails():
+    validator = load_replay_validator("execution-snapshot")
+    example_path = EXAMPLES_DIR / "execution-snapshot.json"
+    data = json.loads(example_path.read_text(encoding="utf-8"))
+    for topic in [
+        "decisions",
+        "orders",
+        "fills",
+        "risk",
+        "ledger",
+        "deployments",
+    ]:
+        bad = json.loads(json.dumps(data))
+        del bad["watermark"][topic]
+        errors = list(validator.iter_errors(bad))
+        assert len(errors) >= 1
+        assert any(
+            "watermark" in str(err.path) or topic in err.message for err in errors
+        )
+
+
+def test_snapshot_entity_shapes_equal_payload_shapes():
+    from tools.validate import check_execution_payloads
+
+    schema_root = STREAM_DIR.parent
+    problems = check_execution_payloads(schema_root)
+    assert problems == []

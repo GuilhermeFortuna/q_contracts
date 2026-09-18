@@ -173,7 +173,7 @@ Payload envelope-level conventions, applied to every execution payload:
 - [x] 4. Add `check_execution_payloads` to `tools/validate.py`: execution topics
    must not point at the envelope, and every snapshot entity must resolve to the
    same shape as its payload entity. Add tests for both failure cases. Commit.
-- [ ] 5. Write `schema/stream/replay/execution-snapshot.schema.json` and its example,
+- [x] 5. Write `schema/stream/replay/execution-snapshot.schema.json` and its example,
    with the six-topic watermark and `limits`. Add a test that it validates and
    that removing a topic from the watermark fails. Commit.
 - [ ] 6. Write `schema/api/idempotency.yaml` and add the two error codes to
