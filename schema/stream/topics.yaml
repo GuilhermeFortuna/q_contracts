@@ -19,7 +19,7 @@ topics:
     backpressure:
       coalesce: false
       on_overflow: lag
-    payload_schema: schema/stream/envelope.schema.json
+    payload_schema: schema/stream/payloads/execution-decision.schema.json
     replay: unbounded
     notes: "Durable trading decisions; replayable unbounded via REST history."
 
@@ -31,7 +31,7 @@ topics:
     backpressure:
       coalesce: false
       on_overflow: lag
-    payload_schema: schema/stream/envelope.schema.json
+    payload_schema: schema/stream/payloads/execution-order.schema.json
     replay: unbounded
     notes: "Durable order lifecycle events; replayable unbounded via REST history."
 
@@ -43,7 +43,7 @@ topics:
     backpressure:
       coalesce: false
       on_overflow: lag
-    payload_schema: schema/stream/envelope.schema.json
+    payload_schema: schema/stream/payloads/execution-fill.schema.json
     replay: unbounded
     notes: "Durable fill events; must never be coalesced or dropped; replayable unbounded via REST history."
 
@@ -55,7 +55,7 @@ topics:
     backpressure:
       coalesce: false
       on_overflow: lag
-    payload_schema: schema/stream/envelope.schema.json
+    payload_schema: schema/stream/payloads/execution-risk.schema.json
     replay: unbounded
     notes: "Durable risk events and limit evaluations; replayable unbounded via REST history."
 
@@ -67,7 +67,7 @@ topics:
     backpressure:
       coalesce: false
       on_overflow: lag
-    payload_schema: schema/stream/envelope.schema.json
+    payload_schema: schema/stream/payloads/execution-ledger.schema.json
     replay: unbounded
     notes: "Durable ledger balance entries and cash movements; replayable unbounded via REST history."
 
@@ -79,7 +79,7 @@ topics:
     backpressure:
       coalesce: false
       on_overflow: lag
-    payload_schema: schema/stream/envelope.schema.json
+    payload_schema: schema/stream/payloads/execution-deployment.schema.json
     replay: unbounded
     notes: "Durable strategy deployment lifecycle states; replayable unbounded via REST history."
 

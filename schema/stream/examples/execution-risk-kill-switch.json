@@ -1,0 +1,15 @@
+{
+  "entity": "risk",
+  "kind": "kill_switch",
+  "id": "88888888-8888-8888-8888-888888888888",
+  "deployment_id": null,
+  "account_id": null,
+  "kill_switch_enabled": true,
+  "enabled": true,
+  "kill_switch_reason": "Excessive market volatility circuit breaker tripped",
+  "reason": "Excessive market volatility circuit breaker tripped",
+  "updated_by": "risk_supervisor",
+  "actor": "risk_supervisor",
+  "created_at": "2026-09-18T14:35:00Z",
+  "updated_at": "2026-09-18T14:35:00Z"
+}
