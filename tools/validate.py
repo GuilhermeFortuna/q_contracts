@@ -834,7 +834,7 @@ def check_idempotency(schema_root: Path) -> list[SchemaProblem]:
         openapi_file = schema_root / "api" / "openapi.yaml"
         if not openapi_file.is_file():
             openapi_file = schema_root / "api" / "openapi.json"
-        operation_ids: set[str] = set()
+        operations: dict[str, dict] = {}
         if openapi_file.is_file():
             try:
                 content = openapi_file.read_text(encoding="utf-8")
@@ -852,16 +852,34 @@ def check_idempotency(schema_root: Path) -> list[SchemaProblem]:
                                     if isinstance(method_item, dict):
                                         op_id = method_item.get("operationId")
                                         if isinstance(op_id, str):
-                                            operation_ids.add(op_id)
+                                            operations[op_id] = method_item
             except (yaml.YAMLError, json.JSONDecodeError, OSError):
                 pass
 
         for op in required_for:
-            if not isinstance(op, str) or op not in operation_ids:
+            if not isinstance(op, str) or op not in operations:
                 problems.append(
                     SchemaProblem(
                         path=report_path,
                         reason=f"Idempotency required_for operation '{op}' not found in openapi.yaml",
+                    )
+                )
+                continue
+            parameters = operations[op].get("parameters", [])
+            has_header = any(
+                isinstance(parameter, dict)
+                and parameter.get("in") == "header"
+                and parameter.get("name") == header
+                for parameter in parameters
+            )
+            if not has_header:
+                problems.append(
+                    SchemaProblem(
+                        path=report_path,
+                        reason=(
+                            f"Idempotency required_for operation '{op}' does not declare "
+                            f"the '{header}' header parameter in openapi.yaml"
+                        ),
                     )
                 )
 

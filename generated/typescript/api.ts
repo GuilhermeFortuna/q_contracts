@@ -438,7 +438,7 @@ export interface DeploymentChartResponse {
 }
 
 export interface DeploymentCreateRequest {
-  broker_mode?: "paper"
+  broker_mode?: "paper" | "mt5_live"
   identity?: DeploymentIdentityInput | null
   live_activation_enabled?: boolean
   name: string

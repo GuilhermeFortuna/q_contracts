@@ -22,12 +22,12 @@ This document records discrepancies discovered while capturing and auditing the 
 
 ---
 
-## Finding 3: Missing Client-Supplied Idempotency Keys on Mutating Commands
+## Finding 3: Missing Client-Supplied Idempotency Keys on Mutating Commands — Closed by Q-044
 
-- **Endpoint / Field:** Mutating POST/PUT commands (`POST /api/v1/backtest`, `POST /api/v1/optimize`, `POST /api/v1/execution/deployments`, `POST /api/v1/execution/deployments/{deployment_id}/actions`).
+- **Endpoint / Field:** Execution POST/PUT commands (`POST /api/v1/execution/accounts`, `POST /api/v1/execution/deployments`, `POST /api/v1/execution/deployments/{deployment_id}/actions`, `POST /api/v1/execution/orders/{order_id}/resolve`, and `PUT /api/v1/execution/kill-switch`).
 - **Expectation:** Mutating operations accept an `Idempotency-Key` (or `X-Idempotency-Key`) header and guarantee stored-result-on-retry semantics.
-- **Observed Behavior:** None of the mutating routes declare or accept an idempotency key header in their OpenAPI schema. Retrying a request (e.g. on client network timeout) risks dispatching duplicate jobs or re-executing stateful actions. While internal database constraints prevent duplicate execution decisions for `(deployment_id, bar_close_time)`, the control API boundary does not provide client-facing command idempotency.
-- **Triage Decision:** Contract declared by Q-039 in `schema/api/idempotency.yaml` and `schema/api/error.schema.json`; implemented by Q-044.
+- **Observed Behavior:** Q-044 declares `Idempotency-Key` on all five execution commands and persists the status/body result transactionally for 24 hours. Matching retries replay with `Idempotency-Replayed: true`; conflicting keys are refused, and in-flight retries receive a retryable conflict. The OpenAPI capture is checked against `schema/api/idempotency.yaml` by the validator.
+- **Triage Decision:** Resolved by Q-044. Research job submissions (`POST /api/v1/backtest`, `POST /api/v1/optimize`, and related research commands) remain outside this policy and retain their separate duplicate-job risk.
 
 ---
 
