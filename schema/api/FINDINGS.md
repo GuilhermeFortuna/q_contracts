@@ -27,7 +27,7 @@ This document records discrepancies discovered while capturing and auditing the 
 - **Endpoint / Field:** Mutating POST/PUT commands (`POST /api/v1/backtest`, `POST /api/v1/optimize`, `POST /api/v1/execution/deployments`, `POST /api/v1/execution/deployments/{deployment_id}/actions`).
 - **Expectation:** Mutating operations accept an `Idempotency-Key` (or `X-Idempotency-Key`) header and guarantee stored-result-on-retry semantics.
 - **Observed Behavior:** None of the mutating routes declare or accept an idempotency key header in their OpenAPI schema. Retrying a request (e.g. on client network timeout) risks dispatching duplicate jobs or re-executing stateful actions. While internal database constraints prevent duplicate execution decisions for `(deployment_id, bar_close_time)`, the control API boundary does not provide client-facing command idempotency.
-- **Triage Decision:** Later task. Implement idempotency header support and replay caching for mutating control plane operations.
+- **Triage Decision:** Contract declared by Q-039 in `schema/api/idempotency.yaml` and `schema/api/error.schema.json`; implemented by Q-044.
 
 ---
 
@@ -36,8 +36,8 @@ This document records discrepancies discovered while capturing and auditing the 
 - **Endpoint / Field:** Stream topic replay and snapshot endpoints for durable topics (`decisions`, `orders`, `fills`, `risk`, `ledger`, `deployments`, `jobs.terminal`) and ephemeral topics (`quotes`, `bars.forming`, `bars.completed`, `jobs.progress`).
 - **Expectation:** §4.2 of the system architecture requires REST history replay endpoints accepting sequence watermarks (`from_seq`) to support the subscribe-then-snapshot sequence and lag gap recovery, as well as `latest` snapshot endpoints for instant state synchronization.
 - **Observed Behavior (Q-015, partial):** `q_backend` now exposes generic replay routes: `GET /api/v1/stream/{topic}/history`, `GET /api/v1/stream/{topic}/latest`, and `GET /api/v1/stream/jobs/snapshot`. History and latest work for job and market-data topics (`jobs.terminal`, `jobs.progress`, `quotes`, `bars.forming`, `bars.completed`). Execution durable topics (`decisions`, `orders`, `fills`, `risk`, `ledger`, `deployments`) still have no snapshot producers in phase 4; history for them is served generically from the outbox when events exist, but no execution-specific snapshot endpoints exist yet. Legacy execution history endpoints (`/api/v1/execution/deployments/{deployment_id}/decisions`, and others) remain timestamp-paged and unchanged.
-- **Triage Decision:** **Resolved** for job and market-data topics (Q-015). **Open** for execution topics until phase 4 snapshot producers land.
-  - *Note (Q-009):* Replay response shapes are defined in `schema/stream/replay/` and captured in `schema/api/openapi.yaml`.
+- **Triage Decision:** Resolved for job and market-data topics (Q-015). For execution topics (`decisions`, `orders`, `fills`, `risk`, `ledger`, `deployments`): payload contracts and execution snapshot schema declared by Q-039 (`schema/stream/payloads/execution-*.schema.json`, `schema/stream/replay/execution-snapshot.schema.json`); implemented by Q-043 (outbox event emission) and Q-044 (snapshot route `GET /api/v1/stream/execution/snapshot`).
+  - *Note (Q-009, Q-039):* Replay response shapes are defined in `schema/stream/replay/` and captured in `schema/api/openapi.yaml`.
 
 ---
 
