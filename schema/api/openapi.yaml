@@ -1644,8 +1644,10 @@ components:
     DeploymentCreateRequest:
       properties:
         broker_mode:
-          const: paper
           default: paper
+          enum:
+          - paper
+          - mt5_live
           title: Broker Mode
           type: string
         identity:
@@ -2160,6 +2162,31 @@ components:
       - status
       title: DiscoveryAbStatusResponse
       type: object
+    EdgeStatusResponse:
+      properties:
+        checked_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Checked At
+        mt5_connected:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Mt5 Connected
+        reachable:
+          title: Reachable
+          type: boolean
+        terminal_build:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Terminal Build
+      required:
+      - reachable
+      title: EdgeStatusResponse
+      type: object
     EncoderAblationRequest:
       properties:
         configs:
@@ -2469,6 +2496,10 @@ components:
             $ref: '#/components/schemas/DeploymentHealthResponse'
           title: Deployments
           type: array
+        edge:
+          $ref: '#/components/schemas/EdgeStatusResponse'
+          default:
+            reachable: false
         kill_switch_enabled:
           title: Kill Switch Enabled
           type: boolean
@@ -2485,6 +2516,17 @@ components:
         unknown_order_count:
           title: Unknown Order Count
           type: integer
+        worker_heartbeat_age_s:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Worker Heartbeat Age S
+        worker_started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Worker Started At
         worker_status:
           enum:
           - healthy
@@ -2502,6 +2544,109 @@ components:
       - deployments
       - checked_at
       title: ExecutionHealthResponse
+      type: object
+    ExecutionSnapshotLimits:
+      properties:
+        recent_decisions:
+          minimum: 0.0
+          title: Recent Decisions
+          type: integer
+        recent_fills:
+          minimum: 0.0
+          title: Recent Fills
+          type: integer
+        recent_orders:
+          minimum: 0.0
+          title: Recent Orders
+          type: integer
+        recent_risk:
+          minimum: 0.0
+          title: Recent Risk
+          type: integer
+      required:
+      - recent_decisions
+      - recent_fills
+      - recent_orders
+      - recent_risk
+      title: ExecutionSnapshotLimits
+      type: object
+    ExecutionSnapshotRecent:
+      properties:
+        decisions:
+          items:
+            additionalProperties: true
+            type: object
+          title: Decisions
+          type: array
+        fills:
+          items:
+            additionalProperties: true
+            type: object
+          title: Fills
+          type: array
+        risk:
+          items:
+            additionalProperties: true
+            type: object
+          title: Risk
+          type: array
+      required:
+      - decisions
+      - fills
+      - risk
+      title: ExecutionSnapshotRecent
+      type: object
+    ExecutionSnapshotResponse:
+      properties:
+        accounts:
+          items:
+            additionalProperties: true
+            type: object
+          title: Accounts
+          type: array
+        control:
+          additionalProperties: true
+          title: Control
+          type: object
+        deployments:
+          items:
+            additionalProperties: true
+            type: object
+          title: Deployments
+          type: array
+        limits:
+          $ref: '#/components/schemas/ExecutionSnapshotLimits'
+        orders:
+          items:
+            additionalProperties: true
+            type: object
+          title: Orders
+          type: array
+        positions:
+          items:
+            additionalProperties: true
+            type: object
+          title: Positions
+          type: array
+        recent:
+          $ref: '#/components/schemas/ExecutionSnapshotRecent'
+        watermark:
+          additionalProperties:
+            additionalProperties: true
+            type: object
+          description: Snapshot watermark keyed by topic name.
+          title: Watermark
+          type: object
+      required:
+      - deployments
+      - accounts
+      - positions
+      - orders
+      - recent
+      - control
+      - limits
+      - watermark
+      title: ExecutionSnapshotResponse
       type: object
     ExitPreset:
       properties:
@@ -10000,6 +10145,86 @@ paths:
       summary: Delete Strategy Search
       tags:
       - strategy-search
+  /api/v1/stream/execution/snapshot:
+    get:
+      operationId: get_execution_snapshot_api_v1_stream_execution_snapshot_get
+      parameters:
+      - in: query
+        name: deployments_limit
+        required: false
+        schema:
+          default: 50
+          maximum: 500
+          minimum: 1
+          title: Deployments Limit
+          type: integer
+      - in: query
+        name: decisions_limit
+        required: false
+        schema:
+          default: 500
+          maximum: 2000
+          minimum: 1
+          title: Decisions Limit
+          type: integer
+      - in: query
+        name: orders_limit
+        required: false
+        schema:
+          default: 500
+          maximum: 2000
+          minimum: 1
+          title: Orders Limit
+          type: integer
+      - in: query
+        name: fills_limit
+        required: false
+        schema:
+          default: 500
+          maximum: 2000
+          minimum: 1
+          title: Fills Limit
+          type: integer
+      - in: query
+        name: risk_limit
+        required: false
+        schema:
+          default: 500
+          maximum: 2000
+          minimum: 1
+          title: Risk Limit
+          type: integer
+      - in: query
+        name: ledger_limit
+        required: false
+        schema:
+          default: 500
+          maximum: 2000
+          minimum: 1
+          title: Ledger Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionSnapshotResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Service Unavailable
+      summary: Get Execution Snapshot
+      tags:
+      - stream
   /api/v1/stream/jobs/snapshot:
     get:
       operationId: get_job_snapshot_api_v1_stream_jobs_snapshot_get

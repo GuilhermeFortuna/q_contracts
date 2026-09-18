@@ -438,7 +438,7 @@ export interface DeploymentChartResponse {
 }
 
 export interface DeploymentCreateRequest {
-  broker_mode?: "paper"
+  broker_mode?: "paper" | "mt5_live"
   identity?: DeploymentIdentityInput | null
   live_activation_enabled?: boolean
   name: string
@@ -569,6 +569,13 @@ export interface DiscoveryAbStatusResponse {
   status: "queued" | "running" | "completed" | "failed"
 }
 
+export interface EdgeStatusResponse {
+  checked_at?: string | null
+  mt5_connected?: boolean | null
+  reachable: boolean
+  terminal_build?: number | null
+}
+
 export interface EncoderAblationRequest {
   configs: Array<EncoderConfigSpec>
   horizon?: number
@@ -659,11 +666,38 @@ export interface ExecutionHealthResponse {
   api_status: "ok" | "degraded" | "unavailable"
   checked_at: string
   deployments: Array<DeploymentHealthResponse>
+  edge?: EdgeStatusResponse
   kill_switch_enabled: boolean
   live_capability_locked: boolean
   market_data_status: "online" | "offline" | "stale"
   unknown_order_count: number
+  worker_heartbeat_age_s?: number | null
+  worker_started_at?: string | null
   worker_status: "healthy" | "stale" | "offline"
+}
+
+export interface ExecutionSnapshotLimits {
+  recent_decisions: number
+  recent_fills: number
+  recent_orders: number
+  recent_risk: number
+}
+
+export interface ExecutionSnapshotRecent {
+  decisions: Array<Record<string, unknown>>
+  fills: Array<Record<string, unknown>>
+  risk: Array<Record<string, unknown>>
+}
+
+export interface ExecutionSnapshotResponse {
+  accounts: Array<Record<string, unknown>>
+  control: Record<string, unknown>
+  deployments: Array<Record<string, unknown>>
+  limits: ExecutionSnapshotLimits
+  orders: Array<Record<string, unknown>>
+  positions: Array<Record<string, unknown>>
+  recent: ExecutionSnapshotRecent
+  watermark: Record<string, unknown>
 }
 
 export interface ExitPreset {
