@@ -8,7 +8,7 @@ table is updated with the consumer commit and verification evidence.
 | --- | --- | --- | --- |
 | `q_contracts` | `818b2823d830f90aaea0e84785e36095768f1fb8` | `818b2823d830f90aaea0e84785e36095768f1fb8` | — |
 | `q_frontend` | `5774b580e8443598ce57a0460752f4ec83c898be` | `8a9c45299842184d73a82c9c4d6c9fb49dc16885` | — |
-| `q_backend` | `c198141d91dbd7e7182052a6a944ae4ceadbdc1b` | `09400d7fc16a4b95cae225300ff7834a20f3d1b0` | `v2026.09.15.2` |
+| `q_backend` | `c4d693870d1b509ec40f197c6f5727807cdbf672` | `4e874974e64eef48f375acb3aae10c56380ea6e0` | `v2026.09.15.2` |
 | `q_core` | `415aa59a419bf9a9c7d6bef67d157ddafd09bc40` (`v2026.09.15.2`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
 | `q_terminal` | `e510f504259718b4a2f8acd517da3b99bbee8163` | `998a50570905524bfb9af0465a725b170f2970df` | `v2026.09.12` |
 
@@ -18,7 +18,7 @@ this table carried a `q_core` hash that resolved nowhere.
 
 ### Open drift
 
-Three different contracts revisions are in use: `q_backend` at `09400d7`,
+Three different contracts revisions are in use: `q_backend` at `4e87497`,
 `q_core` and `q_terminal` at `998a5057`, and `q_frontend` at `8a9c452`. Each
 repository's `make contracts-check` passes against the revision it pins, so no
 repository is internally inconsistent, but no single revision is shared across
