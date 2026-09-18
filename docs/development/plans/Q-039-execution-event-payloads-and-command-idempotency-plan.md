@@ -156,10 +156,10 @@ Payload envelope-level conventions, applied to every execution payload:
 
 ## Ordered implementation
 
-- [ ] 1. Work on the branch `Q-039-execution-event-payloads-and-command-idempotency`
+- [x] 1. Work on the branch `Q-039-execution-event-payloads-and-command-idempotency`
    in `q_contracts`, created from `development` by `./work start`. Confirm
    `make check` passes before any change.
-- [ ] 2. Write failing tests in `tests/test_execution_payloads.py`: every execution
+- [x] 2. Write failing tests in `tests/test_execution_payloads.py`: every execution
    topic points at a non-envelope payload; one example per entity validates;
    a missing `id`, `deployment_id`, `position_after` or `account_after` fails;
    a numeric decimal fails; an unknown order status fails. Confirm they fail.
