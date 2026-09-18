@@ -170,7 +170,7 @@ Payload envelope-level conventions, applied to every execution payload:
    response models, and cross-check them against `q_frontend/src/types/execution.ts`.
    List any field the frontend shows that no payload carries, and add it.
    Point `topics.yaml` at the new schemas. Confirm step 2's tests pass. Commit.
-- [ ] 4. Add `check_execution_payloads` to `tools/validate.py`: execution topics
+- [x] 4. Add `check_execution_payloads` to `tools/validate.py`: execution topics
    must not point at the envelope, and every snapshot entity must resolve to the
    same shape as its payload entity. Add tests for both failure cases. Commit.
 - [ ] 5. Write `schema/stream/replay/execution-snapshot.schema.json` and its example,

@@ -7,7 +7,7 @@ import json
 import sys
 from collections.abc import Sequence
 from pathlib import Path
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 import jsonschema
 import yaml
@@ -389,6 +389,205 @@ def check_stream_routing(schema_root: Path) -> list[SchemaProblem]:
                     ),
                 )
             )
+
+    return problems
+
+
+def _resolve_schema_dict(schema: Any, base_file: Path) -> Any:
+    if isinstance(schema, dict):
+        if "$ref" in schema:
+            ref = schema["$ref"]
+            file_part, _, fragment = ref.partition("#")
+            target_file = (
+                (base_file.parent / file_part).resolve() if file_part else base_file
+            )
+            if target_file.is_file():
+                try:
+                    doc = json.loads(target_file.read_text(encoding="utf-8"))
+                    if fragment:
+                        ptr = fragment.lstrip("/")
+                        curr = doc
+                        for part in ptr.split("/"):
+                            part = part.replace("~1", "/").replace("~0", "~")
+                            if isinstance(curr, dict) and part in curr:
+                                curr = curr[part]
+                            else:
+                                return schema
+                        return _resolve_schema_dict(curr, target_file)
+                    else:
+                        return _resolve_schema_dict(doc, target_file)
+                except (OSError, json.JSONDecodeError, KeyError, TypeError):
+                    return schema
+        return {
+            k: _resolve_schema_dict(v, base_file)
+            for k, v in schema.items()
+            if k not in ("$id", "$schema", "title", "description")
+        }
+    elif isinstance(schema, list):
+        return [_resolve_schema_dict(item, base_file) for item in schema]
+    return schema
+
+
+def check_execution_payloads(schema_root: Path) -> list[SchemaProblem]:
+    """Validation rules for execution event payloads and snapshot shapes:
+    - execution topics in topics.yaml must not point at the envelope
+    - every snapshot entity shape in execution-snapshot.schema.json must resolve
+      to the exact same shape as its event payload entity
+    """
+    topics_file = schema_root / "stream" / "topics.yaml"
+    problems: list[SchemaProblem] = []
+
+    if topics_file.is_file():
+        try:
+            report_topics_path = topics_file.relative_to(Path.cwd())
+        except ValueError:
+            report_topics_path = topics_file
+
+        try:
+            topics_data = yaml.safe_load(topics_file.read_text(encoding="utf-8"))
+        except (yaml.YAMLError, OSError):
+            topics_data = None
+
+        if isinstance(topics_data, dict) and isinstance(
+            topics_data.get("topics"), dict
+        ):
+            execution_topics = (
+                "decisions",
+                "orders",
+                "fills",
+                "risk",
+                "ledger",
+                "deployments",
+            )
+            for topic_name in execution_topics:
+                entry = topics_data["topics"].get(topic_name)
+                if not isinstance(entry, dict):
+                    continue
+                payload_schema = entry.get("payload_schema")
+                if payload_schema is None or str(payload_schema).endswith(
+                    "envelope.schema.json"
+                ):
+                    problems.append(
+                        SchemaProblem(
+                            path=report_topics_path,
+                            reason=(
+                                f"Topic '{topic_name}' must declare a dedicated payload schema, "
+                                f"not the envelope itself"
+                            ),
+                        )
+                    )
+
+    snapshot_file = schema_root / "stream" / "replay" / "execution-snapshot.schema.json"
+    if snapshot_file.is_file():
+        try:
+            report_snapshot_path = snapshot_file.relative_to(Path.cwd())
+        except ValueError:
+            report_snapshot_path = snapshot_file
+
+        try:
+            snapshot_data = json.loads(snapshot_file.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            snapshot_data = None
+
+        if isinstance(snapshot_data, dict) and isinstance(
+            snapshot_data.get("properties"), dict
+        ):
+            props = snapshot_data["properties"]
+            payloads_dir = schema_root / "stream" / "payloads"
+            common_file = payloads_dir / "execution-common.schema.json"
+            entity_checks: list[tuple[str, Any, Any, Path]] = []
+
+            dep_file = payloads_dir / "execution-deployment.schema.json"
+            if "deployments" in props and dep_file.is_file():
+                dep_items = (
+                    props["deployments"].get("items", {})
+                    if isinstance(props["deployments"], dict)
+                    else {}
+                )
+                dep_doc = json.loads(dep_file.read_text(encoding="utf-8"))
+                entity_checks.append(("deployments", dep_items, dep_doc, dep_file))
+
+            order_file = payloads_dir / "execution-order.schema.json"
+            if "orders" in props and order_file.is_file():
+                order_items = (
+                    props["orders"].get("items", {})
+                    if isinstance(props["orders"], dict)
+                    else {}
+                )
+                order_doc = json.loads(order_file.read_text(encoding="utf-8"))
+                entity_checks.append(("orders", order_items, order_doc, order_file))
+
+            if "accounts" in props and common_file.is_file():
+                acc_items = (
+                    props["accounts"].get("items", {})
+                    if isinstance(props["accounts"], dict)
+                    else {}
+                )
+                common_doc = json.loads(common_file.read_text(encoding="utf-8"))
+                acc_doc = common_doc.get("$defs", {}).get("ExecutionAccount", {})
+                entity_checks.append(("accounts", acc_items, acc_doc, common_file))
+
+            if "positions" in props and common_file.is_file():
+                pos_items = (
+                    props["positions"].get("items", {})
+                    if isinstance(props["positions"], dict)
+                    else {}
+                )
+                common_doc = json.loads(common_file.read_text(encoding="utf-8"))
+                pos_doc = common_doc.get("$defs", {}).get("ExecutionPosition", {})
+                entity_checks.append(("positions", pos_items, pos_doc, common_file))
+
+            if "control" in props and common_file.is_file():
+                ctrl_schema = props.get("control", {})
+                common_doc = json.loads(common_file.read_text(encoding="utf-8"))
+                ctrl_doc = common_doc.get("$defs", {}).get("ExecutionControl", {})
+                entity_checks.append(("control", ctrl_schema, ctrl_doc, common_file))
+
+            recent_props = (
+                props.get("recent", {}).get("properties", {})
+                if isinstance(props.get("recent"), dict)
+                else {}
+            )
+            dec_file = payloads_dir / "execution-decision.schema.json"
+            if "decisions" in recent_props and dec_file.is_file():
+                dec_items = (
+                    recent_props["decisions"].get("items", {})
+                    if isinstance(recent_props["decisions"], dict)
+                    else {}
+                )
+                dec_doc = json.loads(dec_file.read_text(encoding="utf-8"))
+                entity_checks.append(("recent.decisions", dec_items, dec_doc, dec_file))
+
+            fill_file = payloads_dir / "execution-fill.schema.json"
+            if "fills" in recent_props and fill_file.is_file():
+                fill_items = (
+                    recent_props["fills"].get("items", {})
+                    if isinstance(recent_props["fills"], dict)
+                    else {}
+                )
+                fill_doc = json.loads(fill_file.read_text(encoding="utf-8"))
+                entity_checks.append(("recent.fills", fill_items, fill_doc, fill_file))
+
+            risk_file = payloads_dir / "execution-risk.schema.json"
+            if "risk" in recent_props and risk_file.is_file():
+                risk_items = (
+                    recent_props["risk"].get("items", {})
+                    if isinstance(recent_props["risk"], dict)
+                    else {}
+                )
+                risk_doc = json.loads(risk_file.read_text(encoding="utf-8"))
+                entity_checks.append(("recent.risk", risk_items, risk_doc, risk_file))
+
+            for entity_name, snap_sub, payload_sub, ref_base_file in entity_checks:
+                resolved_snap = _resolve_schema_dict(snap_sub, snapshot_file)
+                resolved_payload = _resolve_schema_dict(payload_sub, ref_base_file)
+                if resolved_snap != resolved_payload:
+                    problems.append(
+                        SchemaProblem(
+                            path=report_snapshot_path,
+                            reason=f"Snapshot entity '{entity_name}' diverges from event payload shape",
+                        )
+                    )
 
     return problems
 
@@ -965,6 +1164,7 @@ def check_tree(schema_root: Path) -> list[SchemaProblem]:
         problems.extend(check_file(file_path, schema_root))
     problems.extend(check_stream_consistency(schema_root))
     problems.extend(check_stream_routing(schema_root))
+    problems.extend(check_execution_payloads(schema_root))
     problems.extend(check_api_consistency(schema_root))
     problems.extend(check_edge_consistency(schema_root))
     problems.extend(check_catalog_consistency(schema_root))

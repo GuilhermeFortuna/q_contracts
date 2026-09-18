@@ -161,3 +161,80 @@ def test_unknown_order_status_fails():
     errors = list(validator.iter_errors(bad))
     assert len(errors) >= 1
     assert any("status" in str(err.path) or "status" in err.message for err in errors)
+
+
+def test_check_execution_payloads_topic_pointing_at_envelope_fails(tmp_path: Path):
+    from tools.validate import check_execution_payloads
+
+    stream_dir = tmp_path / "schema" / "stream"
+    stream_dir.mkdir(parents=True)
+    topics_file = stream_dir / "topics.yaml"
+    topics_file.write_text(
+        yaml.dump(
+            {
+                "topics": {
+                    "orders": {
+                        "class": "durable",
+                        "payload_schema": "schema/stream/envelope.schema.json",
+                    }
+                }
+            }
+        )
+    )
+    problems = check_execution_payloads(tmp_path / "schema")
+    assert len(problems) >= 1
+    assert any("orders" in p.reason and "envelope" in p.reason for p in problems)
+
+
+def test_check_execution_payloads_snapshot_divergence_fails(tmp_path: Path):
+    from tools.validate import check_execution_payloads
+
+    schema_root = tmp_path / "schema"
+    payloads_dir = schema_root / "stream" / "payloads"
+    replay_dir = schema_root / "stream" / "replay"
+    payloads_dir.mkdir(parents=True)
+    replay_dir.mkdir(parents=True)
+
+    dep_file = payloads_dir / "execution-deployment.schema.json"
+    dep_file.write_text(
+        json.dumps(
+            {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                    "entity": {"const": "deployment"},
+                    "id": {"type": "string"},
+                    "symbol": {"type": "string"},
+                },
+                "required": ["entity", "id", "symbol"],
+            }
+        )
+    )
+
+    snapshot_file = replay_dir / "execution-snapshot.schema.json"
+    snapshot_file.write_text(
+        json.dumps(
+            {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                    "deployments": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "entity": {"const": "deployment"},
+                                "id": {"type": "string"},
+                                "different_field": {"type": "integer"},
+                            },
+                            "required": ["entity", "id", "different_field"],
+                        },
+                    }
+                },
+            }
+        )
+    )
+
+    problems = check_execution_payloads(schema_root)
+    assert len(problems) >= 1
+    assert any("deployments" in p.reason and "diverges" in p.reason for p in problems)
