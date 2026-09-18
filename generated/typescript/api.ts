@@ -666,6 +666,30 @@ export interface ExecutionHealthResponse {
   worker_status: "healthy" | "stale" | "offline"
 }
 
+export interface ExecutionSnapshotLimits {
+  recent_decisions: number
+  recent_fills: number
+  recent_orders: number
+  recent_risk: number
+}
+
+export interface ExecutionSnapshotRecent {
+  decisions: Array<Record<string, unknown>>
+  fills: Array<Record<string, unknown>>
+  risk: Array<Record<string, unknown>>
+}
+
+export interface ExecutionSnapshotResponse {
+  accounts: Array<Record<string, unknown>>
+  control: Record<string, unknown>
+  deployments: Array<Record<string, unknown>>
+  limits: ExecutionSnapshotLimits
+  orders: Array<Record<string, unknown>>
+  positions: Array<Record<string, unknown>>
+  recent: ExecutionSnapshotRecent
+  watermark: Record<string, unknown>
+}
+
 export interface ExitPreset {
   description: string
   id: string
