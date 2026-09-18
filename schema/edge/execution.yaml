@@ -48,10 +48,35 @@ safety_invariants:
     persistent deduplication is the responsibility of the Linux execution worker
     and transactional ledger.
 
-  intent_placement: >
-    Every order sent to the MetaTrader terminal must place the intent_id into
-    broker-visible fields: magic number via intent_magic(order_id) and comment
-    via intent_comment(order_id), enabling retroactive matching during lookup.
+  intent_derivation:
+    rule: >
+      Every order sent to the MetaTrader terminal must place the intent_id into
+      broker-visible fields: magic number via intent_magic(order_id) and comment
+      via intent_comment(order_id), enabling retroactive matching during lookup.
+      The edge derives both fields itself. If a caller supplies magic or comment
+      values that disagree with the derivation, the edge refuses the submission
+      with an HTTP 400 error response carrying machine code intent_field_mismatch.
+    formula:
+      magic_base: 0
+      magic: "int((magic_base ^ (order_id.int & 0x7FFFFFFF)) & 0x7FFFFFFF)"
+      comment: "f'q:{str(order_id).replace(\"-\", \"\")[:24]}'"
+    refusal_error_code: intent_field_mismatch
+    vectors:
+      - intent_id: "00000000-0000-0000-0000-000000000000"
+        magic: 0
+        comment: "q:000000000000000000000000"
+      - intent_id: "ffffffff-ffff-ffff-ffff-ffffffffffff"
+        magic: 2147483647
+        comment: "q:ffffffffffffffffffffffff"
+      - intent_id: "00000000-0000-0000-0000-000040000000"
+        magic: 1073741824
+        comment: "q:000000000000000000000000"
+      - intent_id: "12345678-1234-5678-1234-567812345678"
+        magic: 305419896
+        comment: "q:123456781234567812345678"
+      - intent_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        magic: 878082192
+        comment: "q:a1b2c3d4e5f67890abcdef12"
 
 operations:
   quote:
@@ -96,6 +121,13 @@ operations:
     request: schema/edge/execution/deals-request.schema.json
     response: schema/edge/execution/deals-response.schema.json
 
+  account:
+    method: GET
+    path: /v1/account
+    description: Query terminal account information, balance, and trading permissions. Answers unavailable when terminal is disconnected.
+    request: schema/edge/execution/account-request.schema.json
+    response: schema/edge/execution/account-response.schema.json
+
 endpoints:
   /v1/health:
     method: GET
@@ -129,3 +161,7 @@ endpoints:
     method: POST
     request: schema/edge/execution/deals-request.schema.json
     response: schema/edge/execution/deals-response.schema.json
+  /v1/account:
+    method: GET
+    request: schema/edge/execution/account-request.schema.json
+    response: schema/edge/execution/account-response.schema.json

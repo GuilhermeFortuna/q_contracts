@@ -9,6 +9,7 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, NamedTuple
+import uuid
 
 import jsonschema
 import yaml
@@ -1027,6 +1028,148 @@ def check_edge_consistency(schema_root: Path) -> list[SchemaProblem]:
                     )
                 )
 
+    # 6. Check account-response.schema.json requires login and trade_allowed
+    account_resp_path = edge_dir / "execution" / "account-response.schema.json"
+    if account_resp_path.is_file():
+        try:
+            report_ar_path = account_resp_path.relative_to(Path.cwd())
+        except ValueError:
+            report_ar_path = account_resp_path
+        try:
+            ar_data = json.loads(account_resp_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            ar_data = None
+        if isinstance(ar_data, dict):
+            req = ar_data.get("required", [])
+            if (
+                not isinstance(req, list)
+                or "login" not in req
+                or "trade_allowed" not in req
+            ):
+                problems.append(
+                    SchemaProblem(
+                        path=report_ar_path,
+                        reason="Account response schema must require 'login' and 'trade_allowed'",
+                    )
+                )
+
+    return problems
+
+
+def check_intent_vectors(schema_root: Path) -> list[SchemaProblem]:
+    """Validate intent derivation vectors in schema/edge/execution.yaml against the formula:
+    magic = int((magic_base ^ (uuid.int & 0x7FFFFFFF)) & 0x7FFFFFFF)
+    comment = f"q:{str(uuid).replace('-', '')[:24]}"
+    """
+    problems: list[SchemaProblem] = []
+    exec_yaml_path = schema_root / "edge" / "execution.yaml"
+    if not exec_yaml_path.is_file():
+        return problems
+
+    try:
+        report_path = exec_yaml_path.relative_to(Path.cwd())
+    except ValueError:
+        report_path = exec_yaml_path
+
+    try:
+        doc = yaml.safe_load(exec_yaml_path.read_text(encoding="utf-8"))
+    except (yaml.YAMLError, OSError) as exc:
+        problems.append(
+            SchemaProblem(path=report_path, reason=f"Could not load execution.yaml: {exc}")
+        )
+        return problems
+
+    if not isinstance(doc, dict):
+        return problems
+
+    safety = doc.get("safety_invariants", {})
+    if not isinstance(safety, dict):
+        return problems
+
+    derivation = safety.get("intent_derivation")
+    if not isinstance(derivation, dict):
+        problems.append(
+            SchemaProblem(
+                path=report_path,
+                reason="execution.yaml safety_invariants must declare 'intent_derivation'",
+            )
+        )
+        return problems
+
+    refusal_code = derivation.get("refusal_error_code")
+    if refusal_code != "intent_field_mismatch":
+        problems.append(
+            SchemaProblem(
+                path=report_path,
+                reason="intent_derivation must specify refusal_error_code 'intent_field_mismatch'",
+            )
+        )
+
+    formula = derivation.get("formula", {})
+    magic_base = formula.get("magic_base", 0) if isinstance(formula, dict) else 0
+
+    vectors = derivation.get("vectors")
+    if not isinstance(vectors, list) or len(vectors) < 5:
+        count = len(vectors) if isinstance(vectors, list) else 0
+        problems.append(
+            SchemaProblem(
+                path=report_path,
+                reason=f"intent_derivation must declare at least 5 test vectors (found {count})",
+            )
+        )
+        return problems
+
+    for idx, vec in enumerate(vectors):
+        if not isinstance(vec, dict):
+            problems.append(
+                SchemaProblem(
+                    path=report_path,
+                    reason=f"Vector {idx} in intent_derivation is not an object",
+                )
+            )
+            continue
+        intent_id_str = vec.get("intent_id")
+        magic = vec.get("magic")
+        comment = vec.get("comment")
+
+        if not intent_id_str or magic is None or comment is None:
+            problems.append(
+                SchemaProblem(
+                    path=report_path,
+                    reason=f"Vector {idx} must declare intent_id, magic, and comment",
+                )
+            )
+            continue
+
+        try:
+            u = uuid.UUID(str(intent_id_str))
+        except ValueError:
+            problems.append(
+                SchemaProblem(
+                    path=report_path,
+                    reason=f"Vector {idx} intent_id '{intent_id_str}' is not a valid UUID",
+                )
+            )
+            continue
+
+        expected_magic = int((magic_base ^ (u.int & 0x7FFFFFFF)) & 0x7FFFFFFF)
+        expected_comment = f"q:{str(u).replace('-', '')[:24]}"
+
+        if magic != expected_magic:
+            problems.append(
+                SchemaProblem(
+                    path=report_path,
+                    reason=f"Vector {idx} ({intent_id_str}) magic mismatch: declared {magic}, expected {expected_magic}",
+                )
+            )
+        if comment != expected_comment:
+            problems.append(
+                SchemaProblem(
+                    path=report_path,
+                    reason=f"Vector {idx} ({intent_id_str}) comment mismatch: declared '{comment}', expected '{expected_comment}'",
+                )
+            )
+
     return problems
 
 
@@ -1272,6 +1415,7 @@ def check_tree(schema_root: Path) -> list[SchemaProblem]:
     problems.extend(check_api_consistency(schema_root))
     problems.extend(check_idempotency(schema_root))
     problems.extend(check_edge_consistency(schema_root))
+    problems.extend(check_intent_vectors(schema_root))
     problems.extend(check_catalog_consistency(schema_root))
     return problems
 

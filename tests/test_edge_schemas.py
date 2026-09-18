@@ -72,6 +72,12 @@ def test_edge_error_schema_validates_vocabulary():
     }
     validator.validate(valid_example)
 
+    valid_mismatch = {
+        "error": "Caller magic or comment disagrees with intent derivation",
+        "code": "intent_field_mismatch",
+    }
+    validator.validate(valid_mismatch)
+
     invalid_example = {
         "error": "Something went wrong",
         "code": "unknown_unregistered_code_xyz",
@@ -228,7 +234,7 @@ def test_quote_response_requires_age_ms():
     assert "age_ms" in str(excinfo.value)
 
 
-def test_all_six_operations_have_examples_that_validate():
+def test_all_seven_operations_have_examples_that_validate():
     operation_schemas = [
         ("quote-request.json", "quote-request.schema.json"),
         ("quote-response.json", "quote-response.schema.json"),
@@ -247,6 +253,9 @@ def test_all_six_operations_have_examples_that_validate():
         ("positions-response.json", "positions-response.schema.json"),
         ("deals-request.json", "deals-request.schema.json"),
         ("deals-response.json", "deals-response.schema.json"),
+        ("account-request.json", "account-request.schema.json"),
+        ("account-connected.json", "account-response.schema.json"),
+        ("account-response.json", "account-response.schema.json"),
     ]
     for example_file, schema_file in operation_schemas:
         validator = load_execution_validator(schema_file)
@@ -254,3 +263,36 @@ def test_all_six_operations_have_examples_that_validate():
         assert example_path.is_file(), f"{example_path} must exist"
         data = json.loads(example_path.read_text(encoding="utf-8"))
         validator.validate(data)
+
+
+def test_account_operation_validates_and_rejects_missing_fields():
+    validator = load_execution_validator("account-response.schema.json")
+    example_path = EXAMPLES_DIR / "account-connected.json"
+    valid_data = json.loads(example_path.read_text(encoding="utf-8"))
+    validator.validate(valid_data)
+
+    # Missing login fails
+    missing_login = dict(valid_data)
+    del missing_login["login"]
+    with pytest.raises(jsonschema.exceptions.ValidationError) as excinfo:
+        validator.validate(missing_login)
+    assert "login" in str(excinfo.value)
+
+    # Missing trade_allowed fails
+    missing_trade = dict(valid_data)
+    del missing_trade["trade_allowed"]
+    with pytest.raises(jsonschema.exceptions.ValidationError) as excinfo:
+        validator.validate(missing_trade)
+    assert "trade_allowed" in str(excinfo.value)
+
+
+def test_account_disconnected_example_validates_against_edge_error():
+    schema_path = Path("schema/edge/common/error.schema.json")
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    validator = jsonschema.Draft202012Validator(schema)
+
+    example_path = EXAMPLES_DIR / "account-disconnected.json"
+    assert example_path.is_file(), f"{example_path} must exist"
+    data = json.loads(example_path.read_text(encoding="utf-8"))
+    validator.validate(data)
+    assert data["code"] == "mt5_unavailable"
