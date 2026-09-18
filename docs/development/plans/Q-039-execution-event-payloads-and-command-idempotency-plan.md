@@ -180,7 +180,7 @@ Payload envelope-level conventions, applied to every execution payload:
    `error.schema.json`. Add `check_idempotency` (header name present, TTL
    parses, every `required_for` entry names an operation present in
    `openapi.yaml`) and tests. Update `schema/api/README.md`. Commit.
-- [ ] 7. Replace `intent_placement` in `schema/edge/execution.yaml` with
+- [x] 7. Replace `intent_placement` in `schema/edge/execution.yaml` with
    `intent_derivation`: the formula, `magic_base: 0`, the rule that the edge
    derives and refuses disagreeing caller values (error code
    `intent_field_mismatch`, added to the edge error schema), and five vectors.
@@ -189,12 +189,12 @@ Payload envelope-level conventions, applied to every execution payload:
    formula, computed in the validator) and
    `tests/test_intent_derivation.py` (vectors agree with the backend's functions
    via `Q_BACKEND_PATH`). Commit.
-- [ ] 8. Regenerate: `uv run python tools/generate.py --out generated`. Confirm the
+- [x] 8. Regenerate: `uv run python tools/generate.py --out generated`. Confirm the
    new types appear in all three languages and `make generate-check` is clean.
    Commit.
-- [ ] 9. Update `schema/stream/README.md` (execution topics section),
+- [x] 9. Update `schema/stream/README.md` (execution topics section),
    `schema/edge/README.md`, and FINDINGS 3 and 4. Commit.
-- [ ] 10. Run `make check` and
+- [x] 10. Run `make check` and
    `Q_BACKEND_PATH=/home/gui/projects/q/q_backend uv run pytest tests/test_intent_derivation.py`.
    Fix, re-run, commit.
 - [ ] 11. **Human:** human-verifiable criteria 1 and 2.
