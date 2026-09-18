@@ -27,15 +27,15 @@ def load_payload_validator(name: str) -> jsonschema.Draft202012Validator:
     schema_data = json.loads(schema_path.read_text(encoding="utf-8"))
 
     resources = []
-    schema_root = STREAM_DIR.parent
-    for file in schema_root.rglob("*.schema.json"):
+    for file in STREAM_DIR.rglob("*.schema.json"):
         s = json.loads(file.read_text(encoding="utf-8"))
+        if not isinstance(s, dict) or "$schema" not in s:
+            continue
         res = referencing.Resource.from_contents(s)
         resources.append((file.name, res))
         resources.append((file.as_posix(), res))
-        resources.append((file.relative_to(schema_root).as_posix(), res))
-        rel_str = f"schema/{file.relative_to(schema_root).as_posix()}"
-        resources.append((rel_str, res))
+        resources.append((file.relative_to(STREAM_DIR).as_posix(), res))
+        resources.append((f"../payloads/{file.name}", res))
         if "$id" in s:
             resources.append((s["$id"], res))
             resources.append((f"{s['$id']}.schema.json", res))

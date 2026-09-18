@@ -164,7 +164,7 @@ Payload envelope-level conventions, applied to every execution payload:
    a missing `id`, `deployment_id`, `position_after` or `account_after` fails;
    a numeric decimal fails; an unknown order status fails. Confirm they fail.
    Commit.
-- [ ] 3. Write `execution-common.schema.json` with the vocabularies from
+- [x] 3. Write `execution-common.schema.json` with the vocabularies from
    `domain.py` and the shared `$defs`, then the six payload schemas and their
    examples. Derive the fields from `execution_models.py` and from the API
    response models, and cross-check them against `q_frontend/src/types/execution.ts`.
