@@ -1,4 +1,18 @@
-// GENERATED FILE - DO NOT EDIT. Source schemas: schema/edge/common/error.schema.json, schema/edge/common/health.schema.json, schema/edge/execution/check-request.schema.json, schema/edge/execution/check-response.schema.json, schema/edge/execution/deal.schema.json, schema/edge/execution/deals-request.schema.json, schema/edge/execution/deals-response.schema.json, schema/edge/execution/lookup-outcome.schema.json, schema/edge/execution/lookup-request.schema.json, schema/edge/execution/order.schema.json, schema/edge/execution/position.schema.json, schema/edge/execution/positions-request.schema.json, schema/edge/execution/positions-response.schema.json, schema/edge/execution/quote-request.schema.json, schema/edge/execution/quote-response.schema.json, schema/edge/execution/submit-outcome.schema.json, schema/edge/execution/submit-request.schema.json
+// GENERATED FILE - DO NOT EDIT. Source schemas: schema/edge/common/error.schema.json, schema/edge/common/health.schema.json, schema/edge/execution/account-request.schema.json, schema/edge/execution/account-response.schema.json, schema/edge/execution/check-request.schema.json, schema/edge/execution/check-response.schema.json, schema/edge/execution/deal.schema.json, schema/edge/execution/deals-request.schema.json, schema/edge/execution/deals-response.schema.json, schema/edge/execution/lookup-outcome.schema.json, schema/edge/execution/lookup-request.schema.json, schema/edge/execution/order.schema.json, schema/edge/execution/position.schema.json, schema/edge/execution/positions-request.schema.json, schema/edge/execution/positions-response.schema.json, schema/edge/execution/quote-request.schema.json, schema/edge/execution/quote-response.schema.json, schema/edge/execution/submit-outcome.schema.json, schema/edge/execution/submit-request.schema.json
+
+export interface AccountRequest {
+}
+
+export interface AccountResponse {
+  balance: number
+  currency: string
+  equity: number
+  login: number
+  margin_free: number
+  server: string
+  terminal_trade_allowed: boolean
+  trade_allowed: boolean
+}
 
 export interface CheckRequest {
   intent_id: string
@@ -22,7 +36,7 @@ export interface DealsRequest {
 export type DealsResponse = Array<ExecutionDeal>
 
 export interface EdgeErrorResponse {
-  code: "invalid_timeframe" | "symbol_not_found" | "range_unavailable" | "tick_range_too_large" | "invalid_flags" | "mt5_unavailable" | "unauthorized" | "not_found" | "internal_error" | "duplicate_intent" | "schema_major_mismatch"
+  code: "invalid_timeframe" | "symbol_not_found" | "range_unavailable" | "tick_range_too_large" | "invalid_flags" | "mt5_unavailable" | "unauthorized" | "not_found" | "internal_error" | "duplicate_intent" | "intent_field_mismatch" | "schema_major_mismatch"
   error: string
 }
 

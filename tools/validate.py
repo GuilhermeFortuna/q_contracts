@@ -6,10 +6,10 @@ import argparse
 import json
 import re
 import sys
+import uuid
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, NamedTuple
-import uuid
 
 import jsonschema
 import yaml
@@ -1075,7 +1075,9 @@ def check_intent_vectors(schema_root: Path) -> list[SchemaProblem]:
         doc = yaml.safe_load(exec_yaml_path.read_text(encoding="utf-8"))
     except (yaml.YAMLError, OSError) as exc:
         problems.append(
-            SchemaProblem(path=report_path, reason=f"Could not load execution.yaml: {exc}")
+            SchemaProblem(
+                path=report_path, reason=f"Could not load execution.yaml: {exc}"
+            )
         )
         return problems
 

@@ -1,7 +1,7 @@
 import ast
 import os
-from pathlib import Path
 import uuid
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -39,13 +39,24 @@ def test_intent_derivation_vectors_match_formula():
         u = uuid.UUID(vec["intent_id"])
         expected_magic = _formula_magic(u)
         expected_comment = _formula_comment(u)
-        assert vec["magic"] == expected_magic, f"Vector {vec['intent_id']} magic mismatch"
-        assert vec["comment"] == expected_comment, f"Vector {vec['intent_id']} comment mismatch"
+        assert (
+            vec["magic"] == expected_magic
+        ), f"Vector {vec['intent_id']} magic mismatch"
+        assert (
+            vec["comment"] == expected_comment
+        ), f"Vector {vec['intent_id']} comment mismatch"
 
 
 def _extract_backend_intent_funcs(backend_path: Path) -> dict[str, Any]:
     if backend_path.is_dir():
-        target = backend_path / "src" / "q_backend" / "execution" / "brokers" / "metatrader.py"
+        target = (
+            backend_path
+            / "src"
+            / "q_backend"
+            / "execution"
+            / "brokers"
+            / "metatrader.py"
+        )
     else:
         target = backend_path
     if not target.is_file():
@@ -55,11 +66,14 @@ def _extract_backend_intent_funcs(backend_path: Path) -> dict[str, Any]:
     tree = ast.parse(source, filename=str(target))
     funcs: dict[str, Any] = {}
     for node in tree.body:
-        if isinstance(node, ast.FunctionDef) and node.name in ("intent_magic", "intent_comment"):
+        if isinstance(node, ast.FunctionDef) and node.name in (
+            "intent_magic",
+            "intent_comment",
+        ):
             mod = ast.Module(body=[node], type_ignores=[])
             code = compile(mod, filename=str(target), mode="exec")
             ns: dict[str, Any] = {"UUID": uuid.UUID}
-            exec(code, ns)
+            exec(code, ns)  # noqa: S102
             funcs[node.name] = ns[node.name]
     return funcs
 
@@ -81,8 +95,12 @@ def test_intent_vectors_match_backend_source():
         u = uuid.UUID(vec["intent_id"])
         backend_magic = funcs["intent_magic"](u)
         backend_comment = funcs["intent_comment"](u)
-        assert vec["magic"] == backend_magic, f"Vector {vec['intent_id']} differs from backend intent_magic"
-        assert vec["comment"] == backend_comment, f"Vector {vec['intent_id']} differs from backend intent_comment"
+        assert (
+            vec["magic"] == backend_magic
+        ), f"Vector {vec['intent_id']} differs from backend intent_magic"
+        assert (
+            vec["comment"] == backend_comment
+        ), f"Vector {vec['intent_id']} differs from backend intent_comment"
 
 
 def test_check_intent_vectors_clean_tree():
@@ -118,7 +136,9 @@ def test_check_intent_vectors_detects_fewer_than_5_vectors(tmp_path: Path):
     edge_dir = tmp_path / "edge"
     edge_dir.mkdir(parents=True)
     doc = load_execution_yaml()
-    doc["safety_invariants"]["intent_derivation"]["vectors"] = doc["safety_invariants"]["intent_derivation"]["vectors"][:3]
+    doc["safety_invariants"]["intent_derivation"]["vectors"] = doc["safety_invariants"][
+        "intent_derivation"
+    ]["vectors"][:3]
     (edge_dir / "execution.yaml").write_text(yaml.dump(doc))
 
     problems = check_intent_vectors(tmp_path)
