@@ -1644,8 +1644,10 @@ components:
     DeploymentCreateRequest:
       properties:
         broker_mode:
-          const: paper
           default: paper
+          enum:
+          - paper
+          - mt5_live
           title: Broker Mode
           type: string
         identity:
