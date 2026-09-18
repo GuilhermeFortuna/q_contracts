@@ -49,6 +49,7 @@ def plan_units(schema_root: Path) -> list[GenerationUnit]:
             paths.append(boundary / "openapi.yaml")
         paths = sorted(paths)
         documents: list[dict[str, Any]] = []
+        extra_documents: list[dict[str, Any]] = []
         sources: list[Path] = []
         for path in paths:
             relative = path.relative_to(schema_root.parent)
@@ -98,6 +99,13 @@ def plan_units(schema_root: Path) -> list[GenerationUnit]:
                     documents.append({"title": title, **component})
             else:
                 documents.append(document)
+                defs = document.get("$defs", {})
+                if isinstance(defs, dict):
+                    for def_name in sorted(defs):
+                        def_doc = defs[def_name]
+                        if isinstance(def_doc, dict):
+                            extra_documents.append({"title": def_name, **def_doc})
+        documents.extend(extra_documents)
         if sources:
             units.append(
                 GenerationUnit(

@@ -1,0 +1,33 @@
+{
+  "entity": "decision",
+  "id": "33333333-3333-3333-3333-333333333333",
+  "deployment_id": "11111111-1111-1111-1111-111111111111",
+  "account_id": "22222222-2222-2222-2222-222222222222",
+  "bar_close_time": "2026-09-18T14:30:00Z",
+  "strategy_name": "momentum_alpha",
+  "strategy_version": 1,
+  "config_hash": "a1b2c3d4e5f67890abcdef1234567890abcdef12",
+  "symbol": "WINZ25",
+  "timeframe": "M1",
+  "signal_action": "buy",
+  "outcome": "order_filled",
+  "requested_quantity": "5.0",
+  "reason": "Momentum crossover threshold exceeded",
+  "compiled_config": {
+    "lookback": 20,
+    "threshold": 1.5
+  },
+  "sizing_config": {
+    "method": "fixed",
+    "fixed_quantity": 5
+  },
+  "risk_config": {
+    "max_drawdown": 0.05
+  },
+  "context": {
+    "fast_ma": 128500.5,
+    "slow_ma": 128400.0
+  },
+  "created_at": "2026-09-18T14:30:01Z",
+  "updated_at": "2026-09-18T14:30:02Z"
+}

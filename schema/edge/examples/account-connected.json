@@ -1,0 +1,10 @@
+{
+  "login": 10987654,
+  "server": "MetaQuotes-Demo",
+  "currency": "BRL",
+  "trade_allowed": true,
+  "terminal_trade_allowed": true,
+  "balance": 100000.0,
+  "equity": 100000.0,
+  "margin_free": 100000.0
+}

@@ -40,7 +40,7 @@ export const TOPICS: Readonly<Record<string, TopicPolicy>> = {
     coalesce_key: [],
     on_overflow: "lag",
     replay: "unbounded",
-    payload_schema: "schema/stream/envelope.schema.json",
+    payload_schema: "schema/stream/payloads/execution-decision.schema.json",
   },
   "deployments": {
     name: "deployments",
@@ -50,7 +50,7 @@ export const TOPICS: Readonly<Record<string, TopicPolicy>> = {
     coalesce_key: [],
     on_overflow: "lag",
     replay: "unbounded",
-    payload_schema: "schema/stream/envelope.schema.json",
+    payload_schema: "schema/stream/payloads/execution-deployment.schema.json",
   },
   "fills": {
     name: "fills",
@@ -60,7 +60,7 @@ export const TOPICS: Readonly<Record<string, TopicPolicy>> = {
     coalesce_key: [],
     on_overflow: "lag",
     replay: "unbounded",
-    payload_schema: "schema/stream/envelope.schema.json",
+    payload_schema: "schema/stream/payloads/execution-fill.schema.json",
   },
   "jobs.progress": {
     name: "jobs.progress",
@@ -90,7 +90,7 @@ export const TOPICS: Readonly<Record<string, TopicPolicy>> = {
     coalesce_key: [],
     on_overflow: "lag",
     replay: "unbounded",
-    payload_schema: "schema/stream/envelope.schema.json",
+    payload_schema: "schema/stream/payloads/execution-ledger.schema.json",
   },
   "orders": {
     name: "orders",
@@ -100,7 +100,7 @@ export const TOPICS: Readonly<Record<string, TopicPolicy>> = {
     coalesce_key: [],
     on_overflow: "lag",
     replay: "unbounded",
-    payload_schema: "schema/stream/envelope.schema.json",
+    payload_schema: "schema/stream/payloads/execution-order.schema.json",
   },
   "quotes": {
     name: "quotes",
@@ -120,6 +120,6 @@ export const TOPICS: Readonly<Record<string, TopicPolicy>> = {
     coalesce_key: [],
     on_overflow: "lag",
     replay: "unbounded",
-    payload_schema: "schema/stream/envelope.schema.json",
+    payload_schema: "schema/stream/payloads/execution-risk.schema.json",
   },
 }

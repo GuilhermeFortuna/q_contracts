@@ -1,0 +1,4 @@
+{
+  "error": "MetaTrader 5 terminal is not initialized.",
+  "code": "mt5_unavailable"
+}

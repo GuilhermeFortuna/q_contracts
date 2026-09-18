@@ -164,6 +164,13 @@ def emit(unit: GenerationUnit) -> str:
     if unit.name == "topics":
         return _emit_topics(unit)
     source_list = ", ".join(path.as_posix() for path in unit.sources)
+    definitions: list[tuple[str, dict[str, Any]]] = []
+    for document in unit.documents:
+        title = document.get("title")
+        if isinstance(title, str) and title:
+            definitions.append((_pascal(title), document))
+    definitions.sort(key=lambda item: item[0])
+
     lines = [
         f"# GENERATED FILE - DO NOT EDIT. Source schemas: {source_list}",
         "from __future__ import annotations",
@@ -171,19 +178,16 @@ def emit(unit: GenerationUnit) -> str:
         "from dataclasses import dataclass",
         "from typing import Any, Literal",
         "",
-        "",
     ]
+    if definitions and definitions[0][1].get("type") == "object":
+        lines.append("")
+
     ref_map = {
         path.name.removesuffix(".schema.json"): _pascal(document.get("title", ""))
         for path, document in zip(unit.sources, unit.documents, strict=False)
         if path.name.endswith(".schema.json") and isinstance(document.get("title"), str)
     }
-    definitions: list[tuple[str, dict[str, Any]]] = []
-    for document in unit.documents:
-        title = document.get("title")
-        if isinstance(title, str) and title:
-            definitions.append((_pascal(title), document))
-    for name, document in sorted(definitions):
+    for name, document in definitions:
         if document.get("type") == "object":
             lines.extend(_emit_object(name, document, ref_map))
         elif document.get("oneOf"):
@@ -197,4 +201,10 @@ def emit(unit: GenerationUnit) -> str:
         else:
             lines.append(f"{name} = {_type_for(document, ref_map, quote_refs=True)}")
         lines.extend(["", ""])
-    return "\n".join(lines).rstrip() + "\n"
+    rendered = "\n".join(lines).rstrip() + "\n"
+    try:
+        import black
+
+        return black.format_str(rendered, mode=black.Mode())
+    except ImportError:
+        return rendered

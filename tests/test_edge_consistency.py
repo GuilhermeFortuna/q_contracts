@@ -157,6 +157,38 @@ def create_minimal_edge_tree(tmp_path: Path) -> Path:
         )
     )
 
+    # 7. account-response.schema.json
+    account_resp_file = exec_dir / "account-response.schema.json"
+    account_resp_file.write_text(
+        json.dumps(
+            {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$id": "edge/execution/account-response",
+                "type": "object",
+                "required": [
+                    "login",
+                    "server",
+                    "currency",
+                    "trade_allowed",
+                    "terminal_trade_allowed",
+                    "balance",
+                    "equity",
+                    "margin_free",
+                ],
+                "properties": {
+                    "login": {"type": "integer"},
+                    "server": {"type": "string"},
+                    "currency": {"type": "string"},
+                    "trade_allowed": {"type": "boolean"},
+                    "terminal_trade_allowed": {"type": "boolean"},
+                    "balance": {"type": "number"},
+                    "equity": {"type": "number"},
+                    "margin_free": {"type": "number"},
+                },
+            }
+        )
+    )
+
     return schema_root
 
 
@@ -258,3 +290,27 @@ def test_quote_response_missing_age_ms_fails(tmp_path: Path):
     problems = check_edge_consistency(schema_root)
     assert len(problems) == 1
     assert "age_ms" in problems[0].reason.lower()
+
+
+def test_account_response_missing_login_fails(tmp_path: Path):
+    schema_root = create_minimal_edge_tree(tmp_path)
+    ar_file = schema_root / "edge" / "execution" / "account-response.schema.json"
+    data = json.loads(ar_file.read_text())
+    data["required"].remove("login")
+    ar_file.write_text(json.dumps(data))
+
+    problems = check_edge_consistency(schema_root)
+    assert len(problems) == 1
+    assert "login" in problems[0].reason.lower()
+
+
+def test_account_response_missing_trade_allowed_fails(tmp_path: Path):
+    schema_root = create_minimal_edge_tree(tmp_path)
+    ar_file = schema_root / "edge" / "execution" / "account-response.schema.json"
+    data = json.loads(ar_file.read_text())
+    data["required"].remove("trade_allowed")
+    ar_file.write_text(json.dumps(data))
+
+    problems = check_edge_consistency(schema_root)
+    assert len(problems) == 1
+    assert "trade_allowed" in problems[0].reason.lower()

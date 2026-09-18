@@ -23,6 +23,7 @@
         "not_found",
         "internal_error",
         "duplicate_intent",
+        "intent_field_mismatch",
         "schema_major_mismatch"
       ]
     }

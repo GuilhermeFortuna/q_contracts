@@ -7,6 +7,8 @@ This directory holds schemas describing the wire contracts for edge processes ru
 - Data-gateway wire contracts and IPC/network formats connecting edge platform terminals.
 - Order execution edge contracts with intent-at-most-once semantics.
 - Gateway command, request, and telemetry schemas for edge bridges.
+- Canonical intent derivation formula (`magic` and `comment`) mapping order UUIDs deterministically with refusal rules (`intent_field_mismatch`).
+- Terminal account operation (`/v1/account`) querying live broker status, trading permissions, and float balances.
 
 ## What Does Not Belong Here
 
@@ -15,6 +17,7 @@ This directory holds schemas describing the wire contracts for edge processes ru
 - Lake dataset manifests (belong in `schema/catalog/`).
 - Generated bridge code or platform binaries (belong in `generated/`).
 
-## Populating Task
+## Populating Tasks
 
-This boundary is populated by task **Q-004** (`Wine Edge Wire Contracts`).
+- **Q-004** (`Wine Edge Wire Contracts`): Data gateway and execution edge baseline contracts and process obligations.
+- **Q-039** (`Execution event payloads and command idempotency`): Deterministic intent derivation formula and test vectors, refusal rule for disagreeing caller fields, and read-only `/v1/account` operation.

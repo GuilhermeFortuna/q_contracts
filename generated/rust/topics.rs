@@ -42,7 +42,7 @@ pub const TOPICS: &[TopicPolicy] = &[
         coalesce_key: &[],
         on_overflow: "lag",
         replay: "unbounded",
-        payload_schema: "schema/stream/envelope.schema.json",
+        payload_schema: "schema/stream/payloads/execution-decision.schema.json",
     },
     TopicPolicy {
         name: "deployments",
@@ -52,7 +52,7 @@ pub const TOPICS: &[TopicPolicy] = &[
         coalesce_key: &[],
         on_overflow: "lag",
         replay: "unbounded",
-        payload_schema: "schema/stream/envelope.schema.json",
+        payload_schema: "schema/stream/payloads/execution-deployment.schema.json",
     },
     TopicPolicy {
         name: "fills",
@@ -62,7 +62,7 @@ pub const TOPICS: &[TopicPolicy] = &[
         coalesce_key: &[],
         on_overflow: "lag",
         replay: "unbounded",
-        payload_schema: "schema/stream/envelope.schema.json",
+        payload_schema: "schema/stream/payloads/execution-fill.schema.json",
     },
     TopicPolicy {
         name: "jobs.progress",
@@ -92,7 +92,7 @@ pub const TOPICS: &[TopicPolicy] = &[
         coalesce_key: &[],
         on_overflow: "lag",
         replay: "unbounded",
-        payload_schema: "schema/stream/envelope.schema.json",
+        payload_schema: "schema/stream/payloads/execution-ledger.schema.json",
     },
     TopicPolicy {
         name: "orders",
@@ -102,7 +102,7 @@ pub const TOPICS: &[TopicPolicy] = &[
         coalesce_key: &[],
         on_overflow: "lag",
         replay: "unbounded",
-        payload_schema: "schema/stream/envelope.schema.json",
+        payload_schema: "schema/stream/payloads/execution-order.schema.json",
     },
     TopicPolicy {
         name: "quotes",
@@ -122,7 +122,7 @@ pub const TOPICS: &[TopicPolicy] = &[
         coalesce_key: &[],
         on_overflow: "lag",
         replay: "unbounded",
-        payload_schema: "schema/stream/envelope.schema.json",
+        payload_schema: "schema/stream/payloads/execution-risk.schema.json",
     },
 ];
 
