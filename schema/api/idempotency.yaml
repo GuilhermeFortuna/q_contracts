@@ -1,0 +1,37 @@
+# Control API Command Idempotency Policy
+# Governs client-generated idempotency keys on mutating control plane operations.
+
+header: Idempotency-Key
+key_format: uuid
+ttl: PT24H
+
+replay_rule:
+  description: >
+    When a mutating request arrives with an Idempotency-Key header:
+    1. If no prior request with that key exists, execute the request, store the result
+       (status code, response headers, and response body) keyed by (key, method, path, body_sha256)
+       for 24 hours (PT24H), and return the result.
+    2. If a prior request with that key has completed successfully or with a client error,
+       verify that the HTTP method, path, and request body hash match. If they match, return
+       the stored response immediately without re-execution.
+    3. If a prior request with that key used a different method, path, or request body,
+       refuse the request with machine-readable error code 'idempotency_key_reused'.
+    4. If a prior request with that key is currently executing and has not yet committed or
+       returned a terminal result, refuse the concurrent retry with HTTP 409 and error code
+       'idempotency_in_progress', including a 'Retry-After' header.
+    5. A mutating command listed in required_for that is submitted without the Idempotency-Key
+       header is refused with machine-readable error code 'idempotency_key_required'.
+
+error_codes:
+  required: idempotency_key_required
+  reused: idempotency_key_reused
+  in_progress: idempotency_in_progress
+
+required_for:
+  - create_execution_account_api_v1_execution_accounts_post
+  - create_execution_deployment_api_v1_execution_deployments_post
+  - deployment_action_api_v1_execution_deployments__deployment_id__actions_post
+  - update_kill_switch_api_v1_execution_kill_switch_put
+  - resolve_execution_order_api_v1_execution_orders__order_id__resolve_post
+
+optional_for: []

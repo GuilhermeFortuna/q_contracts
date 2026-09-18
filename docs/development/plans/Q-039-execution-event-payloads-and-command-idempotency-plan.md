@@ -176,7 +176,7 @@ Payload envelope-level conventions, applied to every execution payload:
 - [x] 5. Write `schema/stream/replay/execution-snapshot.schema.json` and its example,
    with the six-topic watermark and `limits`. Add a test that it validates and
    that removing a topic from the watermark fails. Commit.
-- [ ] 6. Write `schema/api/idempotency.yaml` and add the two error codes to
+- [x] 6. Write `schema/api/idempotency.yaml` and add the two error codes to
    `error.schema.json`. Add `check_idempotency` (header name present, TTL
    parses, every `required_for` entry names an operation present in
    `openapi.yaml`) and tests. Update `schema/api/README.md`. Commit.

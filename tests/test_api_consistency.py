@@ -182,3 +182,115 @@ def test_topics_arrow_payload_schema_not_resolving_fails(tmp_path: Path):
 def test_valid_repo_tree_has_no_api_consistency_problems():
     problems = check_api_consistency(Path("schema"))
     assert problems == []
+
+
+def test_valid_repo_tree_has_no_idempotency_problems():
+    from tools.validate import check_idempotency
+
+    problems = check_idempotency(Path("schema"))
+    assert problems == []
+
+
+def test_idempotency_policy_values_and_replay_rules():
+    idemp_path = Path("schema/api/idempotency.yaml")
+    assert idemp_path.is_file()
+    data = yaml.safe_load(idemp_path.read_text(encoding="utf-8"))
+
+    assert data["header"] == "Idempotency-Key"
+    assert data["key_format"] == "uuid"
+    assert data["ttl"] == "PT24H"
+
+    # Replay rule specifies 24 hours and conflicting key refusal
+    replay_rule = data["replay_rule"]["description"]
+    assert "24 hours" in replay_rule or "PT24H" in replay_rule
+    assert "idempotency_key_reused" in replay_rule
+    assert "idempotency_in_progress" in replay_rule
+
+    error_codes = data["error_codes"]
+    assert error_codes["required"] == "idempotency_key_required"
+    assert error_codes["reused"] == "idempotency_key_reused"
+    assert error_codes["in_progress"] == "idempotency_in_progress"
+
+    # Covered commands
+    required_for = data["required_for"]
+    assert "create_execution_account_api_v1_execution_accounts_post" in required_for
+    assert (
+        "create_execution_deployment_api_v1_execution_deployments_post" in required_for
+    )
+    assert (
+        "deployment_action_api_v1_execution_deployments__deployment_id__actions_post"
+        in required_for
+    )
+    assert "update_kill_switch_api_v1_execution_kill_switch_put" in required_for
+    assert (
+        "resolve_execution_order_api_v1_execution_orders__order_id__resolve_post"
+        in required_for
+    )
+
+
+def test_idempotency_missing_header_fails(tmp_path: Path):
+    from tools.validate import check_idempotency
+
+    api_dir = tmp_path / "schema" / "api"
+    api_dir.mkdir(parents=True)
+    idemp_file = api_dir / "idempotency.yaml"
+    idemp_file.write_text(
+        yaml.dump(
+            {
+                "ttl": "PT24H",
+                "required_for": [],
+            }
+        )
+    )
+    problems = check_idempotency(tmp_path / "schema")
+    assert len(problems) >= 1
+    assert any("header" in p.reason.lower() for p in problems)
+
+
+def test_idempotency_invalid_ttl_fails(tmp_path: Path):
+    from tools.validate import check_idempotency
+
+    api_dir = tmp_path / "schema" / "api"
+    api_dir.mkdir(parents=True)
+    idemp_file = api_dir / "idempotency.yaml"
+    idemp_file.write_text(
+        yaml.dump(
+            {
+                "header": "Idempotency-Key",
+                "ttl": "24 hours",  # not ISO 8601 duration
+                "required_for": [],
+            }
+        )
+    )
+    problems = check_idempotency(tmp_path / "schema")
+    assert len(problems) >= 1
+    assert any("ttl" in p.reason.lower() for p in problems)
+
+
+def test_idempotency_unknown_operation_fails(tmp_path: Path):
+    from tools.validate import check_idempotency
+
+    api_dir = tmp_path / "schema" / "api"
+    api_dir.mkdir(parents=True)
+    idemp_file = api_dir / "idempotency.yaml"
+    idemp_file.write_text(
+        yaml.dump(
+            {
+                "header": "Idempotency-Key",
+                "ttl": "PT24H",
+                "required_for": ["nonexistent_operation_id"],
+            }
+        )
+    )
+    openapi_file = api_dir / "openapi.yaml"
+    openapi_file.write_text(
+        yaml.dump(
+            {
+                "openapi": "3.1.0",
+                "paths": {},
+            }
+        )
+    )
+    problems = check_idempotency(tmp_path / "schema")
+    assert len(problems) >= 1
+    assert any("nonexistent_operation_id" in p.reason for p in problems)

@@ -14,7 +14,7 @@
     },
     "code": {
       "type": "string",
-      "description": "Machine-readable error code classifying the error condition."
+      "description": "Machine-readable error code classifying the error condition (e.g. idempotency_key_required, idempotency_key_reused, idempotency_in_progress)."
     },
     "details": {
       "description": "Optional structured error details or contextual metadata."

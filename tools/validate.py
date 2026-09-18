@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from collections.abc import Sequence
 from pathlib import Path
@@ -18,7 +19,7 @@ BOUNDARIES: tuple[str, ...] = ("api", "stream", "edge", "catalog")
 # its anchor is missing, so a deleted anchor would otherwise pass validation.
 # This is not a schema registry: adding a schema still requires no edit here.
 REQUIRED_DOCUMENTS: dict[str, tuple[str, ...]] = {
-    "api": ("openapi.yaml", "error.schema.json"),
+    "api": ("openapi.yaml", "error.schema.json", "idempotency.yaml"),
     "stream": ("topics.yaml", "envelope.schema.json"),
     "edge": ("execution.yaml", "data-gateway.yaml"),
     "catalog": ("lifecycle.yaml", "dataset-manifest.schema.json"),
@@ -763,6 +764,109 @@ def check_api_consistency(schema_root: Path) -> list[SchemaProblem]:
     return problems
 
 
+_ISO_8601_DURATION_RE = re.compile(
+    r"^P(?:\d+Y)?(?:\d+M)?(?:\d+W)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+S)?)?$"
+)
+
+
+def check_idempotency(schema_root: Path) -> list[SchemaProblem]:
+    """Validation rules for command idempotency policy:
+    - header name is declared and non-empty
+    - ttl parses as a valid ISO 8601 duration
+    - every required_for entry names an operation present in openapi.yaml
+    """
+    idemp_file = schema_root / "api" / "idempotency.yaml"
+    if not idemp_file.is_file():
+        return []
+
+    try:
+        report_path = idemp_file.relative_to(Path.cwd())
+    except ValueError:
+        report_path = idemp_file
+
+    try:
+        data = yaml.safe_load(idemp_file.read_text(encoding="utf-8"))
+    except (yaml.YAMLError, OSError) as exc:
+        return [SchemaProblem(path=report_path, reason=f"Parse failure: {exc}")]
+
+    if not isinstance(data, dict):
+        return [
+            SchemaProblem(
+                path=report_path,
+                reason="idempotency.yaml root must be a YAML mapping",
+            )
+        ]
+
+    problems: list[SchemaProblem] = []
+
+    header = data.get("header")
+    if not isinstance(header, str) or not header.strip():
+        problems.append(
+            SchemaProblem(
+                path=report_path,
+                reason="Missing or empty 'header' field in idempotency policy",
+            )
+        )
+
+    ttl = data.get("ttl")
+    if (
+        not isinstance(ttl, str)
+        or not ttl.strip()
+        or not _ISO_8601_DURATION_RE.match(ttl)
+    ):
+        problems.append(
+            SchemaProblem(
+                path=report_path,
+                reason=f"Invalid or unparseable ISO 8601 duration in 'ttl': '{ttl}'",
+            )
+        )
+
+    required_for = data.get("required_for")
+    if not isinstance(required_for, list):
+        problems.append(
+            SchemaProblem(
+                path=report_path,
+                reason="'required_for' must be a list of operation identifiers",
+            )
+        )
+    else:
+        openapi_file = schema_root / "api" / "openapi.yaml"
+        if not openapi_file.is_file():
+            openapi_file = schema_root / "api" / "openapi.json"
+        operation_ids: set[str] = set()
+        if openapi_file.is_file():
+            try:
+                content = openapi_file.read_text(encoding="utf-8")
+                openapi_doc = (
+                    yaml.safe_load(content)
+                    if openapi_file.name.endswith((".yaml", ".yml"))
+                    else json.loads(content)
+                )
+                if isinstance(openapi_doc, dict):
+                    paths = openapi_doc.get("paths", {})
+                    if isinstance(paths, dict):
+                        for path_item in paths.values():
+                            if isinstance(path_item, dict):
+                                for method_item in path_item.values():
+                                    if isinstance(method_item, dict):
+                                        op_id = method_item.get("operationId")
+                                        if isinstance(op_id, str):
+                                            operation_ids.add(op_id)
+            except (yaml.YAMLError, json.JSONDecodeError, OSError):
+                pass
+
+        for op in required_for:
+            if not isinstance(op, str) or op not in operation_ids:
+                problems.append(
+                    SchemaProblem(
+                        path=report_path,
+                        reason=f"Idempotency required_for operation '{op}' not found in openapi.yaml",
+                    )
+                )
+
+    return problems
+
+
 def check_edge_consistency(schema_root: Path) -> list[SchemaProblem]:
     """Both contracts declare a schema major and a health operation; the submit
     outcome union has exactly three members and the lookup union exactly four;
@@ -1166,6 +1270,7 @@ def check_tree(schema_root: Path) -> list[SchemaProblem]:
     problems.extend(check_stream_routing(schema_root))
     problems.extend(check_execution_payloads(schema_root))
     problems.extend(check_api_consistency(schema_root))
+    problems.extend(check_idempotency(schema_root))
     problems.extend(check_edge_consistency(schema_root))
     problems.extend(check_catalog_consistency(schema_root))
     return problems
