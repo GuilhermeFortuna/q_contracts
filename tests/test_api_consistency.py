@@ -294,3 +294,38 @@ def test_idempotency_unknown_operation_fails(tmp_path: Path):
     problems = check_idempotency(tmp_path / "schema")
     assert len(problems) >= 1
     assert any("nonexistent_operation_id" in p.reason for p in problems)
+
+
+def test_idempotency_required_operation_missing_header_fails(tmp_path: Path):
+    from tools.validate import check_idempotency
+
+    api_dir = tmp_path / "schema" / "api"
+    api_dir.mkdir(parents=True)
+    (api_dir / "idempotency.yaml").write_text(
+        yaml.safe_dump(
+            {
+                "header": "Idempotency-Key",
+                "ttl": "PT24H",
+                "required_for": ["mutate_item"],
+            }
+        )
+    )
+    (api_dir / "openapi.yaml").write_text(
+        yaml.safe_dump(
+            {
+                "openapi": "3.1.0",
+                "paths": {
+                    "/items": {
+                        "post": {
+                            "operationId": "mutate_item",
+                            "parameters": [],
+                        }
+                    }
+                },
+            }
+        )
+    )
+
+    problems = check_idempotency(tmp_path / "schema")
+    assert len(problems) == 1
+    assert "Idempotency-Key" in problems[0].reason

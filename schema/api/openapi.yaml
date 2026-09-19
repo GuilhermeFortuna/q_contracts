@@ -7520,6 +7520,16 @@ paths:
       - execution
     post:
       operationId: create_execution_account_api_v1_execution_accounts_post
+      parameters:
+      - in: header
+        name: Idempotency-Key
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Idempotency-Key
       requestBody:
         content:
           application/json:
@@ -7776,6 +7786,16 @@ paths:
       - execution
     post:
       operationId: create_execution_deployment_api_v1_execution_deployments_post
+      parameters:
+      - in: header
+        name: Idempotency-Key
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Idempotency-Key
       requestBody:
         content:
           application/json:
@@ -7836,6 +7856,15 @@ paths:
           format: uuid
           title: Deployment Id
           type: string
+      - in: header
+        name: Idempotency-Key
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Idempotency-Key
       requestBody:
         content:
           application/json:
@@ -8222,6 +8251,16 @@ paths:
       - execution
     put:
       operationId: update_kill_switch_api_v1_execution_kill_switch_put
+      parameters:
+      - in: header
+        name: Idempotency-Key
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Idempotency-Key
       requestBody:
         content:
           application/json:
@@ -8255,6 +8294,15 @@ paths:
           format: uuid
           title: Order Id
           type: string
+      - in: header
+        name: Idempotency-Key
+        required: false
+        schema:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Idempotency-Key
       requestBody:
         content:
           application/json:
