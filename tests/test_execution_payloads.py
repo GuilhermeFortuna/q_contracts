@@ -238,3 +238,205 @@ def test_check_execution_payloads_snapshot_divergence_fails(tmp_path: Path):
     problems = check_execution_payloads(schema_root)
     assert len(problems) >= 1
     assert any("deployments" in p.reason and "diverges" in p.reason for p in problems)
+
+
+def test_deployment_with_config_revision_and_paper_cost_config_validates():
+    validator = load_payload_validator("execution-deployment")
+    example = json.loads(
+        (EXAMPLES_DIR / "execution-deployment.json").read_text(encoding="utf-8")
+    )
+    doc = dict(example)
+    doc["config_revision"] = 1
+    doc["paper_cost_config"] = {
+        "point_value": "1.0",
+        "slippage_points": "0.5",
+        "cost_per_contract": "1.25",
+        "cost_bps": "2.0",
+    }
+    errors = list(validator.iter_errors(doc))
+    assert errors == []
+
+
+def test_decision_with_config_revision_and_paper_cost_config_validates():
+    validator = load_payload_validator("execution-decision")
+    example = json.loads(
+        (EXAMPLES_DIR / "execution-decision.json").read_text(encoding="utf-8")
+    )
+    doc = dict(example)
+    doc["config_revision"] = 2
+    doc["paper_cost_config"] = {
+        "point_value": "0.2",
+        "slippage_points": "0.0",
+        "cost_per_contract": "0.0",
+        "cost_bps": "0.0",
+    }
+    errors = list(validator.iter_errors(doc))
+    assert errors == []
+
+
+@pytest.mark.parametrize("bad_revision", [0, -1, "1", 1.5])
+def test_invalid_config_revision_fails(bad_revision):
+    validator = load_payload_validator("execution-deployment")
+    example = json.loads(
+        (EXAMPLES_DIR / "execution-deployment.json").read_text(encoding="utf-8")
+    )
+    doc = dict(example)
+    doc["config_revision"] = bad_revision
+    errors = list(validator.iter_errors(doc))
+    assert len(errors) >= 1
+    assert any(
+        "config_revision" in str(err.path) or "config_revision" in err.message
+        for err in errors
+    )
+
+
+@pytest.mark.parametrize(
+    "bad_costs",
+    [
+        # JSON numbers instead of decimal strings
+        {
+            "point_value": 1.0,
+            "slippage_points": "0.5",
+            "cost_per_contract": "1.25",
+            "cost_bps": "2.0",
+        },
+        {
+            "point_value": "1.0",
+            "slippage_points": 0.5,
+            "cost_per_contract": "1.25",
+            "cost_bps": "2.0",
+        },
+        {
+            "point_value": "1.0",
+            "slippage_points": "0.5",
+            "cost_per_contract": 1.25,
+            "cost_bps": "2.0",
+        },
+        {
+            "point_value": "1.0",
+            "slippage_points": "0.5",
+            "cost_per_contract": "1.25",
+            "cost_bps": 2.0,
+        },
+        # point_value zero or negative
+        {
+            "point_value": "0",
+            "slippage_points": "0.5",
+            "cost_per_contract": "1.25",
+            "cost_bps": "2.0",
+        },
+        {
+            "point_value": "0.0",
+            "slippage_points": "0.5",
+            "cost_per_contract": "1.25",
+            "cost_bps": "2.0",
+        },
+        {
+            "point_value": "-1.0",
+            "slippage_points": "0.5",
+            "cost_per_contract": "1.25",
+            "cost_bps": "2.0",
+        },
+        # slippage negative
+        {
+            "point_value": "1.0",
+            "slippage_points": "-0.5",
+            "cost_per_contract": "1.25",
+            "cost_bps": "2.0",
+        },
+        # cost_per_contract negative
+        {
+            "point_value": "1.0",
+            "slippage_points": "0.5",
+            "cost_per_contract": "-1.25",
+            "cost_bps": "2.0",
+        },
+        # cost_bps negative
+        {
+            "point_value": "1.0",
+            "slippage_points": "0.5",
+            "cost_per_contract": "1.25",
+            "cost_bps": "-2.0",
+        },
+        # missing required field
+        {
+            "point_value": "1.0",
+            "slippage_points": "0.5",
+            "cost_per_contract": "1.25",
+        },
+        {"point_value": "1.0", "slippage_points": "0.5", "cost_bps": "2.0"},
+        {"point_value": "1.0", "cost_per_contract": "1.25", "cost_bps": "2.0"},
+        {
+            "slippage_points": "0.5",
+            "cost_per_contract": "1.25",
+            "cost_bps": "2.0",
+        },
+    ],
+)
+def test_invalid_paper_cost_config_fails(bad_costs):
+    validator = load_payload_validator("execution-deployment")
+    example = json.loads(
+        (EXAMPLES_DIR / "execution-deployment.json").read_text(encoding="utf-8")
+    )
+    doc = dict(example)
+    doc["paper_cost_config"] = bad_costs
+    errors = list(validator.iter_errors(doc))
+    assert len(errors) >= 1
+    assert any(
+        "paper_cost_config" in str(err.path) or "paper_cost_config" in err.message
+        for err in errors
+    )
+
+
+def test_order_dispatch_attempted_at_validates():
+    validator = load_payload_validator("execution-order")
+    example = json.loads(
+        (EXAMPLES_DIR / "execution-order.json").read_text(encoding="utf-8")
+    )
+    # Valid timestamp
+    doc1 = dict(example)
+    doc1["dispatch_attempted_at"] = "2026-09-18T14:30:01.120Z"
+    assert list(validator.iter_errors(doc1)) == []
+
+    # Null timestamp
+    doc2 = dict(example)
+    doc2["dispatch_attempted_at"] = None
+    assert list(validator.iter_errors(doc2)) == []
+
+    # Invalid timestamp type (must be string or null)
+    doc3 = dict(example)
+    doc3["dispatch_attempted_at"] = 12345
+    errs = list(validator.iter_errors(doc3))
+    assert len(errs) >= 1
+    assert any(
+        "dispatch_attempted_at" in str(err.path)
+        or "dispatch_attempted_at" in err.message
+        for err in errs
+    )
+
+
+def test_unknown_order_with_dispatch_attempt_and_no_fill_validates():
+    validator = load_payload_validator("execution-order")
+    example = json.loads(
+        (EXAMPLES_DIR / "execution-order.json").read_text(encoding="utf-8")
+    )
+    doc = dict(example)
+    doc["status"] = "unknown"
+    doc["reconciliation_state"] = "ambiguous"
+    doc["dispatch_attempted_at"] = "2026-09-18T14:30:01.120Z"
+    doc["submitted_at"] = None
+    doc["completed_at"] = None
+    doc["external_order_id"] = None
+    assert list(validator.iter_errors(doc)) == []
+
+
+def test_historical_payloads_without_extensions_validate():
+    """Historical payloads without config_revision, paper_cost_config, or dispatch_attempted_at must pass."""
+    for schema_name, filename in [
+        ("execution-deployment", "execution-deployment.json"),
+        ("execution-decision", "execution-decision.json"),
+        ("execution-order", "execution-order.json"),
+    ]:
+        validator = load_payload_validator(schema_name)
+        data = json.loads((EXAMPLES_DIR / filename).read_text(encoding="utf-8"))
+        assert list(validator.iter_errors(data)) == []
