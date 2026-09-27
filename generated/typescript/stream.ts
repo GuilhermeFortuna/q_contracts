@@ -49,12 +49,14 @@ export interface ExecutionDecisionState {
   bar_close_time: string
   compiled_config?: Record<string, unknown>
   config_hash: string
+  config_revision?: number
   context?: Record<string, unknown>
   created_at?: string
   deployment_id: UUID
   entity: "decision"
   id: UUID
   outcome: DecisionOutcome
+  paper_cost_config?: PaperCostConfig
   reason?: string | null
   requested_quantity?: Decimal | null
   risk_config?: Record<string, unknown>
@@ -72,6 +74,7 @@ export interface ExecutionDeploymentState {
   broker_mode: BrokerMode
   compiled_config?: Record<string, unknown>
   config_hash: string
+  config_revision?: number
   created_at?: string
   deployment_id: UUID
   entity: "deployment"
@@ -81,6 +84,7 @@ export interface ExecutionDeploymentState {
   live_activation_enabled: boolean
   name: string
   paper_account_id?: UUID
+  paper_cost_config?: PaperCostConfig
   pending_action?: string | null
   pending_action_requested_at?: string | null
   risk_config?: Record<string, unknown>
@@ -141,6 +145,7 @@ export interface ExecutionOrderState {
   decision_id?: UUID | null
   deployment_id: UUID
   details?: Record<string, unknown>
+  dispatch_attempted_at?: string | null
   entity: "order"
   external_order_id?: string | null
   id: UUID
@@ -233,6 +238,13 @@ export interface LatestValuesResponse {
 }
 
 export type LedgerEntryType = "initial_balance" | "fill_cash" | "realized_pnl" | "fee" | "adjustment"
+
+export interface PaperCostConfig {
+  cost_bps: Decimal
+  cost_per_contract: Decimal
+  point_value: Decimal
+  slippage_points: Decimal
+}
 
 export type PositionSide = "long" | "short" | "flat"
 
