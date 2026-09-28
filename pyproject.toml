@@ -25,3 +25,7 @@ target-version = "py312"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+addopts = "-m 'not live'"
+markers = [
+    "live: compares committed OpenAPI routes to a running backend (make check-live only)",
+]

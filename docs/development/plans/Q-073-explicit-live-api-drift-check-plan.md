@@ -32,11 +32,11 @@
 
 **Interface:** `make check` runs offline checks; `make check-live Q_API_BASE_URL=<url>` runs the existing route comparison against the given backend.
 
-- [ ] Add focused tests that make a normal check fail if `fetch_openapi` is called, even with `Q_API_BASE_URL` set; check that the explicit command rejects a missing/unreachable URL and still reports a route mismatch.
-- [ ] Run the focused tests and confirm failures against current behavior.
-- [ ] Mark and exclude the live test from normal pytest selection, require `Q_API_BASE_URL` for the explicit target, and make connection errors fail with the target URL. Keep the request as `GET /openapi.json`.
-- [ ] Document the offline/default and explicit/live commands in `README.md`.
-- [ ] Run focused tests and `git diff --check`; commit the task changes.
+- [x] Add focused tests that make a normal check fail if `fetch_openapi` is called, even with `Q_API_BASE_URL` set; check that the explicit command rejects a missing/unreachable URL and still reports a route mismatch.
+- [x] Run the focused tests and confirm failures against current behavior.
+- [x] Mark and exclude the live test from normal pytest selection, require `Q_API_BASE_URL` for the explicit target, and make connection errors fail with the target URL. Keep the request as `GET /openapi.json`.
+- [x] Document the offline/default and explicit/live commands in `README.md`.
+- [x] Run focused tests and `git diff --check`; commit the task changes.
 
 ## Handoff
 
