@@ -18,7 +18,8 @@ generate-check:
 	diff -ru -x __pycache__ generated "$$generated_tmp"
 
 check-live:
-	uv run pytest tests/test_api_drift.py -v
+	@test -n "$(Q_API_BASE_URL)" || { echo "check-live requires Q_API_BASE_URL=<url>" >&2; exit 1; }
+	uv run pytest tests/test_api_drift.py -m live -v
 
 hooks:
 	git config core.hooksPath .githooks

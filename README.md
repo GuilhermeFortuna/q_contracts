@@ -77,9 +77,25 @@ This runs:
 1. `black --check .` (Code formatting)
 2. `ruff check .` (Static analysis and linting)
 3. `python tools/validate.py` (Schema tree validation)
-4. `pytest` (Unit tests)
+4. `pytest` (Unit tests; offline only — never contacts a running backend)
 
 Continuous integration (CI) executes this exact command on all pushes and pull requests.
+
+`make check` stays fully offline even when a local API is listening on port 8000 or
+`Q_API_BASE_URL` is set in the environment.
+
+## Live API route drift (opt-in)
+
+To compare the committed control API schema (`schema/api/openapi.yaml`) with a running
+`q_backend`, use the explicit read-only check. It performs a single `GET` of
+`/openapi.json` at the URL you provide:
+
+```bash
+make check-live Q_API_BASE_URL=http://127.0.0.1:8000
+```
+
+`Q_API_BASE_URL` is required; there is no default URL and an unreachable target fails
+with a clear error instead of being skipped.
 
 ## Running the Suite and Enabling Hooks
 

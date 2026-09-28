@@ -1,4 +1,7 @@
-from tools.capture_api import normalize, routes_of
+import json
+from unittest.mock import patch
+
+from tools.capture_api import fetch_openapi, normalize, routes_of
 
 
 def test_normalize_is_idempotent():
@@ -28,3 +31,27 @@ def test_routes_of_extracts_path_and_lowercase_method_pairs():
         }
     }
     assert routes_of(fixture) == {("/a", "get"), ("/a", "post")}
+
+
+def test_fetch_openapi_requests_openapi_json_only():
+    captured: dict[str, str] = {}
+
+    class FakeResponse:
+        def read(self):
+            return json.dumps({"paths": {}}).encode("utf-8")
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+    def fake_urlopen(req, timeout=10):
+        captured["url"] = req.full_url
+        captured["timeout"] = str(timeout)
+        return FakeResponse()
+
+    with patch("urllib.request.urlopen", side_effect=fake_urlopen):
+        fetch_openapi("http://backend.example:9000/api/")
+
+    assert captured["url"] == "http://backend.example:9000/api/openapi.json"
