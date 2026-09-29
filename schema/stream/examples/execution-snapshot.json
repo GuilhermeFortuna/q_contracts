@@ -33,6 +33,7 @@
         "max_drawdown": 0.05
       },
       "live_activation_enabled": false,
+      "archived": false,
       "pending_action": null,
       "pending_action_requested_at": null,
       "last_bar_close_time": "2026-09-18T14:30:00Z",

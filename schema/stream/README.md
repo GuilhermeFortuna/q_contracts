@@ -11,7 +11,9 @@ This directory holds schemas and policies governing the asynchronous event strea
   - Durable execution topics (`execution-decision.schema.json`, `execution-order.schema.json`, `execution-fill.schema.json`, `execution-risk.schema.json`, `execution-ledger.schema.json`, `execution-deployment.schema.json`) with shared primitives and vocabularies in `execution-common.schema.json`.
 - Replay and snapshot response schemas under `replay/`:
   - Stream history and generic latest (`history-page.schema.json`, `history-expired.schema.json`, `latest.schema.json`, `watermark.schema.json`).
-  - Full execution state snapshot (`execution-snapshot.schema.json`) with 6-topic watermark, limits, and entity collections matching event payload shapes.
+- Full execution state snapshot (`execution-snapshot.schema.json`) with 6-topic watermark, limits, and entity collections matching event payload shapes.
+
+Deployment events carry an `archived` marker. Archived deployments remain in durable execution records for audit, but active deployment lists and snapshots omit them.
 - Control payload schemas under `control/` for streaming subscriptions (`subscribe.schema.json` with resume cursors), rejections (`rejected.schema.json`), cursor events, and stream synchronization. Every server control frame carries a `type` discriminator; envelopes never do (see `framing.md` §2.1).
 - Transport framing specification (`framing.md`) defining WebSocket text and binary frame formats for raw Arrow IPC delivery.
 

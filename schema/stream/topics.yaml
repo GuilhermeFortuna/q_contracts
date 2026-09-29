@@ -81,7 +81,7 @@ topics:
       on_overflow: lag
     payload_schema: schema/stream/payloads/execution-deployment.schema.json
     replay: unbounded
-    notes: "Durable strategy deployment lifecycle states; replayable unbounded via REST history."
+    notes: "Durable strategy deployment state, including archive markers; replayable unbounded via REST history."
 
   jobs.terminal:
     class: durable

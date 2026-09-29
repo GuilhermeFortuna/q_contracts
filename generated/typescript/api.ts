@@ -398,7 +398,7 @@ export interface DecisionResponse {
 }
 
 export interface DeploymentActionRequest {
-  action: "start" | "pause" | "stop" | "flatten"
+  action: "start" | "pause" | "stop" | "flatten" | "archive"
   actor?: string | null
   confirm?: boolean
 }

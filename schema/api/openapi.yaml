@@ -1499,6 +1499,7 @@ components:
           - pause
           - stop
           - flatten
+          - archive
           title: Action
           type: string
         actor:

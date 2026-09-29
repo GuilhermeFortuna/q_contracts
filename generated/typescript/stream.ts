@@ -71,6 +71,7 @@ export interface ExecutionDecisionState {
 
 export interface ExecutionDeploymentState {
   account_id: UUID
+  archived?: boolean
   broker_mode: BrokerMode
   compiled_config?: Record<string, unknown>
   config_hash: string
