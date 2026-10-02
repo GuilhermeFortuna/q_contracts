@@ -8,7 +8,7 @@
 **Goal:** Define a complete, ordered tape data path with session history, replay and explicit coverage.
 **Architecture:** q_contracts owns wire schemas and generated metadata; hosts own ingestion/storage and presentation.
 **Spec:** [Specification](../specs/Q-079-trade-stream-and-session-history-contracts-spec.md)
-**Status:** written plan awaiting human review.
+**Status:** implementation complete on the local task branch; awaiting review.
 
 ## Global constraints
 
@@ -23,7 +23,7 @@
 - [x] 2. Author the separate Arrow trade schema and additive gateway /v1/trades request/response metadata. Document eligibility, raw volume fields and volume-unit selection; leave ticks schema untouched.
 - [x] 3. Declare trades/trades.status policies, source context, snapshot/history endpoints and generated response headers. Define the watermark join, token expiry and changed-generation recovery example in schema/stream/README.md.
 - [x] 4. Regenerated Python/TypeScript/Rust output and verified the trade field/context names and identical-record example against Q-079. Q-080/Q-082 interface documents are not present in this repository, so consumer-side interface comparison remains for those tasks.
-- [x] 5. Ran generated-output drift, all-file Black checks one file at a time, full Ruff, schema validation, and full pytest; all passed. The canonical `make check` completed generation drift and then hung at its multi-file Black invocation in this host environment. Documented the additive compatibility handoff and committed locally. Q-080/Q-081 must use the merged contract commit, not this unpublished branch pin.
+- [x] 5. Generated-output drift, all-file Black checks one file at a time, full Ruff, schema validation, and full pytest (205 passed, 7 skipped, 1 deselected) all pass. The canonical `make check` completes generation drift but hangs at its multi-file Black invocation in this host environment. The compatibility handoff is documented; Q-080/Q-081 must pin the merged contract commit. The Q-080/Q-082 specs are not present here, so their consumer-interface comparison remains with those tasks. All three final-review findings were fixed and verified with regression checks; implementation and review-fix commits are local.
 
 ## Review focus
 

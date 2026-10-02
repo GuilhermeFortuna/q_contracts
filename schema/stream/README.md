@@ -63,3 +63,8 @@ at or below the frozen watermark and apply later sequences once. If replay
 expires or the epoch changes, fetch a new snapshot. A changed source generation
 invalidates prior tokens and requires a new session snapshot. See
 `examples/trade-history-recovery.md` for an identical-row example.
+
+In a snapshot descriptor, the top-level provider, symbol, source generation,
+volume field, and volume unit must match the embedded source coverage status.
+The schema validator checks those relationships in committed snapshot examples;
+consumers reject descriptors whose duplicated context disagrees.

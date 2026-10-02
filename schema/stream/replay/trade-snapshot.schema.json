@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "stream/replay/trade-snapshot",
   "title": "TradeSnapshotResponse",
-  "description": "Immutable snapshot descriptor. The publisher atomically freezes the session prefix and live watermark; the current millisecond group is excluded until closed.",
+  "description": "Immutable snapshot descriptor. The publisher atomically freezes the session prefix and live watermark; the current millisecond group is excluded until closed. provider_id, symbol, source_generation, volume_field, and volume_unit must equal the corresponding coverage fields.",
   "type": "object",
   "required": ["snapshot_id", "symbol", "provider_id", "source_generation", "exchange_timezone", "session_key", "volume_field", "volume_unit", "session_from", "session_to", "frozen_watermark", "coverage", "trade_count", "invalid_trade_count", "first_page_url", "expires_at"],
   "properties": {

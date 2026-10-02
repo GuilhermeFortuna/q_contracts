@@ -1770,7 +1770,7 @@ export interface TradeHistoryPending {
 }
 
 export interface TradeSnapshotResponse {
-  coverage: { classification_coverage: "complete" | "partial" | "unavailable"; coverage_reason?: string | null; coverage_state: "complete" | "partial" | "unavailable"; covered_from: string | null; covered_to: string | null }
+  coverage: TradeSourceStatus
   exchange_timezone: string
   expires_at: string
   first_page_url: string
@@ -1784,6 +1784,20 @@ export interface TradeSnapshotResponse {
   source_generation: string
   symbol: string
   trade_count: number
+  volume_field: "volume" | "volume_real"
+  volume_unit: string
+}
+
+export interface TradeSourceStatus {
+  classification_coverage: "complete" | "partial" | "unavailable"
+  coverage_reason: string | null
+  coverage_state: "complete" | "partial" | "unavailable"
+  covered_from: string | null
+  covered_to: string | null
+  last_trade_watermark: { epoch: string; seq: number }
+  provider_id: string
+  source_generation: string
+  symbol: string
   volume_field: "volume" | "volume_real"
   volume_unit: string
 }

@@ -149,7 +149,57 @@ def test_gateway_trade_range_is_utc_and_uses_all_ticks_with_explicit_coverage():
     trades = gateway["endpoints"]["/v1/trades"]
     assert trades["retrieval"]["flags"] == "COPY_TICKS_ALL"
     assert trades["query_parameters"]["end_utc"]["description"].startswith("Exclusive")
-    assert trades["retrieval"]["filtering"][
-        "exclude_quote_only_even_with_carried_last_volume"
-    ]
+    filtering = trades["retrieval"]["filtering"]
+    assert set(filtering["required_any_flags"]) == {"LAST", "VOLUME", "BUY", "SELL"}
+    assert filtering["require_finite_positive"] == ["last", "selected_volume"]
+    assert filtering["exclude_quote_only_even_with_carried_last_volume"]
+    assert filtering["both_or_neither_aggressor_flags"] == "eligible_with_unknown_side"
     assert "range_complete" in trades["response"]["metadata"]
+
+
+def test_snapshot_context_mismatch_fixtures_are_rejected():
+    from tools.validate import trade_snapshot_context_errors
+
+    for path in sorted((ROOT / "tests/fixtures/trades").glob("*-mismatch.json")):
+        payload = json.loads(path.read_text())
+        assert trade_snapshot_context_errors(payload), path.name
+
+
+def test_openapi_snapshot_coverage_matches_trade_source_status_contract():
+    api = yaml.safe_load((SCHEMA / "api/openapi.yaml").read_text())
+    openapi_status = api["components"]["schemas"]["TradeSourceStatus"]
+    source_status = json.loads(
+        (SCHEMA / "stream/payloads/trade-source-status.schema.json").read_text()
+    )
+    assert set(openapi_status["required"]) == set(source_status["required"])
+    assert set(openapi_status["properties"]) == set(source_status["properties"])
+    assert (
+        openapi_status["additionalProperties"] is source_status["additionalProperties"]
+    )
+    for name, source_property in source_status["properties"].items():
+        if name == "last_trade_watermark":
+            continue
+        api_property = openapi_status["properties"][name]
+        for keyword in ("type", "enum", "format", "minimum", "minLength"):
+            assert api_property.get(keyword) == source_property.get(keyword), name
+    api_watermark = openapi_status["properties"]["last_trade_watermark"]
+    watermark_schema = json.loads(
+        (SCHEMA / "stream/replay/trade-watermark.schema.json").read_text()
+    )
+    assert api_watermark["type"] == watermark_schema["type"]
+    assert api_watermark["required"] == watermark_schema["required"]
+    assert api_watermark["properties"] == watermark_schema["properties"]
+    snapshot = api["components"]["schemas"]["TradeSnapshotResponse"]
+    assert snapshot["properties"]["coverage"]["$ref"].endswith("/TradeSourceStatus")
+
+
+def test_gateway_volume_array_matches_raw_arrow_volume_semantics():
+    gateway = yaml.safe_load((SCHEMA / "edge/data-gateway.yaml").read_text())
+    trades = gateway["endpoints"]["/v1/trades"]
+    assert trades["response"]["arrays"]["volume"]["description"] == (
+        "Raw provider tick volume."
+    )
+    assert trades["response"]["arrays"]["volume_real"]["optional"] is True
+    assert trades["response"]["metadata"]["volume_unit"]["describes"] == (
+        "volume_field"
+    )

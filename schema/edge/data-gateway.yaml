@@ -237,6 +237,7 @@ endpoints:
         both_or_neither_aggressor_flags: eligible_with_unknown_side
         invalid_trade_records: counted_and_coverage_partial
       volume_selection:
+        description: Keep raw volume arrays unchanged; metadata selects which field and unit consumers should use for volume analysis.
         prefer: volume_real
         fallback: volume
         freeze_field_and_unit_for_generation: true
@@ -252,7 +253,7 @@ endpoints:
       arrays:
         time_msc: {dtype: int64, description: Raw UTC epoch milliseconds.}
         price: {dtype: float64, description: Raw eligible trade price.}
-        volume: {dtype: float64, description: Raw selected volume field.}
+        volume: {dtype: float64, description: Raw provider tick volume.}
         volume_real: {dtype: float64, optional: true, description: Raw provider real volume when available.}
         raw_flags: {dtype: int32, description: Unmodified MT5 flags.}
         occurrence: {dtype: int64, description: Zero-based occurrence among eligible trades at the same millisecond.}
@@ -261,7 +262,7 @@ endpoints:
         symbol: string
         source_generation: string
         volume_field: {type: string, enum: [volume, volume_real]}
-        volume_unit: string
+        volume_unit: {type: string, describes: volume_field}
         availability: {type: string, enum: [available, unavailable]}
         range_complete: boolean
         covered_from_utc: {type: [string, 'null'], format: date-time}

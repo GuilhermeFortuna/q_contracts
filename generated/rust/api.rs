@@ -1984,7 +1984,7 @@ pub struct TradeHistoryPending {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TradeSnapshotResponse {
-    pub coverage: serde_json::Value,
+    pub coverage: TradeSourceStatus,
     pub exchange_timezone: String,
     pub expires_at: String,
     pub first_page_url: String,
@@ -1998,6 +1998,21 @@ pub struct TradeSnapshotResponse {
     pub source_generation: String,
     pub symbol: String,
     pub trade_count: i64,
+    pub volume_field: String,
+    pub volume_unit: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TradeSourceStatus {
+    pub classification_coverage: String,
+    pub coverage_reason: serde_json::Value,
+    pub coverage_state: String,
+    pub covered_from: serde_json::Value,
+    pub covered_to: serde_json::Value,
+    pub last_trade_watermark: serde_json::Value,
+    pub provider_id: String,
+    pub source_generation: String,
+    pub symbol: String,
     pub volume_field: String,
     pub volume_unit: String,
 }
