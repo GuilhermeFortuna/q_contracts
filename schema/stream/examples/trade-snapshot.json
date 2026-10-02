@@ -1,0 +1,18 @@
+{
+  "snapshot_id": "snap-01HZX4YQ9N",
+  "symbol": "WINZ26",
+  "provider_id": "mt5-broker-a",
+  "source_generation": "gen-2026-10-01-01",
+  "exchange_timezone": "America/Sao_Paulo",
+  "session_key": "2026-10-01",
+  "volume_field": "volume_real",
+  "volume_unit": "contracts",
+  "session_from": "2026-10-01T09:00:00-03:00",
+  "session_to": "2026-10-01T17:55:00-03:00",
+  "frozen_watermark": {"epoch": "trades-epoch-4", "seq": 9123},
+  "coverage": {"provider_id": "mt5-broker-a", "symbol": "WINZ26", "source_generation": "gen-2026-10-01-01", "volume_field": "volume_real", "volume_unit": "contracts", "covered_from": "2026-10-01T12:00:00Z", "covered_to": "2026-10-01T20:55:00Z", "coverage_state": "complete", "classification_coverage": "partial", "coverage_reason": null, "last_trade_watermark": {"epoch": "trades-epoch-4", "seq": 9123}},
+  "trade_count": 81234,
+  "invalid_trade_count": 0,
+  "first_page_url": "/api/v1/market/trades/history?snapshot_id=snap-01HZX4YQ9N&limit=10000",
+  "expires_at": "2026-10-01T21:05:00Z"
+}

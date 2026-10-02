@@ -1,4 +1,4 @@
-// GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/rejected.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json, schema/stream/payloads/execution-common.schema.json, schema/stream/payloads/execution-decision.schema.json, schema/stream/payloads/execution-deployment.schema.json, schema/stream/payloads/execution-fill.schema.json, schema/stream/payloads/execution-ledger.schema.json, schema/stream/payloads/execution-order.schema.json, schema/stream/payloads/execution-risk.schema.json, schema/stream/payloads/job-progress.schema.json, schema/stream/payloads/job-terminal.schema.json, schema/stream/replay/execution-snapshot.schema.json, schema/stream/replay/history-expired.schema.json, schema/stream/replay/history-page.schema.json, schema/stream/replay/latest.schema.json, schema/stream/replay/watermark.schema.json
+// GENERATED FILE - DO NOT EDIT. Source schemas: schema/stream/control/cursor-expired.schema.json, schema/stream/control/epoch-changed.schema.json, schema/stream/control/lagging.schema.json, schema/stream/control/rejected.schema.json, schema/stream/control/subscribe.schema.json, schema/stream/control/subscribed.schema.json, schema/stream/envelope.schema.json, schema/stream/payloads/execution-common.schema.json, schema/stream/payloads/execution-decision.schema.json, schema/stream/payloads/execution-deployment.schema.json, schema/stream/payloads/execution-fill.schema.json, schema/stream/payloads/execution-ledger.schema.json, schema/stream/payloads/execution-order.schema.json, schema/stream/payloads/execution-risk.schema.json, schema/stream/payloads/job-progress.schema.json, schema/stream/payloads/job-terminal.schema.json, schema/stream/payloads/trade-delivery-context.schema.json, schema/stream/payloads/trade-source-status.schema.json, schema/stream/replay/execution-snapshot.schema.json, schema/stream/replay/history-expired.schema.json, schema/stream/replay/history-page.schema.json, schema/stream/replay/latest.schema.json, schema/stream/replay/trade-history-headers.schema.json, schema/stream/replay/trade-history-page.schema.json, schema/stream/replay/trade-history-pending.schema.json, schema/stream/replay/trade-snapshot.schema.json, schema/stream/replay/trade-watermark.schema.json, schema/stream/replay/watermark.schema.json
 
 export type BrokerMode = "paper" | "mt5_live"
 
@@ -275,7 +275,7 @@ export interface StreamEnvelope {
   producer_id: string
   schema_major: number
   seq: number
-  topic: "bars.completed" | "bars.forming" | "decisions" | "deployments" | "fills" | "jobs.progress" | "jobs.terminal" | "ledger" | "orders" | "quotes" | "risk"
+  topic: "bars.completed" | "bars.forming" | "decisions" | "deployments" | "fills" | "jobs.progress" | "jobs.terminal" | "ledger" | "orders" | "quotes" | "risk" | "trades" | "trades.status"
 }
 
 export interface SubscribeFrame {
@@ -286,6 +286,79 @@ export interface SubscribeFrame {
 export interface SubscribedFrame {
   topics: Record<string, unknown>
   type: "subscribed"
+}
+
+export interface TradeDeliveryContext {
+  exchange_timezone: string
+  provider_id: string
+  session_key: string
+  source_generation: string
+  symbol: string
+  volume_field: "volume" | "volume_real"
+  volume_unit: string
+}
+
+export interface TradeHistoryPage {
+  cursor: string | null
+  limit: number
+  response_content_type?: "application/vnd.apache.arrow.stream"
+  response_headers_schema?: "stream/replay/trade-history-headers"
+  snapshot_id: string
+}
+
+export interface TradeHistoryPageHeaders {
+  frozen_epoch: string
+  frozen_seq: number
+  next_cursor: string | null
+  page_count: number
+  snapshot_id: string
+  source_generation: string
+  symbol: string
+  volume_field: "volume" | "volume_real"
+  volume_unit: string
+}
+
+export interface TradeHistoryPending {
+  status: "backfill_pending"
+  status_token: string
+}
+
+export interface TradeSnapshotResponse {
+  coverage: TradeSourceStatus
+  exchange_timezone: string
+  expires_at: string
+  first_page_url: string
+  frozen_watermark: TradeWatermark
+  invalid_trade_count: number
+  provider_id: string
+  session_from: string | null
+  session_key: string
+  session_to: string | null
+  snapshot_id: string
+  source_generation: string
+  symbol: string
+  trade_count: number
+  volume_field: "volume" | "volume_real"
+  volume_unit: string
+}
+
+export interface TradeSourceStatus {
+  classification_coverage: "complete" | "partial" | "unavailable"
+  coverage_reason: string | null
+  coverage_state: "complete" | "partial" | "unavailable"
+  covered_from: string | null
+  covered_to: string | null
+  last_trade_watermark: TradeWatermark
+  provider_id: string
+  source_generation: string
+  symbol: string
+  volume_field: "volume" | "volume_real"
+  volume_unit: string
+}
+
+export interface TradeWatermark {
+  epoch: string
+  seq: number
 }
 
 export type UUID = string

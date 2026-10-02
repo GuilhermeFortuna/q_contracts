@@ -1,4 +1,4 @@
-// GENERATED FILE - DO NOT EDIT. Source schemas: schema/api/arrow/bars.schema.json, schema/api/arrow/ticks.schema.json, schema/api/error.schema.json, schema/api/openapi.yaml
+// GENERATED FILE - DO NOT EDIT. Source schemas: schema/api/arrow/bars.schema.json, schema/api/arrow/ticks.schema.json, schema/api/arrow/trades.schema.json, schema/api/error.schema.json, schema/api/openapi.yaml
 
 export interface AiModelOption {
   available?: boolean
@@ -1762,6 +1762,30 @@ export interface Tick {
   time: string
   time_msc?: number | null
   volume?: number | null
+}
+
+export interface TradeHistoryPending {
+  status: "backfill_pending"
+  status_token: string
+}
+
+export interface TradeSnapshotResponse {
+  coverage: { classification_coverage: "complete" | "partial" | "unavailable"; coverage_reason?: string | null; coverage_state: "complete" | "partial" | "unavailable"; covered_from: string | null; covered_to: string | null }
+  exchange_timezone: string
+  expires_at: string
+  first_page_url: string
+  frozen_watermark: { epoch: string; seq: number }
+  invalid_trade_count: number
+  provider_id: string
+  session_from: string | null
+  session_key: string
+  session_to: string | null
+  snapshot_id: string
+  source_generation: string
+  symbol: string
+  trade_count: number
+  volume_field: "volume" | "volume_real"
+  volume_unit: string
 }
 
 export interface TransactionCostConfig {

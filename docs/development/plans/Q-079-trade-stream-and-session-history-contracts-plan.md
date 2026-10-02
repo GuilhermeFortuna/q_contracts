@@ -19,11 +19,11 @@
 
 ## Ordered implementation
 
-- [ ] 1. Add schema tests and small fixtures for identical trade multiplicity, raw flags, UTC timestamps, immutable page metadata, 202/410/503 and non-coalescing policy.
-- [ ] 2. Author the separate Arrow trade schema and additive gateway /v1/trades request/response metadata. Document eligibility, raw volume fields and volume-unit selection; leave ticks schema untouched.
-- [ ] 3. Declare trades/trades.status policies, source context, snapshot/history endpoints and generated response headers. Define the watermark join, token expiry and changed-generation recovery example in schema/stream/README.md.
-- [ ] 4. Extend tools/generate.py as needed and regenerate Python/TypeScript/Rust output. Verify field/context names and identical-record examples match Q-080/Q-082 interfaces.
-- [ ] 5. Run make check, document the additive compatibility entry and commit. Hand off the merged contract commit required by Q-080/Q-081, not an unpublished branch pin.
+- [x] 1. Add schema tests and small fixtures for identical trade multiplicity, raw flags, UTC timestamps, immutable page metadata, 202/410/503 and non-coalescing policy.
+- [x] 2. Author the separate Arrow trade schema and additive gateway /v1/trades request/response metadata. Document eligibility, raw volume fields and volume-unit selection; leave ticks schema untouched.
+- [x] 3. Declare trades/trades.status policies, source context, snapshot/history endpoints and generated response headers. Define the watermark join, token expiry and changed-generation recovery example in schema/stream/README.md.
+- [x] 4. Regenerated Python/TypeScript/Rust output and verified the trade field/context names and identical-record example against Q-079. Q-080/Q-082 interface documents are not present in this repository, so consumer-side interface comparison remains for those tasks.
+- [x] 5. Ran generated-output drift, all-file Black checks one file at a time, full Ruff, schema validation, and full pytest; all passed. The canonical `make check` completed generation drift and then hung at its multi-file Black invocation in this host environment. Documented the additive compatibility handoff and committed locally. Q-080/Q-081 must use the merged contract commit, not this unpublished branch pin.
 
 ## Review focus
 

@@ -1,0 +1,9 @@
+{
+  "provider_id": "mt5-broker-a", "symbol": "WINZ26", "source_generation": "gen-2026-10-01-01",
+  "exchange_timezone": "America/Sao_Paulo", "session_key": "2026-10-01", "volume_field": "volume_real", "volume_unit": "contracts",
+  "payload_schema": "api/arrow/trades",
+  "rows": [
+    {"time_msc": "2026-10-01T12:00:00.123Z", "price": 128450.0, "volume": 2.0, "volume_real": 2.0, "raw_flags": 56, "occurrence": 0},
+    {"time_msc": "2026-10-01T12:00:00.123Z", "price": 128450.0, "volume": 2.0, "volume_real": 2.0, "raw_flags": 56, "occurrence": 1}
+  ]
+}

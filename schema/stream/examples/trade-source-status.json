@@ -1,0 +1,6 @@
+{
+  "provider_id": "mt5-broker-a", "symbol": "WINZ26", "source_generation": "gen-2026-10-01-02",
+  "volume_field": "volume", "volume_unit": "provider-lots", "covered_from": "2026-10-01T12:00:00Z", "covered_to": "2026-10-01T20:55:00Z",
+  "coverage_state": "partial", "classification_coverage": "partial", "coverage_reason": "invalid_trade_records",
+  "last_trade_watermark": {"epoch": "trades-epoch-5", "seq": 10}
+}

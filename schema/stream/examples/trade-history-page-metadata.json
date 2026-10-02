@@ -1,0 +1,11 @@
+{
+  "snapshot_id": "snap-01HZX4YQ9N",
+  "source_generation": "gen-2026-10-01-01",
+  "symbol": "WINZ26",
+  "volume_field": "volume_real",
+  "volume_unit": "contracts",
+  "page_count": 10000,
+  "frozen_epoch": "trades-epoch-4",
+  "frozen_seq": 9123,
+  "next_cursor": "cursor-page-2"
+}
