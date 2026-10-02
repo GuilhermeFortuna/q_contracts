@@ -76,3 +76,12 @@ commit its row names:
   build, qmllint (-W 0), `test_bridge`, `test_headless_report`, clean
   contracts-check, and headless-report reporting app version 0.1.0, core
   version 2026.9.12, contracts rev `998a5057`, headless render backend.
+
+## Q-079 trade contracts handoff
+
+Q-079 adds the UTC trade Arrow schema, ordered `trades` stream policy, separate
+latest source status, and immutable session snapshot/history interfaces. The
+implementation branch is not a consumer pin. Q-080/Q-081 consumers must update
+`CONTRACTS_REV` to the merged `q_contracts` commit and regenerate their vendored
+bindings as part of their own reviewed changes; do not pin this unpublished
+branch revision.

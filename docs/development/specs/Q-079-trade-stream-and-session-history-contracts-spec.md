@@ -1,6 +1,6 @@
 # Q-079: Trade stream and session history contracts
 
-**Status:** written spec and plan awaiting human review; status of record is the [Q project board](https://github.com/users/GuilhermeFortuna/projects/2).
+**Status:** implementation complete on the local task branch; awaiting review. The [Q project board](https://github.com/users/GuilhermeFortuna/projects/2) remains the status of record.
 **Batch:** 13 — persistent terminal setup and live market analysis
 **Depends on:** Q-009
 **Implementation plan:** [Plan](../plans/Q-079-trade-stream-and-session-history-contracts-plan.md)

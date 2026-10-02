@@ -208,3 +208,65 @@ endpoints:
         flags:
           dtype: int32
           description: Tick state and event flags.
+
+  /v1/trades:
+    method: GET
+    description: Additive UTC range query for eligible trades. Requests COPY_TICKS_ALL, then applies trade eligibility filtering; /v1/ticks semantics are unchanged.
+    query_parameters:
+      symbol:
+        type: string
+        required: true
+        description: Financial instrument ticker symbol.
+      start_utc:
+        type: string
+        required: true
+        format: date-time
+        description: Inclusive UTC range start.
+      end_utc:
+        type: string
+        required: true
+        format: date-time
+        description: Exclusive UTC range end.
+    retrieval:
+      mt5_function: copy_ticks_range
+      flags: COPY_TICKS_ALL
+      filtering:
+        required_any_flags: [LAST, VOLUME, BUY, SELL]
+        require_finite_positive: [last, selected_volume]
+        exclude_quote_only_even_with_carried_last_volume: true
+        both_or_neither_aggressor_flags: eligible_with_unknown_side
+        invalid_trade_records: counted_and_coverage_partial
+      volume_selection:
+        description: Keep raw volume arrays unchanged; metadata selects which field and unit consumers should use for volume analysis.
+        prefer: volume_real
+        fallback: volume
+        freeze_field_and_unit_for_generation: true
+        optional_source_field: volume_real
+      occurrence:
+        grouping: complete_millisecond_groups_in_source_order
+        start_at: 0
+        identity: [provider_id, symbol, source_generation, time_msc, occurrence]
+    response:
+      status: 200
+      content_type: application/octet-stream
+      format: npz
+      arrays:
+        time_msc: {dtype: int64, description: Raw UTC epoch milliseconds.}
+        price: {dtype: float64, description: Raw eligible trade price.}
+        volume: {dtype: float64, description: Raw provider tick volume.}
+        volume_real: {dtype: float64, optional: true, description: Raw provider real volume when available.}
+        raw_flags: {dtype: int32, description: Unmodified MT5 flags.}
+        occurrence: {dtype: int64, description: Zero-based occurrence among eligible trades at the same millisecond.}
+      metadata:
+        provider_id: string
+        symbol: string
+        source_generation: string
+        volume_field: {type: string, enum: [volume, volume_real]}
+        volume_unit: {type: string, describes: volume_field}
+        availability: {type: string, enum: [available, unavailable]}
+        range_complete: boolean
+        covered_from_utc: {type: [string, 'null'], format: date-time}
+        covered_to_utc: {type: [string, 'null'], format: date-time}
+        coverage_reason: {type: [string, 'null']}
+        invalid_trade_count: {type: integer, minimum: 0}
+        truncated: boolean

@@ -111,6 +111,33 @@ topics:
     replay: retention_only
     notes: "Live market quotes; coalesced per symbol keeping latest. Replay bounded to Redis retention window (~1h)."
 
+  trades:
+    class: ephemeral
+    retention:
+      duration: P1D
+      entries: 200000
+    backpressure:
+      coalesce: false
+      on_overflow: lag
+    payload_schema: schema/api/arrow/trades.schema.json
+    context_schema: schema/stream/payloads/trade-delivery-context.schema.json
+    replay: retention_only
+    notes: "Ordered trade tape batches; never coalesced. Session history is a separate immutable snapshot source. Each batch is capped at 4096 source records."
+
+  trades.status:
+    class: ephemeral
+    retention:
+      duration: PT1H
+      entries: 10000
+    backpressure:
+      coalesce: true
+      coalesce_key:
+        - symbol
+      on_overflow: coalesce
+    payload_schema: schema/stream/payloads/trade-source-status.schema.json
+    replay: retention_only
+    notes: "Latest trade source coverage per symbol; its topic sequence is independent and never substitutes for tape replay."
+
   bars.forming:
     class: ephemeral
     retention:

@@ -1388,6 +1388,46 @@ def check_catalog_consistency(schema_root: Path) -> list[SchemaProblem]:
     return problems
 
 
+def trade_snapshot_context_errors(snapshot: Any) -> list[str]:
+    """Check duplicated snapshot/status context that JSON Schema cannot equate."""
+    if not isinstance(snapshot, dict) or not isinstance(snapshot.get("coverage"), dict):
+        return ["snapshot and coverage must be objects"]
+
+    coverage = snapshot["coverage"]
+    problems = [
+        f"{field} differs between snapshot and coverage"
+        for field in (
+            "provider_id",
+            "symbol",
+            "source_generation",
+            "volume_field",
+            "volume_unit",
+        )
+        if snapshot.get(field) != coverage.get(field)
+    ]
+    return problems
+
+
+def check_trade_snapshot_consistency(schema_root: Path) -> list[SchemaProblem]:
+    """Keep immutable snapshot context aligned with its embedded source status."""
+    examples_dir = schema_root / "stream" / "examples"
+    problems: list[SchemaProblem] = []
+    for example_path in sorted(examples_dir.glob("trade-snapshot*.json")):
+        try:
+            snapshot = json.loads(example_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue  # The ordinary schema-tree checks report unreadable examples.
+        try:
+            report_path = example_path.relative_to(Path.cwd())
+        except ValueError:
+            report_path = example_path
+        problems.extend(
+            SchemaProblem(path=report_path, reason=reason)
+            for reason in trade_snapshot_context_errors(snapshot)
+        )
+    return problems
+
+
 def check_required_documents(schema_root: Path) -> list[SchemaProblem]:
     """Every populated boundary carries the documents its consistency check reads.
 
@@ -1431,6 +1471,7 @@ def check_tree(schema_root: Path) -> list[SchemaProblem]:
         problems.extend(check_file(file_path, schema_root))
     problems.extend(check_stream_consistency(schema_root))
     problems.extend(check_stream_routing(schema_root))
+    problems.extend(check_trade_snapshot_consistency(schema_root))
     problems.extend(check_execution_payloads(schema_root))
     problems.extend(check_api_consistency(schema_root))
     problems.extend(check_idempotency(schema_root))
