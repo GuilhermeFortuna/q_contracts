@@ -7447,6 +7447,61 @@ paths:
       summary: Get Backtest Trades Artifact
       tags:
       - backtest
+  /api/v1/backtests/{run_id}/export/market-data:
+    get:
+      description: Return the bars and every computed indicator column of a backtest
+        run as CSV.
+      operationId: export_backtest_market_data_api_v1_backtests__run_id__export_market_data_get
+      parameters:
+      - in: path
+        name: run_id
+        required: true
+        schema:
+          title: Run Id
+          type: string
+      responses:
+        '200':
+          content:
+            text/csv:
+              schema:
+                type: string
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Export Backtest Market Data
+      tags:
+      - backtest
+  /api/v1/backtests/{run_id}/export/trades:
+    get:
+      description: Return the closed trades of a backtest run as CSV.
+      operationId: export_backtest_trades_api_v1_backtests__run_id__export_trades_get
+      parameters:
+      - in: path
+        name: run_id
+        required: true
+        schema:
+          title: Run Id
+          type: string
+      responses:
+        '200':
+          content:
+            text/csv:
+              schema:
+                type: string
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Export Backtest Trades
+      tags:
+      - backtest
   /api/v1/catalog/datasets:
     get:
       operationId: list_datasets_api_v1_catalog_datasets_get
