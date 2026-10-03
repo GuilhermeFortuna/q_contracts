@@ -215,3 +215,12 @@ def test_generated_python_topics_values() -> None:
     assert TOPICS["quotes"].retention_entries == 100000
     assert TOPICS["bars.forming"].coalesce_key == ("symbol", "timeframe")
     assert TOPICS["jobs.progress"].coalesce_key == ("kind", "job_id")
+
+
+def test_catalog_emits_ml_entry_filter_manifest_type() -> None:
+    catalog = next(unit for unit in plan_units(SCHEMA_ROOT) if unit.name == "catalog")
+    titles = {doc.get("title") for doc in catalog.documents if isinstance(doc, dict)}
+    assert "MlEntryFilterManifest" in titles
+    py_source = emit(catalog)
+    assert "class MlFilterDatasetManifest" in py_source
+    assert "MlEntryFilterManifest" in py_source

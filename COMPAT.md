@@ -40,11 +40,12 @@ Cross-repository reference fixture pins used for numerical parity gating and tes
 ## Generation scope decisions
 
 Python generation covers the stream envelope and control frames, edge
-payloads, and the dataset manifest. `q_backend` keeps its control API models
-hand-written because those Pydantic models are the source of the captured
-OpenAPI document; generating them back into the backend would create a
-source-generation loop. The generated Python API module is therefore not
-vendored into `q_backend`.
+payloads, the lake dataset manifest, and the ML entry-filter dataset/model
+manifest (`schema/catalog/ml-entry-filter-manifest.schema.json`). `q_backend`
+keeps its control API models hand-written because those Pydantic models are the
+source of the captured OpenAPI document; generating them back into the backend
+would create a source-generation loop. The generated Python API module is
+therefore not vendored into `q_backend`.
 
 C++ is not a generation target. `q_terminal` uses C++ only for custom Qt
 scene-graph buffer movement and the generated side of the `cxx-qt` bridge; it

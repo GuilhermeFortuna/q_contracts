@@ -192,6 +192,7 @@ pub struct BacktestRequest {
     pub entry_manager: Option<EntryManagerConfig>,
     pub exit_params: Option<serde_json::Value>,
     pub initial_capital: Option<f64>,
+    pub ml_filter: Option<MlFilterConfig>,
     pub point_value: Option<f64>,
     pub position_sizing: Option<serde_json::Value>,
     pub start: Option<String>,
@@ -207,6 +208,7 @@ pub struct BacktestResponse {
     pub bars: Vec<OhlcvBarResponse>,
     pub indicators: Vec<ChartIndicatorSeries>,
     pub metrics: serde_json::Value,
+    pub ml_filter_summary: Option<MlFilterBacktestSummary>,
     pub run_id: Option<String>,
     pub trades: Vec<serde_json::Value>,
 }
@@ -1304,6 +1306,250 @@ pub struct MarketTicksResponse {
     pub ticks: Vec<MarketTapeTickResponse>,
 }
 
+pub type MlFilterAlgorithm = String;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterAlgorithmHyperparams {
+    pub lightgbm: Option<MlFilterLightgbmHyperparams>,
+    pub logistic_regression: Option<MlFilterLogisticRegressionHyperparams>,
+    pub random_forest: Option<MlFilterRandomForestHyperparams>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterBacktestSummary {
+    pub candidates_accepted: Option<i64>,
+    pub candidates_not_ready: Option<i64>,
+    pub candidates_rejected: Option<i64>,
+    pub candidates_scored: Option<i64>,
+    pub dataset_id: Option<String>,
+    pub model_version_id: String,
+    pub threshold: f64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterComparisonRequest {
+    pub dataset_id: String,
+    pub model_version_ids: Vec<String>,
+    pub threshold: Option<f64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterComparisonResultEntry {
+    pub acceptance_counts: Option<serde_json::Value>,
+    pub baseline: Option<MlFilterEngineMetrics>,
+    pub classification: Option<MlFilterValidationMetrics>,
+    pub dataset_id: String,
+    pub equity_artifact_ref: Option<String>,
+    pub filtered: Option<MlFilterEngineMetrics>,
+    pub model_version_id: String,
+    pub threshold: f64,
+    pub trades_artifact_ref: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterComparisonStartResponse {
+    pub job_id: String,
+    pub status: MlFilterJobStatus,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterComparisonStatusResponse {
+    pub error: Option<MlFilterError>,
+    pub job_id: String,
+    pub results: Option<Vec<MlFilterComparisonResultEntry>>,
+    pub status: MlFilterJobStatus,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterConfig {
+    pub model_version_id: String,
+    pub threshold: Option<f64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterEngineMetrics {
+    pub max_drawdown: f64,
+    pub net_pnl: f64,
+    pub profit_factor: Option<MlFilterNullableFloat>,
+    pub trade_count: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterError {
+    pub code: MlFilterErrorCode,
+    pub details: Option<serde_json::Value>,
+    pub message: String,
+}
+
+pub type MlFilterErrorCode = String;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterEvaluationRequest {
+    pub dataset_id: String,
+    pub model_version_id: String,
+    pub threshold: Option<f64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterEvaluationResult {
+    pub baseline: MlFilterEngineMetrics,
+    pub filtered: MlFilterEngineMetrics,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterEvaluationStartResponse {
+    pub job_id: String,
+    pub status: MlFilterJobStatus,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterEvaluationStatusResponse {
+    pub dataset_id: Option<String>,
+    pub error: Option<MlFilterError>,
+    pub job_id: String,
+    pub model_version_id: Option<String>,
+    pub result: Option<MlFilterEvaluationResult>,
+    pub status: MlFilterJobStatus,
+    pub threshold: Option<f64>,
+}
+
+pub type MlFilterFeatureName = String;
+
+pub type MlFilterJobStage = String;
+
+pub type MlFilterJobStatus = String;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterLightgbmHyperparams {
+    pub learning_rate: Option<f64>,
+    pub n_estimators: Option<i64>,
+    pub num_leaves: Option<i64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterLogisticRegressionHyperparams {
+    pub C: Option<f64>,
+    pub max_iter: Option<i64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterModelDetailResponse {
+    pub algorithm: MlFilterAlgorithm,
+    pub dataset_id: String,
+    pub manifest_identity: Option<serde_json::Value>,
+    pub model_version_id: String,
+    pub pipeline_versions: Option<serde_json::Value>,
+    pub provenance: Option<serde_json::Value>,
+    pub selected_features: Option<Vec<MlFilterFeatureName>>,
+    pub validation_metrics: Option<MlFilterValidationMetrics>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterModelListResponse {
+    pub items: Vec<MlFilterModelSummary>,
+    pub limit: i64,
+    pub offset: i64,
+    pub total: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterModelSummary {
+    pub algorithm: MlFilterAlgorithm,
+    pub compatibility_reasons: Option<Vec<String>>,
+    pub dataset_id: String,
+    pub model_version_id: String,
+    pub ready: bool,
+    pub selected_features: Option<Vec<MlFilterFeatureName>>,
+    pub symbol: Option<String>,
+    pub timeframe: Option<String>,
+    pub train_end: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterNullableFloat {
+    pub unavailable_reason: Option<String>,
+    pub value: Option<f64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterProgressCount {
+    pub current: i64,
+    pub total: Option<i64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterRandomForestHyperparams {
+    pub max_depth: Option<i64>,
+    pub min_samples_leaf: Option<i64>,
+    pub n_estimators: Option<i64>,
+}
+
+pub type MlFilterSourceDetailResponse = serde_json::Value;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterSourceListResponse {
+    pub items: Vec<MlFilterSourceSummary>,
+    pub limit: i64,
+    pub offset: i64,
+    pub total: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterSourceSummary {
+    pub available_features: Option<Vec<MlFilterFeatureName>>,
+    pub date_range_end: Option<String>,
+    pub date_range_start: Option<String>,
+    pub eligibility_reason: Option<String>,
+    pub eligible: bool,
+    pub run_id: String,
+    pub source_sample_count: i64,
+    pub strategy: Option<String>,
+    pub symbol: String,
+    pub timeframe: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterSplitSuggestion {
+    pub train_end: String,
+    pub validation_end: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterTrainingRequest {
+    pub algorithms: Vec<MlFilterAlgorithm>,
+    pub hyperparameters: Option<MlFilterAlgorithmHyperparams>,
+    pub seed: Option<i64>,
+    pub selected_features: Vec<MlFilterFeatureName>,
+    pub source_run_id: String,
+    pub train_end: String,
+    pub validation_end: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterTrainingStartResponse {
+    pub job_id: String,
+    pub status: MlFilterJobStatus,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterTrainingStatusResponse {
+    pub comparison_id: Option<String>,
+    pub dataset_id: Option<String>,
+    pub error: Option<MlFilterError>,
+    pub job_id: String,
+    pub model_version_ids: Option<Vec<String>>,
+    pub progress: Option<MlFilterProgressCount>,
+    pub rejections: Option<serde_json::Value>,
+    pub stage: Option<MlFilterJobStage>,
+    pub status: MlFilterJobStatus,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MlFilterValidationMetrics {
+    pub confusion_matrix: Option<Vec<Vec<i64>>>,
+    pub roc_auc: Option<MlFilterNullableFloat>,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct NeuralModelDetailResponse {
     pub created_at: String,
@@ -1777,7 +2023,11 @@ pub struct StrategyInfo {
     pub label: String,
     pub name: String,
     pub params: Vec<StrategyParamSpec>,
+    pub research_only: Option<bool>,
     pub strong_in: Option<String>,
+    pub supports_discovery: Option<bool>,
+    pub supports_optimization: Option<bool>,
+    pub supports_walkforward: Option<bool>,
     pub thesis: Option<String>,
     pub weak_in: Option<String>,
 }

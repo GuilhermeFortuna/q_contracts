@@ -1,0 +1,29 @@
+{
+  "kind": "ml_filter_model",
+  "format_version": 1,
+  "model_version_id": "f1e2d3c4-b5a6-4789-9012-abcdefabcdef",
+  "dataset_id": "a1b2c3d4-e5f6-4789-a012-3456789abcde",
+  "algorithm": "lightgbm",
+  "hyperparameters": {
+    "n_estimators": 100,
+    "learning_rate": 0.1,
+    "num_leaves": 31
+  },
+  "seed": 42,
+  "selected_features": [
+    { "name": "close", "dtype": "float64" },
+    { "name": "ma_short", "dtype": "float64" },
+    { "name": "side", "dtype": "int8" }
+  ],
+  "preprocessing_recipe": [
+    { "step": "identity", "parameters": {} }
+  ],
+  "training_label_availability_cutoff": "2024-06-01T21:00:00Z",
+  "dependency_versions": {
+    "lightgbm": "4.5.0",
+    "sklearn": "1.5.2",
+    "joblib": "1.4.2"
+  },
+  "fitted_artifact_checksum": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "model_content_id": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+}

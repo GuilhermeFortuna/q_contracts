@@ -1,0 +1,25 @@
+{
+  "kind": "ml_filter_dataset",
+  "format_version": 1,
+  "dataset_id": "a1b2c3d4-e5f6-4789-a012-3456789abcde",
+  "dataset_content_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "source_run_id": "run-macross-2024-001",
+  "source_config_revision": "cfg-rev-7f3c2b1a",
+  "engine_revision": "q_core@v2026.09.15.2",
+  "bars_checksum": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "trades_checksum": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "selected_features": [
+    { "name": "close", "dtype": "float64" },
+    { "name": "ma_short", "dtype": "float64" },
+    { "name": "side", "dtype": "int8" }
+  ],
+  "train_end": "2024-06-01T21:00:00Z",
+  "validation_end": "2024-09-01T21:00:00Z",
+  "label": { "name": "net_profitable_v1", "positive_class": 1 },
+  "partition_counts": {
+    "train": { "samples": 120, "rejections": { "boundary_crossing": 3 } },
+    "validation": { "samples": 40, "rejections": {} },
+    "lockbox": { "samples": 41, "rejections": {} }
+  },
+  "compatibility_fingerprint": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+}

@@ -187,7 +187,11 @@ def emit(unit: GenerationUnit) -> str:
         for path, document in zip(unit.sources, unit.documents, strict=False)
         if path.name.endswith(".schema.json") and isinstance(document.get("title"), str)
     }
+    deferred_unions: list[tuple[str, dict[str, Any]]] = []
     for name, document in definitions:
+        if document.get("oneOf") and document.get("type") != "object":
+            deferred_unions.append((name, document))
+            continue
         if document.get("type") == "object":
             lines.extend(_emit_object(name, document, ref_map))
         elif document.get("oneOf"):
@@ -200,6 +204,14 @@ def emit(unit: GenerationUnit) -> str:
             lines.extend([f"{name} = " + " | ".join(variants or ["Any"])])
         else:
             lines.append(f"{name} = {_type_for(document, ref_map, quote_refs=True)}")
+        lines.extend(["", ""])
+
+    for name, document in deferred_unions:
+        choices = document["oneOf"]
+        variants = [
+            _type_for(choice, ref_map) for choice in choices if isinstance(choice, dict)
+        ]
+        lines.extend([f"{name} = " + " | ".join(variants or ["Any"])])
         lines.extend(["", ""])
     rendered = "\n".join(lines).rstrip() + "\n"
     try:
