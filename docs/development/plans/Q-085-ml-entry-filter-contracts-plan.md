@@ -53,4 +53,4 @@
 - [x] Review spec coverage and all five review-focus conditions against the focused tests above; fill any gaps before completion.
 - [x] Run `make check` once after the final change. Do not wrap canonical CI in resource-slice commands. No Wine, GPU or desktop run is required.
 - [x] Update task documentation with actual checks/results and any blocked prerequisites; do not claim unrun checks passed.
-- [ ] Commit final docs/code and use `./work board set Q-085 in-review -m "<changes; checks/results; follow-ups>"`. Human review/finish owns integration and publication.
+- [x] Commit final docs/code and use `./work board set Q-085 in-review -m "<changes; checks/results; follow-ups>"`. Human review/finish owns integration and publication.
