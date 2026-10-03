@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "catalog/ml-entry-filter-manifest",
+  "title": "MlEntryFilterManifest",
+  "description": "Immutable ML entry-filter dataset or fitted-model manifest (format_version 1). Content checksums and identity hashes are computed by the publishing service; this schema validates shape only.",
+  "oneOf": [
+    { "$ref": "#/$defs/ml_filter_dataset_manifest" },
+    { "$ref": "#/$defs/ml_filter_model_manifest" }
+  ],
+  "$defs": {
+    "checksum_hex": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]+$",
+      "minLength": 64
+    },
+    "feature_dtype": {
+      "type": "string",
+      "enum": ["float64", "int64", "int8"]
+    },
+    "ordered_feature": {
+      "type": "object",
+      "required": ["name", "dtype"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": [
+            "open",
+            "high",
+            "low",
+            "close",
+            "tick_volume",
+            "real_volume",
+            "ma_short",
+            "ma_long",
+            "delta",
+            "prev_delta",
+            "side"
+          ]
+        },
+        "dtype": { "$ref": "#/$defs/feature_dtype" }
+      }
+    },
+    "partition_counts": {
+      "type": "object",
+      "required": ["train", "validation", "lockbox"],
+      "additionalProperties": false,
+      "properties": {
+        "train": { "$ref": "#/$defs/sample_partition_counts" },
+        "validation": { "$ref": "#/$defs/sample_partition_counts" },
+        "lockbox": { "$ref": "#/$defs/sample_partition_counts" }
+      }
+    },
+    "sample_partition_counts": {
+      "type": "object",
+      "required": ["samples", "rejections"],
+      "additionalProperties": false,
+      "properties": {
+        "samples": { "type": "integer", "minimum": 0 },
+        "rejections": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "label_definition": {
+      "type": "object",
+      "required": ["name", "positive_class"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "const": "net_profitable_v1" },
+        "positive_class": { "const": 1 }
+      }
+    },
+    "preprocessing_step": {
+      "type": "object",
+      "required": ["step", "parameters"],
+      "additionalProperties": false,
+      "properties": {
+        "step": { "type": "string", "minLength": 1 },
+        "parameters": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "ml_filter_dataset_manifest": {
+      "type": "object",
+      "required": [
+        "kind",
+        "format_version",
+        "dataset_id",
+        "dataset_content_id",
+        "source_run_id",
+        "source_config_revision",
+        "engine_revision",
+        "bars_checksum",
+        "trades_checksum",
+        "selected_features",
+        "train_end",
+        "validation_end",
+        "label",
+        "partition_counts",
+        "compatibility_fingerprint"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "ml_filter_dataset" },
+        "format_version": { "const": 1 },
+        "dataset_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        },
+        "dataset_content_id": { "$ref": "#/$defs/checksum_hex" },
+        "source_run_id": { "type": "string", "minLength": 1 },
+        "source_config_revision": { "type": "string", "minLength": 1 },
+        "engine_revision": { "type": "string", "minLength": 1 },
+        "bars_checksum": { "$ref": "#/$defs/checksum_hex" },
+        "trades_checksum": { "$ref": "#/$defs/checksum_hex" },
+        "selected_features": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "$ref": "#/$defs/ordered_feature" }
+        },
+        "train_end": { "type": "string", "format": "date-time" },
+        "validation_end": { "type": "string", "format": "date-time" },
+        "label": { "$ref": "#/$defs/label_definition" },
+        "partition_counts": { "$ref": "#/$defs/partition_counts" },
+        "compatibility_fingerprint": { "$ref": "#/$defs/checksum_hex" }
+      }
+    },
+    "ml_filter_model_manifest": {
+      "type": "object",
+      "required": [
+        "kind",
+        "format_version",
+        "model_version_id",
+        "dataset_id",
+        "algorithm",
+        "hyperparameters",
+        "seed",
+        "selected_features",
+        "preprocessing_recipe",
+        "training_label_availability_cutoff",
+        "dependency_versions",
+        "fitted_artifact_checksum",
+        "model_content_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "ml_filter_model" },
+        "format_version": { "const": 1 },
+        "model_version_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        },
+        "dataset_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        },
+        "algorithm": {
+          "type": "string",
+          "enum": ["lightgbm", "random_forest", "logistic_regression"]
+        },
+        "hyperparameters": { "type": "object", "additionalProperties": true },
+        "seed": { "type": "integer", "minimum": 0, "maximum": 4294967295 },
+        "selected_features": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "$ref": "#/$defs/ordered_feature" }
+        },
+        "preprocessing_recipe": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/preprocessing_step" }
+        },
+        "training_label_availability_cutoff": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "dependency_versions": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "fitted_artifact_checksum": { "$ref": "#/$defs/checksum_hex" },
+        "model_content_id": { "$ref": "#/$defs/checksum_hex" }
+      }
+    }
+  }
+}

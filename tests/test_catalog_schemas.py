@@ -181,3 +181,72 @@ def test_manifest_carrying_bars_arrow_declaration_validates(
     assert (
         errors == []
     ), f"Manifest carrying bars.schema.json failed validation: {errors}"
+
+
+ML_FILTER_MANIFEST_SCHEMA_PATH = (
+    Path(__file__).parent.parent
+    / "schema"
+    / "catalog"
+    / "ml-entry-filter-manifest.schema.json"
+)
+ML_FILTER_EXAMPLES_DIR = (
+    Path(__file__).parent.parent / "schema" / "catalog" / "examples"
+)
+
+
+@pytest.fixture
+def ml_filter_manifest_schema() -> dict:
+    assert ML_FILTER_MANIFEST_SCHEMA_PATH.is_file()
+    return json.loads(ML_FILTER_MANIFEST_SCHEMA_PATH.read_text(encoding="utf-8"))
+
+
+@pytest.fixture
+def ml_filter_dataset_manifest() -> dict:
+    path = ML_FILTER_EXAMPLES_DIR / "ml-filter-dataset-manifest.json"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+@pytest.fixture
+def ml_filter_model_manifest() -> dict:
+    path = ML_FILTER_EXAMPLES_DIR / "ml-filter-model-manifest.json"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def test_ml_filter_dataset_manifest_example_validates(
+    ml_filter_manifest_schema: dict, ml_filter_dataset_manifest: dict
+) -> None:
+    validator = jsonschema.Draft202012Validator(ml_filter_manifest_schema)
+    assert list(validator.iter_errors(ml_filter_dataset_manifest)) == []
+
+
+def test_ml_filter_model_manifest_example_validates(
+    ml_filter_manifest_schema: dict, ml_filter_model_manifest: dict
+) -> None:
+    validator = jsonschema.Draft202012Validator(ml_filter_manifest_schema)
+    assert list(validator.iter_errors(ml_filter_model_manifest)) == []
+
+
+def test_ml_filter_manifest_rejects_wrong_kind(
+    ml_filter_manifest_schema: dict, ml_filter_dataset_manifest: dict
+) -> None:
+    mutant = copy.deepcopy(ml_filter_dataset_manifest)
+    mutant["kind"] = "ml_filter_model"
+    validator = jsonschema.Draft202012Validator(ml_filter_manifest_schema)
+    assert list(validator.iter_errors(mutant))
+
+
+def test_ml_filter_manifest_rejects_missing_checksum(
+    ml_filter_manifest_schema: dict, ml_filter_model_manifest: dict
+) -> None:
+    mutant = copy.deepcopy(ml_filter_model_manifest)
+    del mutant["fitted_artifact_checksum"]
+    validator = jsonschema.Draft202012Validator(ml_filter_manifest_schema)
+    errors = list(validator.iter_errors(mutant))
+    assert errors
+
+
+def test_ml_filter_feature_order_is_significant_in_fixture(
+    ml_filter_dataset_manifest: dict,
+) -> None:
+    names = [item["name"] for item in ml_filter_dataset_manifest["selected_features"]]
+    assert names == ["close", "ma_short", "side"]
