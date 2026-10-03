@@ -172,6 +172,7 @@ export interface BacktestRequest {
   entry_manager?: EntryManagerConfig
   exit_params?: Record<string, unknown>
   initial_capital?: number
+  ml_filter?: MlFilterConfig | null
   point_value?: number
   position_sizing?: FixedQuantityPositionSizing | FixedSafetyMarginPositionSizing | InverseVolatilityPositionSizing | null
   start?: string | null
@@ -186,6 +187,7 @@ export interface BacktestResponse {
   bars: Array<OhlcvBarResponse>
   indicators: Array<ChartIndicatorSeries>
   metrics: Record<string, unknown>
+  ml_filter_summary?: MlFilterBacktestSummary | null
   run_id?: string | null
   trades: Array<Record<string, unknown>>
 }
@@ -1160,6 +1162,222 @@ export interface MarketTicksResponse {
   ticks: Array<MarketTapeTickResponse>
 }
 
+export type MlFilterAlgorithm = "lightgbm" | "random_forest" | "logistic_regression"
+
+export interface MlFilterAlgorithmHyperparams {
+  lightgbm?: MlFilterLightgbmHyperparams | null
+  logistic_regression?: MlFilterLogisticRegressionHyperparams | null
+  random_forest?: MlFilterRandomForestHyperparams | null
+}
+
+export interface MlFilterBacktestSummary {
+  candidates_accepted?: number
+  candidates_not_ready?: number
+  candidates_rejected?: number
+  candidates_scored?: number
+  dataset_id?: string | null
+  model_version_id: string
+  threshold: number
+}
+
+export interface MlFilterComparisonRequest {
+  dataset_id: string
+  model_version_ids: Array<string>
+  threshold?: number
+}
+
+export interface MlFilterComparisonResultEntry {
+  acceptance_counts?: Record<string, unknown>
+  baseline?: MlFilterEngineMetrics
+  classification?: MlFilterValidationMetrics
+  dataset_id: string
+  equity_artifact_ref?: string | null
+  filtered?: MlFilterEngineMetrics
+  model_version_id: string
+  threshold: number
+  trades_artifact_ref?: string | null
+}
+
+export interface MlFilterComparisonStartResponse {
+  job_id: string
+  status: MlFilterJobStatus
+}
+
+export interface MlFilterComparisonStatusResponse {
+  error?: MlFilterError | null
+  job_id: string
+  results?: Array<MlFilterComparisonResultEntry> | null
+  status: MlFilterJobStatus
+}
+
+export interface MlFilterConfig {
+  model_version_id: string
+  threshold?: number
+}
+
+export interface MlFilterEngineMetrics {
+  max_drawdown: number
+  net_pnl: number
+  profit_factor?: MlFilterNullableFloat
+  trade_count: number
+}
+
+export interface MlFilterError {
+  code: MlFilterErrorCode
+  details?: Record<string, unknown> | null
+  message: string
+}
+
+export type MlFilterErrorCode = "missing_source" | "incompatible_source" | "invalid_split" | "insufficient_training_samples" | "missing_features" | "incompatible_model" | "artifact_unavailable" | "lockbox_consumed" | "training_failed"
+
+export interface MlFilterEvaluationRequest {
+  dataset_id: string
+  model_version_id: string
+  threshold?: number
+}
+
+export interface MlFilterEvaluationResult {
+  baseline: MlFilterEngineMetrics
+  filtered: MlFilterEngineMetrics
+}
+
+export interface MlFilterEvaluationStartResponse {
+  job_id: string
+  status: MlFilterJobStatus
+}
+
+export interface MlFilterEvaluationStatusResponse {
+  dataset_id?: string | null
+  error?: MlFilterError | null
+  job_id: string
+  model_version_id?: string | null
+  result?: MlFilterEvaluationResult | null
+  status: MlFilterJobStatus
+  threshold?: number | null
+}
+
+export type MlFilterFeatureName = "open" | "high" | "low" | "close" | "tick_volume" | "real_volume" | "ma_short" | "ma_long" | "delta" | "prev_delta" | "side"
+
+export type MlFilterJobStage = "dataset" | "fitting" | "validation" | "evaluation" | "persisting"
+
+export type MlFilterJobStatus = "queued" | "running" | "completed" | "failed"
+
+export interface MlFilterLightgbmHyperparams {
+  learning_rate?: number
+  n_estimators?: number
+  num_leaves?: number
+}
+
+export interface MlFilterLogisticRegressionHyperparams {
+  C?: number
+  max_iter?: number
+}
+
+export interface MlFilterModelDetailResponse {
+  algorithm: MlFilterAlgorithm
+  dataset_id: string
+  manifest_identity?: Record<string, unknown>
+  model_version_id: string
+  pipeline_versions?: Record<string, unknown>
+  provenance?: Record<string, unknown>
+  selected_features?: Array<MlFilterFeatureName>
+  validation_metrics?: MlFilterValidationMetrics
+}
+
+export interface MlFilterModelListResponse {
+  items: Array<MlFilterModelSummary>
+  limit: number
+  offset: number
+  total: number
+}
+
+export interface MlFilterModelSummary {
+  algorithm: MlFilterAlgorithm
+  compatibility_reasons?: Array<string>
+  dataset_id: string
+  model_version_id: string
+  ready: boolean
+  selected_features?: Array<MlFilterFeatureName>
+  symbol?: string
+  timeframe?: string
+  train_end?: string
+}
+
+export interface MlFilterNullableFloat {
+  unavailable_reason?: string | null
+  value?: number | null
+}
+
+export interface MlFilterProgressCount {
+  current: number
+  total?: number | null
+}
+
+export interface MlFilterRandomForestHyperparams {
+  max_depth?: number | null
+  min_samples_leaf?: number
+  n_estimators?: number
+}
+
+export type MlFilterSourceDetailResponse = unknown
+
+export interface MlFilterSourceListResponse {
+  items: Array<MlFilterSourceSummary>
+  limit: number
+  offset: number
+  total: number
+}
+
+export interface MlFilterSourceSummary {
+  available_features?: Array<MlFilterFeatureName>
+  date_range_end?: string | null
+  date_range_start?: string | null
+  eligibility_reason?: string | null
+  eligible: boolean
+  run_id: string
+  source_sample_count: number
+  strategy?: string
+  symbol: string
+  timeframe: string
+}
+
+export interface MlFilterSplitSuggestion {
+  train_end: string
+  validation_end: string
+}
+
+export interface MlFilterTrainingRequest {
+  algorithms: Array<MlFilterAlgorithm>
+  hyperparameters?: MlFilterAlgorithmHyperparams
+  seed?: number
+  selected_features: Array<MlFilterFeatureName>
+  source_run_id: string
+  train_end: string
+  validation_end: string
+}
+
+export interface MlFilterTrainingStartResponse {
+  job_id: string
+  status: MlFilterJobStatus
+}
+
+export interface MlFilterTrainingStatusResponse {
+  comparison_id?: string | null
+  dataset_id?: string | null
+  error?: MlFilterError | null
+  job_id: string
+  model_version_ids?: Array<string>
+  progress?: MlFilterProgressCount | null
+  rejections?: Record<string, unknown> | null
+  stage?: MlFilterJobStage | null
+  status: MlFilterJobStatus
+}
+
+export interface MlFilterValidationMetrics {
+  confusion_matrix?: Array<Array<number>> | null
+  roc_auc?: MlFilterNullableFloat
+}
+
 export interface NeuralModelDetailResponse {
   created_at: string
   gate_result?: LatentGateResultResponse | null
@@ -1580,7 +1798,11 @@ export interface StrategyInfo {
   label: string
   name: string
   params: Array<StrategyParamSpec>
+  research_only?: boolean | null
   strong_in?: string
+  supports_discovery?: boolean | null
+  supports_optimization?: boolean | null
+  supports_walkforward?: boolean | null
   thesis?: string
   weak_in?: string
 }

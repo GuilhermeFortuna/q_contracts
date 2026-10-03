@@ -1,0 +1,1111 @@
+# Merged into schema/api/openapi.yaml by tools/merge_ml_filter_openapi.py
+schemas:
+  MlFilterAlgorithm:
+    enum:
+    - lightgbm
+    - random_forest
+    - logistic_regression
+    title: MlFilterAlgorithm
+    type: string
+  MlFilterFeatureName:
+    enum:
+    - open
+    - high
+    - low
+    - close
+    - tick_volume
+    - real_volume
+    - ma_short
+    - ma_long
+    - delta
+    - prev_delta
+    - side
+    title: MlFilterFeatureName
+    type: string
+  MlFilterConfig:
+    properties:
+      model_version_id:
+        minLength: 1
+        title: Model Version Id
+        type: string
+      threshold:
+        default: 0.5
+        maximum: 1.0
+        minimum: 0.0
+        title: Threshold
+        type: number
+    required:
+    - model_version_id
+    title: MlFilterConfig
+    type: object
+  MlFilterError:
+    properties:
+      code:
+        $ref: '#/components/schemas/MlFilterErrorCode'
+      details:
+        anyOf:
+        - additionalProperties: true
+          type: object
+        - type: 'null'
+        title: Details
+      message:
+        title: Message
+        type: string
+    required:
+    - code
+    - message
+    title: MlFilterError
+    type: object
+  MlFilterErrorCode:
+    enum:
+    - missing_source
+    - incompatible_source
+    - invalid_split
+    - insufficient_training_samples
+    - missing_features
+    - incompatible_model
+    - artifact_unavailable
+    - lockbox_consumed
+    - training_failed
+    title: MlFilterErrorCode
+    type: string
+  MlFilterJobStage:
+    enum:
+    - dataset
+    - fitting
+    - validation
+    - evaluation
+    - persisting
+    title: MlFilterJobStage
+    type: string
+  MlFilterJobStatus:
+    enum:
+    - queued
+    - running
+    - completed
+    - failed
+    title: MlFilterJobStatus
+    type: string
+  MlFilterProgressCount:
+    properties:
+      current:
+        minimum: 0
+        title: Current
+        type: integer
+      total:
+        anyOf:
+        - minimum: 0
+          type: integer
+        - type: 'null'
+        title: Total
+    required:
+    - current
+    title: MlFilterProgressCount
+    type: object
+  MlFilterNullableFloat:
+    properties:
+      unavailable_reason:
+        anyOf:
+        - type: string
+        - type: 'null'
+        title: Unavailable Reason
+      value:
+        anyOf:
+        - type: number
+        - type: 'null'
+        title: Value
+    title: MlFilterNullableFloat
+    type: object
+  MlFilterLightgbmHyperparams:
+    additionalProperties: false
+    properties:
+      learning_rate:
+        default: 0.1
+        exclusiveMinimum: 0
+        maximum: 1.0
+        title: Learning Rate
+        type: number
+      n_estimators:
+        default: 100
+        maximum: 2000
+        minimum: 1
+        title: N Estimators
+        type: integer
+      num_leaves:
+        default: 31
+        maximum: 256
+        minimum: 2
+        title: Num Leaves
+        type: integer
+    title: MlFilterLightgbmHyperparams
+    type: object
+  MlFilterLogisticRegressionHyperparams:
+    additionalProperties: false
+    properties:
+      C:
+        default: 1.0
+        exclusiveMinimum: 0
+        maximum: 1000000.0
+        title: C
+        type: number
+      max_iter:
+        default: 1000
+        maximum: 10000
+        minimum: 100
+        title: Max Iter
+        type: integer
+    title: MlFilterLogisticRegressionHyperparams
+    type: object
+  MlFilterRandomForestHyperparams:
+    additionalProperties: false
+    properties:
+      max_depth:
+        anyOf:
+        - maximum: 100
+          minimum: 1
+          type: integer
+        - type: 'null'
+        default: null
+        title: Max Depth
+      min_samples_leaf:
+        default: 1
+        maximum: 100
+        minimum: 1
+        title: Min Samples Leaf
+        type: integer
+      n_estimators:
+        default: 200
+        maximum: 2000
+        minimum: 1
+        title: N Estimators
+        type: integer
+    title: MlFilterRandomForestHyperparams
+    type: object
+  MlFilterAlgorithmHyperparams:
+    additionalProperties: false
+    properties:
+      lightgbm:
+        anyOf:
+        - $ref: '#/components/schemas/MlFilterLightgbmHyperparams'
+        - type: 'null'
+      logistic_regression:
+        anyOf:
+        - $ref: '#/components/schemas/MlFilterLogisticRegressionHyperparams'
+        - type: 'null'
+      random_forest:
+        anyOf:
+        - $ref: '#/components/schemas/MlFilterRandomForestHyperparams'
+        - type: 'null'
+    title: MlFilterAlgorithmHyperparams
+    type: object
+  MlFilterTrainingRequest:
+    properties:
+      algorithms:
+        items:
+          $ref: '#/components/schemas/MlFilterAlgorithm'
+        minItems: 1
+        title: Algorithms
+        type: array
+        uniqueItems: true
+      hyperparameters:
+        $ref: '#/components/schemas/MlFilterAlgorithmHyperparams'
+      seed:
+        default: 42
+        maximum: 4294967295
+        minimum: 0
+        title: Seed
+        type: integer
+      selected_features:
+        items:
+          $ref: '#/components/schemas/MlFilterFeatureName'
+        minItems: 1
+        title: Selected Features
+        type: array
+      source_run_id:
+        minLength: 1
+        title: Source Run Id
+        type: string
+      train_end:
+        format: date-time
+        title: Train End
+        type: string
+      validation_end:
+        format: date-time
+        title: Validation End
+        type: string
+    required:
+    - source_run_id
+    - train_end
+    - validation_end
+    - selected_features
+    - algorithms
+    title: MlFilterTrainingRequest
+    type: object
+  MlFilterTrainingStartResponse:
+    properties:
+      job_id:
+        title: Job Id
+        type: string
+      status:
+        $ref: '#/components/schemas/MlFilterJobStatus'
+    required:
+    - job_id
+    - status
+    title: MlFilterTrainingStartResponse
+    type: object
+  MlFilterTrainingStatusResponse:
+    properties:
+      comparison_id:
+        anyOf:
+        - type: string
+        - type: 'null'
+        title: Comparison Id
+      dataset_id:
+        anyOf:
+        - type: string
+        - type: 'null'
+        title: Dataset Id
+      error:
+        anyOf:
+        - $ref: '#/components/schemas/MlFilterError'
+        - type: 'null'
+      job_id:
+        title: Job Id
+        type: string
+      model_version_ids:
+        items:
+          type: string
+        title: Model Version Ids
+        type: array
+      progress:
+        anyOf:
+        - $ref: '#/components/schemas/MlFilterProgressCount'
+        - type: 'null'
+        title: Progress
+      rejections:
+        anyOf:
+        - additionalProperties:
+            type: integer
+          type: object
+        - type: 'null'
+        title: Rejections
+      stage:
+        anyOf:
+        - $ref: '#/components/schemas/MlFilterJobStage'
+        - type: 'null'
+        title: Stage
+      status:
+        $ref: '#/components/schemas/MlFilterJobStatus'
+    required:
+    - job_id
+    - status
+    title: MlFilterTrainingStatusResponse
+    type: object
+  MlFilterSourceSummary:
+    properties:
+      available_features:
+        items:
+          $ref: '#/components/schemas/MlFilterFeatureName'
+        title: Available Features
+        type: array
+      date_range_end:
+        anyOf:
+        - format: date-time
+          type: string
+        - type: 'null'
+        title: Date Range End
+      date_range_start:
+        anyOf:
+        - format: date-time
+          type: string
+        - type: 'null'
+        title: Date Range Start
+      eligibility_reason:
+        anyOf:
+        - type: string
+        - type: 'null'
+        title: Eligibility Reason
+      eligible:
+        title: Eligible
+        type: boolean
+      run_id:
+        title: Run Id
+        type: string
+      source_sample_count:
+        minimum: 0
+        title: Source Sample Count
+        type: integer
+      strategy:
+        title: Strategy
+        type: string
+      symbol:
+        title: Symbol
+        type: string
+      timeframe:
+        title: Timeframe
+        type: string
+    required:
+    - run_id
+    - eligible
+    - symbol
+    - timeframe
+    - source_sample_count
+    title: MlFilterSourceSummary
+    type: object
+  MlFilterSourceListResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/components/schemas/MlFilterSourceSummary'
+        title: Items
+        type: array
+      limit:
+        title: Limit
+        type: integer
+      offset:
+        title: Offset
+        type: integer
+      total:
+        title: Total
+        type: integer
+    required:
+    - items
+    - limit
+    - offset
+    - total
+    title: MlFilterSourceListResponse
+    type: object
+  MlFilterSplitSuggestion:
+    properties:
+      train_end:
+        format: date-time
+        title: Train End
+        type: string
+      validation_end:
+        format: date-time
+        title: Validation End
+        type: string
+    required:
+    - train_end
+    - validation_end
+    title: MlFilterSplitSuggestion
+    type: object
+  MlFilterSourceDetailResponse:
+    allOf:
+    - $ref: '#/components/schemas/MlFilterSourceSummary'
+    - properties:
+        eligibility_errors:
+          items:
+            type: string
+          title: Eligibility Errors
+          type: array
+        split_suggestion:
+          anyOf:
+          - $ref: '#/components/schemas/MlFilterSplitSuggestion'
+          - type: 'null'
+        volume_readiness:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Volume Readiness
+      type: object
+    title: MlFilterSourceDetailResponse
+  MlFilterModelSummary:
+    properties:
+      algorithm:
+        $ref: '#/components/schemas/MlFilterAlgorithm'
+      compatibility_reasons:
+        items:
+          type: string
+        title: Compatibility Reasons
+        type: array
+      dataset_id:
+        title: Dataset Id
+        type: string
+      model_version_id:
+        title: Model Version Id
+        type: string
+      ready:
+        title: Ready
+        type: boolean
+      selected_features:
+        items:
+          $ref: '#/components/schemas/MlFilterFeatureName'
+        title: Selected Features
+        type: array
+      symbol:
+        title: Symbol
+        type: string
+      timeframe:
+        title: Timeframe
+        type: string
+      train_end:
+        format: date-time
+        title: Train End
+        type: string
+    required:
+    - model_version_id
+    - dataset_id
+    - algorithm
+    - ready
+    title: MlFilterModelSummary
+    type: object
+  MlFilterModelListResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/components/schemas/MlFilterModelSummary'
+        title: Items
+        type: array
+      limit:
+        title: Limit
+        type: integer
+      offset:
+        title: Offset
+        type: integer
+      total:
+        title: Total
+        type: integer
+    required:
+    - items
+    - limit
+    - offset
+    - total
+    title: MlFilterModelListResponse
+    type: object
+  MlFilterValidationMetrics:
+    properties:
+      confusion_matrix:
+        anyOf:
+        - items:
+            items:
+              type: integer
+            type: array
+          type: array
+        - type: 'null'
+        title: Confusion Matrix
+      roc_auc:
+        $ref: '#/components/schemas/MlFilterNullableFloat'
+    title: MlFilterValidationMetrics
+    type: object
+  MlFilterEngineMetrics:
+    properties:
+      max_drawdown:
+        title: Max Drawdown
+        type: number
+      net_pnl:
+        title: Net Pnl
+        type: number
+      profit_factor:
+        $ref: '#/components/schemas/MlFilterNullableFloat'
+      trade_count:
+        minimum: 0
+        title: Trade Count
+        type: integer
+    required:
+    - net_pnl
+    - max_drawdown
+    - trade_count
+    title: MlFilterEngineMetrics
+    type: object
+  MlFilterModelDetailResponse:
+    properties:
+      algorithm:
+        $ref: '#/components/schemas/MlFilterAlgorithm'
+      dataset_id:
+        title: Dataset Id
+        type: string
+      manifest_identity:
+        additionalProperties: true
+        title: Manifest Identity
+        type: object
+      model_version_id:
+        title: Model Version Id
+        type: string
+      pipeline_versions:
+        additionalProperties:
+          type: string
+        title: Pipeline Versions
+        type: object
+      provenance:
+        additionalProperties: true
+        title: Provenance
+        type: object
+      selected_features:
+        items:
+          $ref: '#/components/schemas/MlFilterFeatureName'
+        title: Selected Features
+        type: array
+      validation_metrics:
+        $ref: '#/components/schemas/MlFilterValidationMetrics'
+    required:
+    - model_version_id
+    - dataset_id
+    - algorithm
+    title: MlFilterModelDetailResponse
+    type: object
+  MlFilterComparisonRequest:
+    properties:
+      dataset_id:
+        minLength: 1
+        title: Dataset Id
+        type: string
+      model_version_ids:
+        items:
+          type: string
+        minItems: 1
+        title: Model Version Ids
+        type: array
+        uniqueItems: true
+      threshold:
+        default: 0.5
+        maximum: 1.0
+        minimum: 0.0
+        title: Threshold
+        type: number
+    required:
+    - dataset_id
+    - model_version_ids
+    title: MlFilterComparisonRequest
+    type: object
+  MlFilterComparisonStartResponse:
+    properties:
+      job_id:
+        title: Job Id
+        type: string
+      status:
+        $ref: '#/components/schemas/MlFilterJobStatus'
+    required:
+    - job_id
+    - status
+    title: MlFilterComparisonStartResponse
+    type: object
+  MlFilterComparisonResultEntry:
+    properties:
+      acceptance_counts:
+        additionalProperties:
+          type: integer
+        title: Acceptance Counts
+        type: object
+      baseline:
+        $ref: '#/components/schemas/MlFilterEngineMetrics'
+      classification:
+        $ref: '#/components/schemas/MlFilterValidationMetrics'
+      dataset_id:
+        title: Dataset Id
+        type: string
+      equity_artifact_ref:
+        anyOf:
+        - type: string
+        - type: 'null'
+        title: Equity Artifact Ref
+      filtered:
+        $ref: '#/components/schemas/MlFilterEngineMetrics'
+      model_version_id:
+        title: Model Version Id
+        type: string
+      threshold:
+        title: Threshold
+        type: number
+      trades_artifact_ref:
+        anyOf:
+        - type: string
+        - type: 'null'
+        title: Trades Artifact Ref
+    required:
+    - model_version_id
+    - threshold
+    - dataset_id
+    title: MlFilterComparisonResultEntry
+    type: object
+  MlFilterComparisonStatusResponse:
+    properties:
+      error:
+        anyOf:
+        - $ref: '#/components/schemas/MlFilterError'
+        - type: 'null'
+      job_id:
+        title: Job Id
+        type: string
+      results:
+        anyOf:
+        - items:
+            $ref: '#/components/schemas/MlFilterComparisonResultEntry'
+          type: array
+        - type: 'null'
+      status:
+        $ref: '#/components/schemas/MlFilterJobStatus'
+    required:
+    - job_id
+    - status
+    title: MlFilterComparisonStatusResponse
+    type: object
+  MlFilterEvaluationRequest:
+    properties:
+      dataset_id:
+        minLength: 1
+        title: Dataset Id
+        type: string
+      model_version_id:
+        minLength: 1
+        title: Model Version Id
+        type: string
+      threshold:
+        default: 0.5
+        maximum: 1.0
+        minimum: 0.0
+        title: Threshold
+        type: number
+    required:
+    - dataset_id
+    - model_version_id
+    title: MlFilterEvaluationRequest
+    type: object
+  MlFilterEvaluationStartResponse:
+    properties:
+      job_id:
+        title: Job Id
+        type: string
+      status:
+        $ref: '#/components/schemas/MlFilterJobStatus'
+    required:
+    - job_id
+    - status
+    title: MlFilterEvaluationStartResponse
+    type: object
+  MlFilterEvaluationResult:
+    properties:
+      baseline:
+        $ref: '#/components/schemas/MlFilterEngineMetrics'
+      filtered:
+        $ref: '#/components/schemas/MlFilterEngineMetrics'
+    required:
+    - baseline
+    - filtered
+    title: MlFilterEvaluationResult
+    type: object
+  MlFilterEvaluationStatusResponse:
+    properties:
+      dataset_id:
+        anyOf:
+        - type: string
+        - type: 'null'
+        title: Dataset Id
+      error:
+        anyOf:
+        - $ref: '#/components/schemas/MlFilterError'
+        - type: 'null'
+      job_id:
+        title: Job Id
+        type: string
+      model_version_id:
+        anyOf:
+        - type: string
+        - type: 'null'
+        title: Model Version Id
+      result:
+        anyOf:
+        - $ref: '#/components/schemas/MlFilterEvaluationResult'
+        - type: 'null'
+      status:
+        $ref: '#/components/schemas/MlFilterJobStatus'
+      threshold:
+        anyOf:
+        - type: number
+        - type: 'null'
+        title: Threshold
+    required:
+    - job_id
+    - status
+    title: MlFilterEvaluationStatusResponse
+    type: object
+  MlFilterBacktestSummary:
+    properties:
+      candidates_accepted:
+        minimum: 0
+        title: Candidates Accepted
+        type: integer
+      candidates_not_ready:
+        minimum: 0
+        title: Candidates Not Ready
+        type: integer
+      candidates_rejected:
+        minimum: 0
+        title: Candidates Rejected
+        type: integer
+      candidates_scored:
+        minimum: 0
+        title: Candidates Scored
+        type: integer
+      dataset_id:
+        anyOf:
+        - type: string
+        - type: 'null'
+        title: Dataset Id
+      model_version_id:
+        title: Model Version Id
+        type: string
+      threshold:
+        title: Threshold
+        type: number
+    required:
+    - model_version_id
+    - threshold
+    title: MlFilterBacktestSummary
+    type: object
+
+paths:
+  /api/v1/ml-filters/sources:
+    get:
+      description: List completed backtest sources eligible for ML filter training.
+      operationId: list_ml_filter_sources_api_v1_ml_filters_sources_get
+      parameters:
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          type: integer
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MlFilterSourceListResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Ml Filter Sources
+      tags:
+      - ml-filters
+  /api/v1/ml-filters/sources/{run_id}:
+    get:
+      description: Return one source with split suggestion and volume readiness.
+      operationId: get_ml_filter_source_api_v1_ml_filters_sources__run_id__get
+      parameters:
+      - in: path
+        name: run_id
+        required: true
+        schema:
+          title: Run Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MlFilterSourceDetailResponse'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Ml Filter Source
+      tags:
+      - ml-filters
+  /api/v1/ml-filters/training:
+    post:
+      description: Enqueue ML entry-filter training for one source backtest.
+      operationId: start_ml_filter_training_api_v1_ml_filters_training_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MlFilterTrainingRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MlFilterTrainingStartResponse'
+          description: Accepted
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Conflict
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Start Ml Filter Training
+      tags:
+      - ml-filters
+  /api/v1/ml-filters/training/{job_id}:
+    get:
+      description: Return durable training job state and published identifiers.
+      operationId: get_ml_filter_training_status_api_v1_ml_filters_training__job_id__get
+      parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          title: Job Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MlFilterTrainingStatusResponse'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Ml Filter Training Status
+      tags:
+      - ml-filters
+  /api/v1/ml-filters/models:
+    get:
+      description: List saved ML filter model versions with compatibility hints.
+      operationId: list_ml_filter_models_api_v1_ml_filters_models_get
+      parameters:
+      - in: query
+        name: dataset_id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          type: integer
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - in: query
+        name: symbol
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+      - in: query
+        name: timeframe
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MlFilterModelListResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Ml Filter Models
+      tags:
+      - ml-filters
+  /api/v1/ml-filters/models/{model_version_id}:
+    get:
+      description: Return model provenance and validation metrics without executable bytes.
+      operationId: get_ml_filter_model_api_v1_ml_filters_models__model_version_id__get
+      parameters:
+      - in: path
+        name: model_version_id
+        required: true
+        schema:
+          title: Model Version Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MlFilterModelDetailResponse'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Ml Filter Model
+      tags:
+      - ml-filters
+  /api/v1/ml-filters/comparisons:
+    post:
+      description: Enqueue validation comparison across model versions on one dataset.
+      operationId: start_ml_filter_comparison_api_v1_ml_filters_comparisons_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MlFilterComparisonRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MlFilterComparisonStartResponse'
+          description: Accepted
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Conflict
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Start Ml Filter Comparison
+      tags:
+      - ml-filters
+  /api/v1/ml-filters/comparisons/{job_id}:
+    get:
+      description: Return comparison job status and per-model validation reruns.
+      operationId: get_ml_filter_comparison_status_api_v1_ml_filters_comparisons__job_id__get
+      parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          title: Job Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MlFilterComparisonStatusResponse'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Ml Filter Comparison Status
+      tags:
+      - ml-filters
+  /api/v1/ml-filters/evaluations:
+    post:
+      description: Enqueue one-time lockbox evaluation for a frozen model tuple.
+      operationId: start_ml_filter_evaluation_api_v1_ml_filters_evaluations_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MlFilterEvaluationRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MlFilterEvaluationStartResponse'
+          description: Accepted
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Conflict
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Start Ml Filter Evaluation
+      tags:
+      - ml-filters
+  /api/v1/ml-filters/evaluations/{job_id}:
+    get:
+      description: Return evaluation job status and lockbox baseline/filtered metrics.
+      operationId: get_ml_filter_evaluation_status_api_v1_ml_filters_evaluations__job_id__get
+      parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          title: Job Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MlFilterEvaluationStatusResponse'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Ml Filter Evaluation Status
+      tags:
+      - ml-filters
