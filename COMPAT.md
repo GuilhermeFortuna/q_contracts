@@ -86,3 +86,12 @@ implementation branch is not a consumer pin. Q-080/Q-081 consumers must update
 `CONTRACTS_REV` to the merged `q_contracts` commit and regenerate their vendored
 bindings as part of their own reviewed changes; do not pin this unpublished
 branch revision.
+
+## Q-092 bar completeness handoff
+
+Q-092 adds bar completeness metadata (`truncated`, `max_bars`) and continuation
+rules to `/v1/ohlcv` in the descriptive data gateway contract. The change is
+additive and YAML-only with no generated output changes. Q-093 updates
+`q_backend`'s `CONTRACTS_REV` to the merged `q_contracts` commit; no consumer
+regeneration is needed. Do not pin this unpublished branch revision.
+
