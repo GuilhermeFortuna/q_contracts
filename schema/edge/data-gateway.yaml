@@ -101,7 +101,7 @@ endpoints:
       timeframe:
         type: string
         required: true
-        description: Bar timeframe name (e.g. M1, M5, H1, D1).
+        description: Bar timeframe name (e.g. M1, M5, M10, H1, D1).
     response:
       status: 200
       content_type: application/json
@@ -118,7 +118,7 @@ endpoints:
       timeframe:
         type: string
         required: true
-        description: Bar timeframe name (e.g. M1, M5, H1, D1).
+        description: Bar timeframe name (e.g. M1, M5, M10, H1, D1).
       start:
         type: string
         required: true

@@ -9776,13 +9776,13 @@ paths:
           description: Financial instrument (e.g. EURUSD, AUDUSD)
           title: Symbol
           type: string
-      - description: Candle timeframe (e.g. M1, M5, M15, H1, D1)
+      - description: Candle timeframe (e.g. M1, M5, M10, M15, H1, D1)
         in: query
         name: timeframe
         required: false
         schema:
           default: M1
-          description: Candle timeframe (e.g. M1, M5, M15, H1, D1)
+          description: Candle timeframe (e.g. M1, M5, M10, M15, H1, D1)
           title: Timeframe
           type: string
       - description: Start datetime (ISO-8601). Defaults to 1 day ago.
@@ -9966,13 +9966,13 @@ paths:
         schema:
           title: Symbol
           type: string
-      - description: Candle timeframe (e.g. M1, M5, M15, M30, H1, H4, D1)
+      - description: Candle timeframe (e.g. M1, M5, M10, M15, M30, H1, H4, D1)
         in: query
         name: timeframe
         required: false
         schema:
           default: D1
-          description: Candle timeframe (e.g. M1, M5, M15, M30, H1, H4, D1)
+          description: Candle timeframe (e.g. M1, M5, M10, M15, M30, H1, H4, D1)
           title: Timeframe
           type: string
       - description: Number of most recent bars to return
@@ -10039,13 +10039,13 @@ paths:
         schema:
           title: Symbol
           type: string
-      - description: Candle timeframe (e.g. M1, M5, M15, H1, D1)
+      - description: Candle timeframe (e.g. M1, M5, M10, M15, H1, D1)
         in: query
         name: timeframe
         required: false
         schema:
           default: D1
-          description: Candle timeframe (e.g. M1, M5, M15, H1, D1)
+          description: Candle timeframe (e.g. M1, M5, M10, M15, H1, D1)
           title: Timeframe
           type: string
       responses:
