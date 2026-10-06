@@ -109,7 +109,12 @@ endpoints:
 
   /v1/ohlcv:
     method: GET
-    description: Bulk OHLCV bar history chunked and compressed.
+    description: >
+      Bulk OHLCV bar history chunked and compressed. When truncated is true,
+      the arrays hold the first max_bars bars of the inclusive range in ascending
+      time. When truncated is false, they hold every bar MetaTrader 5 supplied
+      for it. Neither value is a statement about how much history the broker or
+      terminal keeps.
     query_parameters:
       symbol:
         type: string
@@ -159,6 +164,16 @@ endpoints:
           dtype: int64
           optional: true
           description: Bar real volume, present only if provided by MT5 rates.
+      metadata:
+        truncated: boolean
+        max_bars: {type: integer, minimum: 1}
+      continuation:
+        next_start: last returned bar time plus one second
+        end: unchanged
+        rule: >
+          Request again with start set to one second after the last returned bar's
+          time and the same end, and repeat until a response reports truncated: false.
+          A continuation response may hold no bars.
 
   /v1/ticks:
     method: GET
