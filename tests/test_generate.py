@@ -224,3 +224,40 @@ def test_catalog_emits_ml_entry_filter_manifest_type() -> None:
     py_source = emit(catalog)
     assert "class MlFilterDatasetManifest" in py_source
     assert "MlEntryFilterManifest" in py_source
+
+
+def test_generated_api_types_include_backtest_import_and_origin() -> None:
+    root = Path(__file__).parent.parent / "generated"
+    api_ts = root / "typescript" / "api.ts"
+    api_rs = root / "rust" / "api.rs"
+    ts_text = api_ts.read_text(encoding="utf-8")
+    rs_text = api_rs.read_text(encoding="utf-8")
+    for needle in (
+        "BacktestImportRequest",
+        "BacktestProvenance",
+        '"stack" | "script"',
+        "origin?:",
+        "git_revision",
+        "strategy_class",
+    ):
+        assert needle in ts_text, f"missing {needle!r} in api.ts"
+    for needle in (
+        "pub struct BacktestImportRequest",
+        "pub struct BacktestProvenance",
+        "pub type BacktestOrigin",
+        "pub origin: Option<BacktestOrigin>",
+        "pub git_revision: Option<String>",
+        "pub strategy_class: String",
+    ):
+        assert needle in rs_text, f"missing {needle!r} in api.rs"
+    api_unit = next(unit for unit in plan_units(SCHEMA_ROOT) if unit.name == "api")
+    py_source = emit(api_unit)
+    for needle in (
+        "class BacktestImportRequest",
+        "class BacktestProvenance",
+        'Literal["stack", "script"]',
+        "origin: BacktestOrigin | None = None",
+        "git_revision: str | None",
+        "strategy_class: str",
+    ):
+        assert needle in py_source, f"missing {needle!r} in emitted api python"
