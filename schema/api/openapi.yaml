@@ -1129,6 +1129,21 @@ components:
         label:
           title: Label
           type: string
+        line_style:
+          anyOf:
+          - enum:
+            - solid
+            - dashed
+            - dotted
+            type: string
+          - type: 'null'
+          title: Line Style
+        line_width:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: number
+          - type: 'null'
+          title: Line Width
         pane:
           enum:
           - price
@@ -1660,6 +1675,21 @@ components:
         label:
           title: Label
           type: string
+        line_style:
+          anyOf:
+          - enum:
+            - solid
+            - dashed
+            - dotted
+            type: string
+          - type: 'null'
+          title: Line Style
+        line_width:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: number
+          - type: 'null'
+          title: Line Width
         pane:
           enum:
           - price
