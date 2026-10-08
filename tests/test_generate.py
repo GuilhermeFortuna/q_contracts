@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 import re
 import sys
@@ -15,6 +16,7 @@ from tools.emitters.typescript import emit as emit_typescript
 from tools.generate import (
     LANGUAGES,
     GenerationError,
+    GenerationUnit,
     generate,
     plan_policy_units,
     plan_units,
@@ -256,8 +258,70 @@ def test_generated_api_types_include_backtest_import_and_origin() -> None:
         "class BacktestImportRequest",
         "class BacktestProvenance",
         'Literal["stack", "script"]',
-        "origin: BacktestOrigin | None = None",
+        'origin: BacktestOrigin | None = "stack"',
         "git_revision: str | None",
         "strategy_class: str",
     ):
         assert needle in py_source, f"missing {needle!r} in emitted api python"
+
+
+@pytest.mark.parametrize(
+    "schema_name", ["BacktestRunListItem", "BacktestRunDetailResponse"]
+)
+def test_emitted_run_origin_defaults_to_stack(schema_name, monkeypatch, tmp_path):
+    api_unit = next(unit for unit in plan_units(SCHEMA_ROOT) if unit.name == "api")
+    source_path = tmp_path / "api.py"
+    source_path.write_text(emit(api_unit), encoding="utf-8")
+    spec = importlib.util.spec_from_file_location("review_generated_api", source_path)
+    module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, module.__name__, module)
+    spec.loader.exec_module(module)
+    schema = getattr(module, schema_name)
+    fields = {
+        "created_at": "2026-10-08T09:00:00-03:00",
+        "run_id": "run",
+        "status": "completed",
+        "strategy": "Example",
+        "symbol": "WIN$N",
+        "timeframe": "M5",
+    }
+    if schema_name == "BacktestRunDetailResponse":
+        fields["config"] = {}
+    assert schema(**fields).origin == "stack"
+    assert schema(**fields, origin="script").origin == "script"
+
+
+def test_rust_run_origin_has_serde_default():
+    api_unit = next(unit for unit in plan_units(SCHEMA_ROOT) if unit.name == "api")
+    source = emit_rust(api_unit)
+    for function in (
+        "default_backtest_run_list_item_origin",
+        "default_backtest_run_detail_response_origin",
+    ):
+        assert f'#[serde(default = "{function}")]' in source
+        assert (
+            f'fn {function}() -> Option<BacktestOrigin> {{\n    Some("stack".to_owned())\n}}'
+            in source
+        )
+
+
+@pytest.mark.parametrize(
+    ("value", "literal"),
+    [
+        ("São Paulo", '"São Paulo"'),
+        ('\b\f\x00\n\t\r"\\u1234', r'"\u{8}\u{c}\u{0}\n\t\r\"\\u1234"'),
+    ],
+)
+def test_rust_scalar_string_defaults_use_rust_escaping(value, literal):
+    unit = GenerationUnit(
+        name="api",
+        sources=(Path("schema/api/greeting.schema.json"),),
+        documents=(
+            {
+                "title": "Greeting",
+                "type": "object",
+                "properties": {"value": {"type": "string", "default": value}},
+            },
+        ),
+    )
+    assert f"Some({literal}.to_owned())" in emit_rust(unit)

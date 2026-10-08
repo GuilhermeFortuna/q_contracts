@@ -114,7 +114,9 @@ endpoints:
       the arrays hold the first max_bars bars of the inclusive range in ascending
       time. When truncated is false, they hold every bar MetaTrader 5 supplied
       for it. Neither value is a statement about how much history the broker or
-      terminal keeps.
+      terminal keeps. If the bounded history scan cannot finish the requested
+      interval, the gateway returns HTTP 500 with internal_error rather than a
+      successful incomplete archive. The caller can retry a narrower range.
     query_parameters:
       symbol:
         type: string

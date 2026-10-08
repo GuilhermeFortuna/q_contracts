@@ -81,6 +81,7 @@ pub struct ExecutionDecisionState {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExecutionDeploymentState {
     pub account_id: UUID,
+    #[serde(default = "default_execution_deployment_state_archived")]
     pub archived: Option<bool>,
     pub broker_mode: BrokerMode,
     pub compiled_config: Option<serde_json::Value>,
@@ -107,6 +108,10 @@ pub struct ExecutionDeploymentState {
     pub symbol: String,
     pub timeframe: String,
     pub updated_at: String,
+}
+
+fn default_execution_deployment_state_archived() -> Option<bool> {
+    Some(false)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

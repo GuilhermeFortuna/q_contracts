@@ -156,6 +156,10 @@ def _emit_object(
         field_schema = properties[field]
         annotation = _type_for(field_schema, ref_map, optional=field not in required)
         default = " = None" if field not in required else ""
+        if field not in required and isinstance(
+            field_schema.get("default"), (str, bool, int, float)
+        ):
+            default = f" = {field_schema['default']!r}"
         lines.append(f"    {field}: {annotation}{default}")
     return lines
 

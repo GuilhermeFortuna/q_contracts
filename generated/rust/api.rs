@@ -3,10 +3,15 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AiModelOption {
+    #[serde(default = "default_ai_model_option_available")]
     pub available: Option<bool>,
     pub id: String,
     pub label: String,
     pub provider: String,
+}
+
+fn default_ai_model_option_available() -> Option<bool> {
+    Some(false)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -70,7 +75,12 @@ pub struct AlphaResearchRequest {
     pub profile_id: String,
     pub profile_version: Option<i64>,
     pub start: String,
+    #[serde(default = "default_alpha_research_request_target_name")]
     pub target_name: Option<String>,
+}
+
+fn default_alpha_research_request_target_name() -> Option<String> {
+    Some("fwd_return".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -107,10 +117,15 @@ pub struct AlphaResearchStatusResponse {
     pub detail: Option<String>,
     pub error: Option<String>,
     pub job_id: String,
+    #[serde(default = "default_alpha_research_status_response_progress")]
     pub progress: Option<f64>,
     pub result: Option<AlphaResearchResult>,
     pub stages: Option<Vec<AlphaResearchStageStatus>>,
     pub status: String,
+}
+
+fn default_alpha_research_status_response_progress() -> Option<f64> {
+    Some(0.0)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -142,24 +157,79 @@ pub struct AuditEventResponse {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BacktestConfig {
     pub costs: Option<TransactionCostConfig>,
+    #[serde(default = "default_backtest_config_day_trade")]
     pub day_trade: Option<bool>,
+    #[serde(default = "default_backtest_config_day_trade_close_time")]
     pub day_trade_close_time: Option<String>,
+    #[serde(default = "default_backtest_config_day_trade_end_time")]
     pub day_trade_end_time: Option<String>,
+    #[serde(default = "default_backtest_config_day_trade_start_time")]
     pub day_trade_start_time: Option<String>,
+    #[serde(default = "default_backtest_config_display_timeframe")]
     pub display_timeframe: Option<String>,
     pub end: String,
+    #[serde(default = "default_backtest_config_engine")]
     pub engine: Option<String>,
     pub entries: Option<Vec<EntryInstance>>,
     pub entry_manager: Option<EntryManagerConfig>,
     pub exit_params: Option<serde_json::Value>,
+    #[serde(default = "default_backtest_config_initial_capital")]
     pub initial_capital: Option<f64>,
+    #[serde(default = "default_backtest_config_parallel_mode")]
     pub parallel_mode: Option<ParallelMode>,
+    #[serde(default = "default_backtest_config_point_value")]
     pub point_value: Option<f64>,
     pub start: String,
+    #[serde(default = "default_backtest_config_strategy")]
     pub strategy: Option<String>,
     pub symbol: String,
     pub tick_flags: Option<String>,
+    #[serde(default = "default_backtest_config_timeframe")]
     pub timeframe: Option<String>,
+}
+
+fn default_backtest_config_day_trade() -> Option<bool> {
+    Some(false)
+}
+
+fn default_backtest_config_day_trade_close_time() -> Option<String> {
+    Some("17:00".to_owned())
+}
+
+fn default_backtest_config_day_trade_end_time() -> Option<String> {
+    Some("16:00".to_owned())
+}
+
+fn default_backtest_config_day_trade_start_time() -> Option<String> {
+    Some("09:00".to_owned())
+}
+
+fn default_backtest_config_display_timeframe() -> Option<String> {
+    Some("M1".to_owned())
+}
+
+fn default_backtest_config_engine() -> Option<String> {
+    Some("candle".to_owned())
+}
+
+fn default_backtest_config_initial_capital() -> Option<f64> {
+    Some(100000.0)
+}
+
+fn default_backtest_config_parallel_mode() -> Option<ParallelMode> {
+    Some("SEQUENTIAL".to_owned())
+}
+
+fn default_backtest_config_point_value() -> Option<f64> {
+    Some(1.0)
+}
+
+fn default_backtest_config_strategy() -> Option<String> {
+    Some("MACrossover".to_owned())
+}
+
+fn default_backtest_config_timeframe() -> Option<String> {
+    Some("D1".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -204,26 +274,76 @@ pub struct BacktestProvenance {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BacktestRequest {
     pub costs: Option<TransactionCostConfig>,
+    #[serde(default = "default_backtest_request_day_trade")]
     pub day_trade: Option<bool>,
+    #[serde(default = "default_backtest_request_day_trade_close_time")]
     pub day_trade_close_time: Option<String>,
+    #[serde(default = "default_backtest_request_day_trade_end_time")]
     pub day_trade_end_time: Option<String>,
+    #[serde(default = "default_backtest_request_day_trade_start_time")]
     pub day_trade_start_time: Option<String>,
+    #[serde(default = "default_backtest_request_display_timeframe")]
     pub display_timeframe: Option<String>,
     pub end: Option<String>,
+    #[serde(default = "default_backtest_request_engine")]
     pub engine: Option<String>,
     pub entries: Option<Vec<EntryInstance>>,
     pub entry_manager: Option<EntryManagerConfig>,
     pub exit_params: Option<serde_json::Value>,
+    #[serde(default = "default_backtest_request_initial_capital")]
     pub initial_capital: Option<f64>,
     pub ml_filter: Option<MlFilterConfig>,
+    #[serde(default = "default_backtest_request_point_value")]
     pub point_value: Option<f64>,
     pub position_sizing: Option<serde_json::Value>,
     pub start: Option<String>,
+    #[serde(default = "default_backtest_request_strategy")]
     pub strategy: Option<String>,
     pub strategy_params: Option<serde_json::Value>,
     pub symbol: String,
     pub tick_flags: Option<String>,
+    #[serde(default = "default_backtest_request_timeframe")]
     pub timeframe: Option<String>,
+}
+
+fn default_backtest_request_day_trade() -> Option<bool> {
+    Some(false)
+}
+
+fn default_backtest_request_day_trade_close_time() -> Option<String> {
+    Some("17:00".to_owned())
+}
+
+fn default_backtest_request_day_trade_end_time() -> Option<String> {
+    Some("16:00".to_owned())
+}
+
+fn default_backtest_request_day_trade_start_time() -> Option<String> {
+    Some("09:00".to_owned())
+}
+
+fn default_backtest_request_display_timeframe() -> Option<String> {
+    Some("M1".to_owned())
+}
+
+fn default_backtest_request_engine() -> Option<String> {
+    Some("candle".to_owned())
+}
+
+fn default_backtest_request_initial_capital() -> Option<f64> {
+    Some(100000.0)
+}
+
+fn default_backtest_request_point_value() -> Option<f64> {
+    Some(1.0)
+}
+
+fn default_backtest_request_strategy() -> Option<String> {
+    Some("MACrossover".to_owned())
+}
+
+fn default_backtest_request_timeframe() -> Option<String> {
+    Some("D1".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -242,7 +362,9 @@ pub struct BacktestRunDetailResponse {
     pub created_at: String,
     pub error_message: Option<String>,
     pub finished_at: Option<String>,
+    #[serde(default = "default_backtest_run_detail_response_is_saved")]
     pub is_saved: Option<bool>,
+    #[serde(default = "default_backtest_run_detail_response_origin")]
     pub origin: Option<BacktestOrigin>,
     pub provenance: Option<BacktestProvenance>,
     pub result_summary: Option<serde_json::Value>,
@@ -254,10 +376,20 @@ pub struct BacktestRunDetailResponse {
     pub timeframe: String,
 }
 
+fn default_backtest_run_detail_response_is_saved() -> Option<bool> {
+    Some(false)
+}
+
+fn default_backtest_run_detail_response_origin() -> Option<BacktestOrigin> {
+    Some("stack".to_owned())
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BacktestRunListItem {
     pub created_at: String,
+    #[serde(default = "default_backtest_run_list_item_is_saved")]
     pub is_saved: Option<bool>,
+    #[serde(default = "default_backtest_run_list_item_origin")]
     pub origin: Option<BacktestOrigin>,
     pub run_id: String,
     pub status: String,
@@ -265,6 +397,14 @@ pub struct BacktestRunListItem {
     pub summary: Option<serde_json::Value>,
     pub symbol: String,
     pub timeframe: String,
+}
+
+fn default_backtest_run_list_item_is_saved() -> Option<bool> {
+    Some(false)
+}
+
+fn default_backtest_run_list_item_origin() -> Option<BacktestOrigin> {
+    Some("stack".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -327,16 +467,26 @@ pub struct CapabilityRegistry {
     pub genome_param_bounds: Vec<StrategyParamSpec>,
     pub operators: Vec<String>,
     pub risk_sizing: Vec<RiskSizingCapability>,
+    #[serde(default = "default_capability_registry_schema_version")]
     pub schema_version: Option<String>,
     pub strategies: Vec<StrategyInfo>,
     pub unsupported: Vec<String>,
+}
+
+fn default_capability_registry_schema_version() -> Option<String> {
+    Some("q_capabilities.v1".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CategoricalParam {
     pub choices: Vec<serde_json::Value>,
     #[serde(rename = "type")]
+    #[serde(default = "default_categorical_param_type")]
     pub r#type: Option<String>,
+}
+
+fn default_categorical_param_type() -> Option<String> {
+    Some("categorical".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -351,7 +501,12 @@ pub struct ChartIndicatorSeries {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CompileStrategySpecErrorResponse {
     pub errors: Option<Vec<ValidationErrorDetail>>,
+    #[serde(default = "default_compile_strategy_spec_error_response_status")]
     pub status: Option<String>,
+}
+
+fn default_compile_strategy_spec_error_response_status() -> Option<String> {
+    Some("validation_failed".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -363,7 +518,12 @@ pub struct CompileStrategySpecRequest {
 pub struct CompileStrategySpecResponse {
     pub compiled_strategy: CompiledStrategy,
     pub compiled_strategy_id: String,
+    #[serde(default = "default_compile_strategy_spec_response_status")]
     pub status: Option<String>,
+}
+
+fn default_compile_strategy_spec_response_status() -> Option<String> {
+    Some("compiled".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -400,9 +560,14 @@ pub struct ConversationMessage {
 pub struct CustomStrategySaveRequest {
     pub ai_metadata: Option<AiStrategyMetadata>,
     pub base_strategy: String,
+    #[serde(default = "default_custom_strategy_save_request_description")]
     pub description: Option<String>,
     pub name: String,
     pub parameters: serde_json::Value,
+}
+
+fn default_custom_strategy_save_request_description() -> Option<String> {
+    Some("".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -478,7 +643,12 @@ pub struct DecisionResponse {
 pub struct DeploymentActionRequest {
     pub action: String,
     pub actor: Option<String>,
+    #[serde(default = "default_deployment_action_request_confirm")]
     pub confirm: Option<bool>,
+}
+
+fn default_deployment_action_request_confirm() -> Option<bool> {
+    Some(false)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -521,12 +691,22 @@ pub struct DeploymentChartResponse {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DeploymentCreateRequest {
+    #[serde(default = "default_deployment_create_request_broker_mode")]
     pub broker_mode: Option<String>,
     pub identity: Option<DeploymentIdentityInput>,
+    #[serde(default = "default_deployment_create_request_live_activation_enabled")]
     pub live_activation_enabled: Option<bool>,
     pub name: String,
     pub paper_account_id: String,
     pub source_backtest_run_id: Option<String>,
+}
+
+fn default_deployment_create_request_broker_mode() -> Option<String> {
+    Some("paper".to_owned())
+}
+
+fn default_deployment_create_request_live_activation_enabled() -> Option<bool> {
+    Some(false)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -553,9 +733,14 @@ pub struct DeploymentDetailResponse {
     pub strategy_version: i64,
     pub symbol: String,
     pub timeframe: String,
+    #[serde(default = "default_deployment_detail_response_unknown_order_count")]
     pub unknown_order_count: Option<i64>,
     pub updated_at: String,
     pub worker_lease: Option<WorkerLeaseResponse>,
+}
+
+fn default_deployment_detail_response_unknown_order_count() -> Option<i64> {
+    Some(0)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -565,8 +750,13 @@ pub struct DeploymentHealthResponse {
     pub latest_decision: Option<DecisionResponse>,
     pub lifecycle: String,
     pub pending_action: Option<String>,
+    #[serde(default = "default_deployment_health_response_unknown_order_count")]
     pub unknown_order_count: Option<i64>,
     pub worker_lease: Option<WorkerLeaseResponse>,
+}
+
+fn default_deployment_health_response_unknown_order_count() -> Option<i64> {
+    Some(0)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -628,8 +818,13 @@ pub struct DiscoveryAbPairedDelta {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DiscoveryAbRequest {
     pub config: StrategySearchConfig,
+    #[serde(default = "default_discovery_ab_request_minimum_complete_pairs")]
     pub minimum_complete_pairs: Option<i64>,
     pub seeds: Vec<i64>,
+}
+
+fn default_discovery_ab_request_minimum_complete_pairs() -> Option<i64> {
+    Some(2)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -639,12 +834,17 @@ pub struct DiscoveryAbResult {
     pub control: DiscoveryAbArmSummary,
     pub dropped_pair_reasons: Option<Vec<String>>,
     pub metric: String,
+    #[serde(default = "default_discovery_ab_result_minimum_complete_pairs")]
     pub minimum_complete_pairs: Option<i64>,
     pub n_seeds: i64,
     pub paired_delta: DiscoveryAbPairedDelta,
     pub requested_seeds: i64,
     pub treatment: DiscoveryAbArmSummary,
     pub verdict: String,
+}
+
+fn default_discovery_ab_result_minimum_complete_pairs() -> Option<i64> {
+    Some(2)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -658,9 +858,14 @@ pub struct DiscoveryAbStatusResponse {
     pub detail: Option<String>,
     pub error: Option<String>,
     pub job_id: String,
+    #[serde(default = "default_discovery_ab_status_response_progress")]
     pub progress: Option<f64>,
     pub result: Option<DiscoveryAbResult>,
     pub status: String,
+}
+
+fn default_discovery_ab_status_response_progress() -> Option<f64> {
+    Some(0.0)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -674,14 +879,29 @@ pub struct EdgeStatusResponse {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EncoderAblationRequest {
     pub configs: Vec<EncoderConfigSpec>,
+    #[serde(default = "default_encoder_ablation_request_horizon")]
     pub horizon: Option<i64>,
     pub input_features: Option<Vec<String>>,
+    #[serde(default = "default_encoder_ablation_request_n_latents")]
     pub n_latents: Option<i64>,
     pub symbol: String,
+    #[serde(default = "default_encoder_ablation_request_target")]
     pub target: Option<String>,
     pub timeframe: String,
     pub train_end: String,
     pub train_start: String,
+}
+
+fn default_encoder_ablation_request_horizon() -> Option<i64> {
+    Some(5)
+}
+
+fn default_encoder_ablation_request_n_latents() -> Option<i64> {
+    Some(2)
+}
+
+fn default_encoder_ablation_request_target() -> Option<String> {
+    Some("fwd_return".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -737,8 +957,13 @@ pub struct EntryInstance {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EntryManagerConfig {
+    #[serde(default = "default_entry_manager_config_kind")]
     pub kind: Option<String>,
     pub params: Option<serde_json::Value>,
+}
+
+fn default_entry_manager_config_kind() -> Option<String> {
+    Some("or".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -763,10 +988,15 @@ pub struct ErrorResponse {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExecutionAssumptions {
+    #[serde(default = "default_execution_assumptions_ai_builder_mvp_long_only")]
     pub ai_builder_mvp_long_only: Option<bool>,
     pub allow_short: bool,
     pub supported_entry_timing: Vec<String>,
     pub supported_signal_timing: Vec<String>,
+}
+
+fn default_execution_assumptions_ai_builder_mvp_long_only() -> Option<bool> {
+    Some(true)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -821,17 +1051,37 @@ pub struct ExitPreset {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExitPresetSearchConfig {
+    #[serde(default = "default_exit_preset_search_config_enabled")]
     pub enabled: Option<bool>,
+    #[serde(default = "default_exit_preset_search_config_include_baseline")]
     pub include_baseline: Option<bool>,
+    #[serde(default = "default_exit_preset_search_config_pin_non_preset_exits_off")]
     pub pin_non_preset_exits_off: Option<bool>,
     pub preset_ids: Option<Vec<String>>,
 }
 
+fn default_exit_preset_search_config_enabled() -> Option<bool> {
+    Some(false)
+}
+
+fn default_exit_preset_search_config_include_baseline() -> Option<bool> {
+    Some(true)
+}
+
+fn default_exit_preset_search_config_pin_non_preset_exits_off() -> Option<bool> {
+    Some(true)
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExitQualityScoringConfig {
+    #[serde(default = "default_exit_quality_scoring_config_enabled")]
     pub enabled: Option<bool>,
     pub max_profit_giveback_pct: Option<f64>,
     pub min_mfe_capture_ratio: Option<f64>,
+}
+
+fn default_exit_quality_scoring_config_enabled() -> Option<bool> {
+    Some(false)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -855,17 +1105,52 @@ pub struct ExitRuleInfo {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExogenousSeriesConfig {
+    #[serde(default = "default_exogenous_series_config_availability_lag_bars")]
     pub availability_lag_bars: Option<i64>,
+    #[serde(default = "default_exogenous_series_config_corr_window")]
     pub corr_window: Option<i64>,
+    #[serde(default = "default_exogenous_series_config_lookback_bars")]
     pub lookback_bars: Option<i64>,
     pub recipes: Option<Vec<String>>,
+    #[serde(default = "default_exogenous_series_config_resampling_rule")]
     pub resampling_rule: Option<String>,
     pub source_timeframe: String,
     pub symbol: String,
     pub target_timeframe: Option<String>,
+    #[serde(default = "default_exogenous_series_config_vol_percentile_window")]
     pub vol_percentile_window: Option<i64>,
+    #[serde(default = "default_exogenous_series_config_vol_regime_threshold")]
     pub vol_regime_threshold: Option<f64>,
+    #[serde(default = "default_exogenous_series_config_vol_window")]
     pub vol_window: Option<i64>,
+}
+
+fn default_exogenous_series_config_availability_lag_bars() -> Option<i64> {
+    Some(0)
+}
+
+fn default_exogenous_series_config_corr_window() -> Option<i64> {
+    Some(20)
+}
+
+fn default_exogenous_series_config_lookback_bars() -> Option<i64> {
+    Some(8)
+}
+
+fn default_exogenous_series_config_resampling_rule() -> Option<String> {
+    Some("none".to_owned())
+}
+
+fn default_exogenous_series_config_vol_percentile_window() -> Option<i64> {
+    Some(60)
+}
+
+fn default_exogenous_series_config_vol_regime_threshold() -> Option<f64> {
+    Some(0.6)
+}
+
+fn default_exogenous_series_config_vol_window() -> Option<i64> {
+    Some(20)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1038,20 +1323,55 @@ pub struct FillResponse {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FixedQuantityPositionSizing {
+    #[serde(default = "default_fixed_quantity_position_sizing_quantity")]
     pub quantity: Option<f64>,
+    #[serde(default = "default_fixed_quantity_position_sizing_scale_by_signal_strength")]
     pub scale_by_signal_strength: Option<bool>,
     #[serde(rename = "type")]
+    #[serde(default = "default_fixed_quantity_position_sizing_type")]
     pub r#type: Option<String>,
+}
+
+fn default_fixed_quantity_position_sizing_quantity() -> Option<f64> {
+    Some(1.0)
+}
+
+fn default_fixed_quantity_position_sizing_scale_by_signal_strength() -> Option<bool> {
+    Some(false)
+}
+
+fn default_fixed_quantity_position_sizing_type() -> Option<String> {
+    Some("fixed_quantity".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FixedSafetyMarginPositionSizing {
     pub max_contracts: Option<i64>,
+    #[serde(default = "default_fixed_safety_margin_position_sizing_min_contracts")]
     pub min_contracts: Option<i64>,
+    #[serde(default = "default_fixed_safety_margin_position_sizing_safety_margin_per_contract")]
     pub safety_margin_per_contract: Option<f64>,
+    #[serde(default = "default_fixed_safety_margin_position_sizing_scale_by_signal_strength")]
     pub scale_by_signal_strength: Option<bool>,
     #[serde(rename = "type")]
+    #[serde(default = "default_fixed_safety_margin_position_sizing_type")]
     pub r#type: Option<String>,
+}
+
+fn default_fixed_safety_margin_position_sizing_min_contracts() -> Option<i64> {
+    Some(1)
+}
+
+fn default_fixed_safety_margin_position_sizing_safety_margin_per_contract() -> Option<f64> {
+    Some(5000.0)
+}
+
+fn default_fixed_safety_margin_position_sizing_scale_by_signal_strength() -> Option<bool> {
+    Some(false)
+}
+
+fn default_fixed_safety_margin_position_sizing_type() -> Option<String> {
+    Some("fixed_safety_margin".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1060,46 +1380,191 @@ pub struct FloatParam {
     pub low: f64,
     pub step: Option<f64>,
     #[serde(rename = "type")]
+    #[serde(default = "default_float_param_type")]
     pub r#type: Option<String>,
+}
+
+fn default_float_param_type() -> Option<String> {
+    Some("float".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GateConfig {
+    #[serde(default = "default_gate_config_efficiency_high")]
     pub efficiency_high: Option<f64>,
+    #[serde(default = "default_gate_config_efficiency_low")]
     pub efficiency_low: Option<f64>,
+    #[serde(default = "default_gate_config_min_completed_windows")]
     pub min_completed_windows: Option<i64>,
+    #[serde(default = "default_gate_config_min_oos_trades")]
     pub min_oos_trades: Option<i64>,
+}
+
+fn default_gate_config_efficiency_high() -> Option<f64> {
+    Some(1.5)
+}
+
+fn default_gate_config_efficiency_low() -> Option<f64> {
+    Some(0.3)
+}
+
+fn default_gate_config_min_completed_windows() -> Option<i64> {
+    Some(2)
+}
+
+fn default_gate_config_min_oos_trades() -> Option<i64> {
+    Some(10)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GeneticSearchConfig {
+    #[serde(default = "default_genetic_search_config_adaptive_operator_weights")]
     pub adaptive_operator_weights: Option<bool>,
+    #[serde(default = "default_genetic_search_config_complexity_lambda")]
     pub complexity_lambda: Option<f64>,
+    #[serde(default = "default_genetic_search_config_complexity_mu")]
     pub complexity_mu: Option<f64>,
+    #[serde(default = "default_genetic_search_config_crossover_rate")]
     pub crossover_rate: Option<f64>,
+    #[serde(default = "default_genetic_search_config_elite_count")]
     pub elite_count: Option<i64>,
+    #[serde(default = "default_genetic_search_config_error_floor")]
     pub error_floor: Option<f64>,
     pub exit_policy_preset_ids: Option<Vec<String>>,
+    #[serde(default = "default_genetic_search_config_exit_policy_seed_fraction")]
     pub exit_policy_seed_fraction: Option<f64>,
+    #[serde(default = "default_genetic_search_config_gate_penalty_efficiency")]
     pub gate_penalty_efficiency: Option<f64>,
+    #[serde(default = "default_genetic_search_config_gate_penalty_trades")]
     pub gate_penalty_trades: Option<f64>,
+    #[serde(default = "default_genetic_search_config_gate_penalty_windows")]
     pub gate_penalty_windows: Option<f64>,
+    #[serde(default = "default_genetic_search_config_generations")]
     pub generations: Option<i64>,
     pub init_seed: Option<i64>,
+    #[serde(default = "default_genetic_search_config_max_depth")]
     pub max_depth: Option<i64>,
+    #[serde(default = "default_genetic_search_config_max_nodes")]
     pub max_nodes: Option<i64>,
     pub max_workers: Option<i64>,
+    #[serde(default = "default_genetic_search_config_min_seed_signals")]
     pub min_seed_signals: Option<i64>,
+    #[serde(default = "default_genetic_search_config_mutation_rate")]
     pub mutation_rate: Option<f64>,
+    #[serde(default = "default_genetic_search_config_mutation_rate_max")]
     pub mutation_rate_max: Option<f64>,
+    #[serde(default = "default_genetic_search_config_mutation_rate_min")]
     pub mutation_rate_min: Option<f64>,
+    #[serde(default = "default_genetic_search_config_no_result_floor")]
     pub no_result_floor: Option<f64>,
+    #[serde(default = "default_genetic_search_config_population_size")]
     pub population_size: Option<i64>,
+    #[serde(default = "default_genetic_search_config_prescreen_min_signals")]
     pub prescreen_min_signals: Option<i64>,
+    #[serde(default = "default_genetic_search_config_repair_max_attempts")]
     pub repair_max_attempts: Option<i64>,
+    #[serde(default = "default_genetic_search_config_seed_exit_policies")]
     pub seed_exit_policies: Option<bool>,
+    #[serde(default = "default_genetic_search_config_stagnation_patience")]
     pub stagnation_patience: Option<i64>,
+    #[serde(default = "default_genetic_search_config_tournament_size")]
     pub tournament_size: Option<i64>,
+}
+
+fn default_genetic_search_config_adaptive_operator_weights() -> Option<bool> {
+    Some(true)
+}
+
+fn default_genetic_search_config_complexity_lambda() -> Option<f64> {
+    Some(0.001)
+}
+
+fn default_genetic_search_config_complexity_mu() -> Option<f64> {
+    Some(0.0005)
+}
+
+fn default_genetic_search_config_crossover_rate() -> Option<f64> {
+    Some(0.7)
+}
+
+fn default_genetic_search_config_elite_count() -> Option<i64> {
+    Some(4)
+}
+
+fn default_genetic_search_config_error_floor() -> Option<f64> {
+    Some(-4.0)
+}
+
+fn default_genetic_search_config_exit_policy_seed_fraction() -> Option<f64> {
+    Some(0.25)
+}
+
+fn default_genetic_search_config_gate_penalty_efficiency() -> Option<f64> {
+    Some(0.5)
+}
+
+fn default_genetic_search_config_gate_penalty_trades() -> Option<f64> {
+    Some(0.5)
+}
+
+fn default_genetic_search_config_gate_penalty_windows() -> Option<f64> {
+    Some(0.5)
+}
+
+fn default_genetic_search_config_generations() -> Option<i64> {
+    Some(12)
+}
+
+fn default_genetic_search_config_max_depth() -> Option<i64> {
+    Some(12)
+}
+
+fn default_genetic_search_config_max_nodes() -> Option<i64> {
+    Some(24)
+}
+
+fn default_genetic_search_config_min_seed_signals() -> Option<i64> {
+    Some(1)
+}
+
+fn default_genetic_search_config_mutation_rate() -> Option<f64> {
+    Some(0.15)
+}
+
+fn default_genetic_search_config_mutation_rate_max() -> Option<f64> {
+    Some(0.5)
+}
+
+fn default_genetic_search_config_mutation_rate_min() -> Option<f64> {
+    Some(0.1)
+}
+
+fn default_genetic_search_config_no_result_floor() -> Option<f64> {
+    Some(-2.0)
+}
+
+fn default_genetic_search_config_population_size() -> Option<i64> {
+    Some(48)
+}
+
+fn default_genetic_search_config_prescreen_min_signals() -> Option<i64> {
+    Some(1)
+}
+
+fn default_genetic_search_config_repair_max_attempts() -> Option<i64> {
+    Some(8)
+}
+
+fn default_genetic_search_config_seed_exit_policies() -> Option<bool> {
+    Some(true)
+}
+
+fn default_genetic_search_config_stagnation_patience() -> Option<i64> {
+    Some(2)
+}
+
+fn default_genetic_search_config_tournament_size() -> Option<i64> {
+    Some(3)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1142,10 +1607,15 @@ pub struct HistoryPageResponse {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct IngestJobRequest {
     pub end: String,
+    #[serde(default = "default_ingest_job_request_kind")]
     pub kind: Option<String>,
     pub start: String,
     pub symbol: String,
     pub timeframes: Option<Vec<String>>,
+}
+
+fn default_ingest_job_request_kind() -> Option<String> {
+    Some("bars".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1178,19 +1648,49 @@ pub struct InstrumentResponse {
 pub struct IntParam {
     pub high: i64,
     pub low: i64,
+    #[serde(default = "default_int_param_step")]
     pub step: Option<i64>,
     #[serde(rename = "type")]
+    #[serde(default = "default_int_param_type")]
     pub r#type: Option<String>,
+}
+
+fn default_int_param_step() -> Option<i64> {
+    Some(1)
+}
+
+fn default_int_param_type() -> Option<String> {
+    Some("int".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct InverseVolatilityPositionSizing {
     pub max_contracts: Option<i64>,
+    #[serde(default = "default_inverse_volatility_position_sizing_min_contracts")]
     pub min_contracts: Option<i64>,
+    #[serde(default = "default_inverse_volatility_position_sizing_scale_by_signal_strength")]
     pub scale_by_signal_strength: Option<bool>,
+    #[serde(default = "default_inverse_volatility_position_sizing_target_volatility_pct")]
     pub target_volatility_pct: Option<f64>,
     #[serde(rename = "type")]
+    #[serde(default = "default_inverse_volatility_position_sizing_type")]
     pub r#type: Option<String>,
+}
+
+fn default_inverse_volatility_position_sizing_min_contracts() -> Option<i64> {
+    Some(0)
+}
+
+fn default_inverse_volatility_position_sizing_scale_by_signal_strength() -> Option<bool> {
+    Some(false)
+}
+
+fn default_inverse_volatility_position_sizing_target_volatility_pct() -> Option<f64> {
+    Some(10.0)
+}
+
+fn default_inverse_volatility_position_sizing_type() -> Option<String> {
+    Some("inverse_volatility".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1220,10 +1720,15 @@ pub struct KillSwitchResponse {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct KillSwitchUpdateRequest {
+    #[serde(default = "default_kill_switch_update_request_confirm")]
     pub confirm: Option<bool>,
     pub enabled: bool,
     pub reason: Option<String>,
     pub updated_by: Option<String>,
+}
+
+fn default_kill_switch_update_request_confirm() -> Option<bool> {
+    Some(false)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1273,11 +1778,26 @@ pub struct LedgerEntryResponse {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LockboxConfig {
+    #[serde(default = "default_lockbox_config_enabled")]
     pub enabled: Option<bool>,
     pub lockbox_days: Option<i64>,
+    #[serde(default = "default_lockbox_config_lockbox_pct")]
     pub lockbox_pct: Option<f64>,
     pub max_drawdown_pct: Option<f64>,
+    #[serde(default = "default_lockbox_config_min_trades")]
     pub min_trades: Option<i64>,
+}
+
+fn default_lockbox_config_enabled() -> Option<bool> {
+    Some(false)
+}
+
+fn default_lockbox_config_lockbox_pct() -> Option<f64> {
+    Some(0.15)
+}
+
+fn default_lockbox_config_min_trades() -> Option<i64> {
+    Some(5)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1285,7 +1805,12 @@ pub struct LogFloatParam {
     pub high: f64,
     pub low: f64,
     #[serde(rename = "type")]
+    #[serde(default = "default_log_float_param_type")]
     pub r#type: Option<String>,
+}
+
+fn default_log_float_param_type() -> Option<String> {
+    Some("log-float".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1297,20 +1822,65 @@ pub struct ManifestFile {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MarketSnapshotResponse {
+    #[serde(default = "default_market_snapshot_response_ask")]
     pub ask: Option<f64>,
+    #[serde(default = "default_market_snapshot_response_bid")]
     pub bid: Option<f64>,
+    #[serde(default = "default_market_snapshot_response_change_abs")]
     pub changeAbs: Option<f64>,
     pub changePct: f64,
+    #[serde(default = "default_market_snapshot_response_day_high")]
     pub dayHigh: Option<f64>,
+    #[serde(default = "default_market_snapshot_response_day_low")]
     pub dayLow: Option<f64>,
+    #[serde(default = "default_market_snapshot_response_day_open")]
     pub dayOpen: Option<f64>,
+    #[serde(default = "default_market_snapshot_response_digits")]
     pub digits: Option<i64>,
     pub last: f64,
+    #[serde(default = "default_market_snapshot_response_prev_close")]
     pub prevClose: Option<f64>,
+    #[serde(default = "default_market_snapshot_response_spread")]
     pub spread: Option<f64>,
     pub symbol: String,
     pub tickTime: Option<String>,
     pub volume: i64,
+}
+
+fn default_market_snapshot_response_ask() -> Option<f64> {
+    Some(0.0)
+}
+
+fn default_market_snapshot_response_bid() -> Option<f64> {
+    Some(0.0)
+}
+
+fn default_market_snapshot_response_change_abs() -> Option<f64> {
+    Some(0.0)
+}
+
+fn default_market_snapshot_response_day_high() -> Option<f64> {
+    Some(0.0)
+}
+
+fn default_market_snapshot_response_day_low() -> Option<f64> {
+    Some(0.0)
+}
+
+fn default_market_snapshot_response_day_open() -> Option<f64> {
+    Some(0.0)
+}
+
+fn default_market_snapshot_response_digits() -> Option<i64> {
+    Some(0)
+}
+
+fn default_market_snapshot_response_prev_close() -> Option<f64> {
+    Some(0.0)
+}
+
+fn default_market_snapshot_response_spread() -> Option<f64> {
+    Some(0.0)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1356,7 +1926,12 @@ pub struct MlFilterBacktestSummary {
 pub struct MlFilterComparisonRequest {
     pub dataset_id: String,
     pub model_version_ids: Vec<String>,
+    #[serde(default = "default_ml_filter_comparison_request_threshold")]
     pub threshold: Option<f64>,
+}
+
+fn default_ml_filter_comparison_request_threshold() -> Option<f64> {
+    Some(0.5)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1389,7 +1964,12 @@ pub struct MlFilterComparisonStatusResponse {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MlFilterConfig {
     pub model_version_id: String,
+    #[serde(default = "default_ml_filter_config_threshold")]
     pub threshold: Option<f64>,
+}
+
+fn default_ml_filter_config_threshold() -> Option<f64> {
+    Some(0.5)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1413,7 +1993,12 @@ pub type MlFilterErrorCode = String;
 pub struct MlFilterEvaluationRequest {
     pub dataset_id: String,
     pub model_version_id: String,
+    #[serde(default = "default_ml_filter_evaluation_request_threshold")]
     pub threshold: Option<f64>,
+}
+
+fn default_ml_filter_evaluation_request_threshold() -> Option<f64> {
+    Some(0.5)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1447,15 +2032,40 @@ pub type MlFilterJobStatus = String;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MlFilterLightgbmHyperparams {
+    #[serde(default = "default_ml_filter_lightgbm_hyperparams_learning_rate")]
     pub learning_rate: Option<f64>,
+    #[serde(default = "default_ml_filter_lightgbm_hyperparams_n_estimators")]
     pub n_estimators: Option<i64>,
+    #[serde(default = "default_ml_filter_lightgbm_hyperparams_num_leaves")]
     pub num_leaves: Option<i64>,
+}
+
+fn default_ml_filter_lightgbm_hyperparams_learning_rate() -> Option<f64> {
+    Some(0.1)
+}
+
+fn default_ml_filter_lightgbm_hyperparams_n_estimators() -> Option<i64> {
+    Some(100)
+}
+
+fn default_ml_filter_lightgbm_hyperparams_num_leaves() -> Option<i64> {
+    Some(31)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MlFilterLogisticRegressionHyperparams {
+    #[serde(default = "default_ml_filter_logistic_regression_hyperparams_c")]
     pub C: Option<f64>,
+    #[serde(default = "default_ml_filter_logistic_regression_hyperparams_max_iter")]
     pub max_iter: Option<i64>,
+}
+
+fn default_ml_filter_logistic_regression_hyperparams_c() -> Option<f64> {
+    Some(1.0)
+}
+
+fn default_ml_filter_logistic_regression_hyperparams_max_iter() -> Option<i64> {
+    Some(1000)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1506,8 +2116,18 @@ pub struct MlFilterProgressCount {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MlFilterRandomForestHyperparams {
     pub max_depth: Option<i64>,
+    #[serde(default = "default_ml_filter_random_forest_hyperparams_min_samples_leaf")]
     pub min_samples_leaf: Option<i64>,
+    #[serde(default = "default_ml_filter_random_forest_hyperparams_n_estimators")]
     pub n_estimators: Option<i64>,
+}
+
+fn default_ml_filter_random_forest_hyperparams_min_samples_leaf() -> Option<i64> {
+    Some(1)
+}
+
+fn default_ml_filter_random_forest_hyperparams_n_estimators() -> Option<i64> {
+    Some(200)
 }
 
 pub type MlFilterSourceDetailResponse = serde_json::Value;
@@ -1544,11 +2164,16 @@ pub struct MlFilterSplitSuggestion {
 pub struct MlFilterTrainingRequest {
     pub algorithms: Vec<MlFilterAlgorithm>,
     pub hyperparameters: Option<MlFilterAlgorithmHyperparams>,
+    #[serde(default = "default_ml_filter_training_request_seed")]
     pub seed: Option<i64>,
     pub selected_features: Vec<MlFilterFeatureName>,
     pub source_run_id: String,
     pub train_end: String,
     pub validation_end: String,
+}
+
+fn default_ml_filter_training_request_seed() -> Option<i64> {
+    Some(42)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1629,6 +2254,7 @@ pub struct NeuralTrainRequest {
     pub evaluate: Option<NeuralTrainEvaluateRequest>,
     pub hyperparams: Option<serde_json::Value>,
     pub input_features: Vec<String>,
+    #[serde(default = "default_neural_train_request_kind")]
     pub kind: Option<String>,
     pub model_key: Option<String>,
     pub n_latents: i64,
@@ -1636,6 +2262,10 @@ pub struct NeuralTrainRequest {
     pub timeframe: String,
     pub train_end: String,
     pub train_start: String,
+}
+
+fn default_neural_train_request_kind() -> Option<String> {
+    Some("pca".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1757,7 +2387,12 @@ pub struct OptimizationStatusResponse {
     pub status: String,
     pub study_id: String,
     pub trials: Option<Vec<serde_json::Value>>,
+    #[serde(default = "default_optimization_status_response_workers")]
     pub workers: Option<i64>,
+}
+
+fn default_optimization_status_response_workers() -> Option<i64> {
+    Some(1)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1832,11 +2467,16 @@ pub struct OrderResponse {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PaperAccountCreateRequest {
+    #[serde(default = "default_paper_account_create_request_currency")]
     pub currency: Option<String>,
     pub initial_balance: serde_json::Value,
     pub name: String,
     pub risk_config: Option<serde_json::Value>,
     pub sizing_config: Option<serde_json::Value>,
+}
+
+fn default_paper_account_create_request_currency() -> Option<String> {
+    Some("BRL".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1979,8 +2619,13 @@ pub struct SignalManagerInfo {
 pub struct StorageConfig {
     pub path: Option<String>,
     #[serde(rename = "type")]
+    #[serde(default = "default_storage_config_type")]
     pub r#type: Option<String>,
     pub url: Option<String>,
+}
+
+fn default_storage_config_type() -> Option<String> {
+    Some("memory".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2010,12 +2655,17 @@ pub struct StorageIngestStatusResponse {
 pub struct StorageInventoryItem {
     pub bytes: i64,
     pub end: String,
+    #[serde(default = "default_storage_inventory_item_kind")]
     pub kind: Option<String>,
     pub rows: i64,
     pub start: String,
     pub symbol: String,
     pub timeframe: Option<String>,
     pub updated_at: String,
+}
+
+fn default_storage_inventory_item_kind() -> Option<String> {
+    Some("bars".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2043,23 +2693,49 @@ pub struct StrategiesResponse {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StrategyInfo {
+    #[serde(default = "default_strategy_info_category")]
     pub category: Option<String>,
     pub description: String,
+    #[serde(default = "default_strategy_info_engine")]
     pub engine: Option<String>,
     pub label: String,
     pub name: String,
     pub params: Vec<StrategyParamSpec>,
     pub research_only: Option<bool>,
+    #[serde(default = "default_strategy_info_strong_in")]
     pub strong_in: Option<String>,
     pub supports_discovery: Option<bool>,
     pub supports_optimization: Option<bool>,
     pub supports_walkforward: Option<bool>,
+    #[serde(default = "default_strategy_info_thesis")]
     pub thesis: Option<String>,
+    #[serde(default = "default_strategy_info_weak_in")]
     pub weak_in: Option<String>,
+}
+
+fn default_strategy_info_category() -> Option<String> {
+    Some("other".to_owned())
+}
+
+fn default_strategy_info_engine() -> Option<String> {
+    Some("candle".to_owned())
+}
+
+fn default_strategy_info_strong_in() -> Option<String> {
+    Some("".to_owned())
+}
+
+fn default_strategy_info_thesis() -> Option<String> {
+    Some("".to_owned())
+}
+
+fn default_strategy_info_weak_in() -> Option<String> {
+    Some("".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StrategyInterpretRequest {
+    #[serde(default = "default_strategy_interpret_request_capabilities_version")]
     pub capabilities_version: Option<String>,
     pub conversation: Option<Vec<ConversationMessage>>,
     pub current_spec: Option<serde_json::Value>,
@@ -2067,6 +2743,10 @@ pub struct StrategyInterpretRequest {
     pub model: Option<String>,
     pub provider: Option<String>,
     pub validation_errors: Option<Vec<ValidationErrorDetail>>,
+}
+
+fn default_strategy_interpret_request_capabilities_version() -> Option<String> {
+    Some("q_capabilities.v1".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2083,10 +2763,15 @@ pub struct StrategyParamSpec {
     pub search_min: Option<f64>,
     pub search_scale: Option<String>,
     pub search_step: Option<f64>,
+    #[serde(default = "default_strategy_param_spec_searchable")]
     pub searchable: Option<bool>,
     pub step: Option<f64>,
     #[serde(rename = "type")]
     pub r#type: String,
+}
+
+fn default_strategy_param_spec_searchable() -> Option<bool> {
+    Some(true)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2107,6 +2792,7 @@ pub struct StrategySearchCandidateGenomeResponse {
 pub struct StrategySearchCandidateResponse {
     pub best_params: Option<serde_json::Value>,
     pub candidate_id: String,
+    #[serde(default = "default_strategy_search_candidate_response_completed_windows")]
     pub completed_windows: Option<i64>,
     pub complexity_penalty: Option<f64>,
     pub diagnostics: Option<serde_json::Value>,
@@ -2131,13 +2817,27 @@ pub struct StrategySearchCandidateResponse {
     pub last_exit_mutation_op: Option<String>,
     pub objective_value: Option<f64>,
     pub oos_metrics: Option<serde_json::Value>,
+    #[serde(default = "default_strategy_search_candidate_response_passed_gates")]
     pub passed_gates: Option<bool>,
     pub profile_version: Option<i64>,
     pub rank: Option<i64>,
     pub robustness_score: Option<f64>,
     pub status: String,
     pub strategy: String,
+    #[serde(default = "default_strategy_search_candidate_response_window_count")]
     pub window_count: Option<i64>,
+}
+
+fn default_strategy_search_candidate_response_completed_windows() -> Option<i64> {
+    Some(0)
+}
+
+fn default_strategy_search_candidate_response_passed_gates() -> Option<bool> {
+    Some(false)
+}
+
+fn default_strategy_search_candidate_response_window_count() -> Option<i64> {
+    Some(0)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2149,13 +2849,23 @@ pub struct StrategySearchConfig {
     pub exogenous_series: Option<Vec<ExogenousSeriesConfig>>,
     pub gates: Option<GateConfig>,
     pub genetic: Option<GeneticSearchConfig>,
+    #[serde(default = "default_strategy_search_config_include_risk_search")]
     pub include_risk_search: Option<bool>,
+    #[serde(default = "default_strategy_search_config_latents_enabled")]
     pub latents_enabled: Option<bool>,
     pub lockbox: Option<LockboxConfig>,
     pub objective: ObjectiveConfig,
     pub strategies: Option<Vec<String>>,
     pub study: StudyConfig,
     pub walkforward: WalkForwardConfig,
+}
+
+fn default_strategy_search_config_include_risk_search() -> Option<bool> {
+    Some(true)
+}
+
+fn default_strategy_search_config_latents_enabled() -> Option<bool> {
+    Some(true)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2174,12 +2884,17 @@ pub struct StrategySearchResultsResponse {
 pub struct StrategySearchRunListItem {
     pub best_objective_value: Option<f64>,
     pub best_strategy: Option<String>,
+    #[serde(default = "default_strategy_search_run_list_item_candidate_count")]
     pub candidate_count: Option<i64>,
     pub created_at: String,
     pub name: String,
     pub run_id: String,
     pub status: String,
     pub symbol: Option<String>,
+}
+
+fn default_strategy_search_run_list_item_candidate_count() -> Option<i64> {
+    Some(0)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2217,15 +2932,35 @@ pub struct StrategySearchStatusResponse {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StudyConfig {
+    #[serde(default = "default_study_config_continue_on_trial_error")]
     pub continue_on_trial_error: Option<bool>,
     pub direction: Option<String>,
     pub max_workers: Option<i64>,
+    #[serde(default = "default_study_config_n_trials")]
     pub n_trials: Option<i64>,
     pub name: String,
+    #[serde(default = "default_study_config_pruner")]
     pub pruner: Option<String>,
     pub sampler: Option<String>,
+    #[serde(default = "default_study_config_seed")]
     pub seed: Option<i64>,
     pub storage: Option<StorageConfig>,
+}
+
+fn default_study_config_continue_on_trial_error() -> Option<bool> {
+    Some(false)
+}
+
+fn default_study_config_n_trials() -> Option<i64> {
+    Some(50)
+}
+
+fn default_study_config_pruner() -> Option<String> {
+    Some("none".to_owned())
+}
+
+fn default_study_config_seed() -> Option<i64> {
+    Some(42)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2245,11 +2980,31 @@ pub struct SystemHealthResponse {
 pub struct Tick {
     pub ask: f64,
     pub bid: f64,
+    #[serde(default = "default_tick_flags")]
     pub flags: Option<i64>,
+    #[serde(default = "default_tick_last")]
     pub last: Option<f64>,
     pub time: String,
+    #[serde(default = "default_tick_time_msc")]
     pub time_msc: Option<i64>,
+    #[serde(default = "default_tick_volume")]
     pub volume: Option<f64>,
+}
+
+fn default_tick_flags() -> Option<i64> {
+    Some(0)
+}
+
+fn default_tick_last() -> Option<f64> {
+    Some(0.0)
+}
+
+fn default_tick_time_msc() -> Option<i64> {
+    Some(0)
+}
+
+fn default_tick_volume() -> Option<f64> {
+    Some(0.0)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2295,8 +3050,18 @@ pub struct TradeSourceStatus {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TransactionCostConfig {
+    #[serde(default = "default_transaction_cost_config_cost_bps")]
     pub cost_bps: Option<f64>,
+    #[serde(default = "default_transaction_cost_config_cost_per_contract")]
     pub cost_per_contract: Option<f64>,
+}
+
+fn default_transaction_cost_config_cost_bps() -> Option<f64> {
+    Some(0.0)
+}
+
+fn default_transaction_cost_config_cost_per_contract() -> Option<f64> {
+    Some(0.0)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2331,10 +3096,20 @@ pub struct ValidationResult {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct WalkForwardConfig {
     pub max_workers: Option<i64>,
+    #[serde(default = "default_walk_forward_config_min_windows")]
     pub min_windows: Option<i64>,
+    #[serde(default = "default_walk_forward_config_mode")]
     pub mode: Option<String>,
     pub test_days: i64,
     pub train_days: i64,
+}
+
+fn default_walk_forward_config_min_windows() -> Option<i64> {
+    Some(2)
+}
+
+fn default_walk_forward_config_mode() -> Option<String> {
+    Some("rolling".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2365,7 +3140,12 @@ pub struct WalkForwardRunListItem {
     pub status: String,
     pub strategy: Option<String>,
     pub symbol: Option<String>,
+    #[serde(default = "default_walk_forward_run_list_item_window_count")]
     pub window_count: Option<i64>,
+}
+
+fn default_walk_forward_run_list_item_window_count() -> Option<i64> {
+    Some(0)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

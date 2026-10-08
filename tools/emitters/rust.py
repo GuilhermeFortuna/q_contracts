@@ -129,6 +129,19 @@ def _field_name(name: str) -> str:
     return f"r#{name}" if name in RUST_KEYWORDS else name
 
 
+def _string_literal(value: str) -> str:
+    escapes = {"\\": "\\\\", '"': '\\"', "\n": "\\n", "\r": "\\r", "\t": "\\t"}
+    pieces: list[str] = []
+    for char in value:
+        if char in escapes:
+            pieces.append(escapes[char])
+        elif ord(char) < 32:
+            pieces.append(f"\\u{{{ord(char):x}}}")
+        else:
+            pieces.append(char)
+    return '"' + "".join(pieces) + '"'
+
+
 def _type_for(schema: dict[str, Any], ref_map: dict[str, str]) -> str:
     if "$ref" in schema:
         return _ref_name(str(schema["$ref"]), ref_map)
@@ -167,6 +180,7 @@ def _emit_object(
         "#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]",
         f"pub struct {name} {{",
     ]
+    defaults: list[str] = []
     for field in sorted(properties):
         rust_field = _field_name(field)
         if rust_field != field:
@@ -174,8 +188,32 @@ def _emit_object(
         annotation = _type_for(properties[field], ref_map)
         if field not in required and not annotation.startswith("Option<"):
             annotation = f"Option<{annotation}>"
+        value = properties[field].get("default")
+        if field not in required and isinstance(value, (str, bool, int, float)):
+            snake_name = re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
+            snake_field = re.sub(r"(?<!^)(?=[A-Z])", "_", field).lower()
+            default_fn = f"default_{snake_name}_{snake_field}"
+            literal = (
+                _string_literal(value) if isinstance(value, str) else json.dumps(value)
+            )
+            if annotation == "Option<serde_json::Value>":
+                literal = f"serde_json::json!({literal})"
+            elif isinstance(value, str):
+                literal += ".to_owned()"
+            elif annotation == "Option<f64>":
+                literal = repr(float(value))
+            lines.append(f'    #[serde(default = "{default_fn}")]')
+            defaults.extend(
+                [
+                    "",
+                    f"fn {default_fn}() -> {annotation} {{",
+                    f"    Some({literal})",
+                    "}",
+                ]
+            )
         lines.append(f"    pub {rust_field}: {annotation},")
     lines.append("}")
+    lines.extend(defaults)
     return lines
 
 

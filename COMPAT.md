@@ -104,3 +104,15 @@ and Rust API bindings are regenerated. Q-099 and Q-101 must pin the merged
 `q_contracts` commit pushed to the remote and regenerate vendored bindings as
 part of their own reviewed changes. Do not pin this unpublished branch revision.
 
+## 2026-10-08 review fixes
+
+Generated Python and Rust object fields now preserve declared scalar defaults.
+In particular, omitting a run's `origin` yields `stack`; explicit values remain
+unchanged. Rust keeps the existing optional field types and uses Serde defaults
+for omitted fields. TypeScript interfaces remain optional and callers interpret
+an absent origin as `stack`. Regenerate consumer output when adopting this
+revision; no wire fields or enum values changed.
+
+The gateway bar contract also documents that an unfinished bounded history scan
+returns the existing HTTP 500 `internal_error` shape rather than incomplete
+success. No new error code or generated payload is required for that correction.
