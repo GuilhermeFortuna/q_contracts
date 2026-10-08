@@ -8,8 +8,8 @@ table is updated with the consumer commit and verification evidence.
 | --- | --- | --- | --- |
 | `q_contracts` | `818b2823d830f90aaea0e84785e36095768f1fb8` | `818b2823d830f90aaea0e84785e36095768f1fb8` | — |
 | `q_frontend` | `5774b580e8443598ce57a0460752f4ec83c898be` | `8a9c45299842184d73a82c9c4d6c9fb49dc16885` | — |
-| `q_backend` | `f1ab2dee44cebf8d4d29563186f4503127333eb3` (research position context release) | `e06a3c9f7f79517b47bea826ecef8f3527655a73` | `v2026.10.08.2` |
-| `q_core` | `7e189227a51e7b3df50762148df79abdda0bd21e` (`v2026.10.08.2`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
+| `q_backend` | `7d8212dcda9db1d039a3bbe3f8c021f306bb55eb` (Q-104 stop and target orders) | `e06a3c9f7f79517b47bea826ecef8f3527655a73` | `v2026.10.08.3` |
+| `q_core` | `095c2ce507278dcb814b620db1087fa5b77393a9` (`v2026.10.08.3`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
 | `q_terminal` | `e510f504259718b4a2f8acd517da3b99bbee8163` | `998a50570905524bfb9af0465a725b170f2970df` | `v2026.09.12` |
 
 Every commit hash above resolves in its repository; verify with
@@ -139,3 +139,32 @@ success. No new error code or generated payload is required for that correction.
 - The compatibility record passed `q_contracts`' canonical `make check`:
   generated-output verification, Black, Ruff, schema validation, and
   `245 passed, 7 skipped, 1 deselected`.
+
+## Q-104 intermediate core release (2026-10-08)
+
+`q_core` `v2026.10.08.3` resolves to
+`095c2ce507278dcb814b620db1087fa5b77393a9`. It adds lazy custom screen/tick exit
+callbacks and runtime entry-level transport, preserving legacy callbacks.
+Fresh `make check` passed, covering Rust tests, fixtures, parity isolation,
+Python wheel integration, the Qt harness and contracts drift. Publication's
+pre-push CI also passed. Backend adoption and its verification are still in
+progress under Q-104; update the backend row when its consumer commit is verified.
+
+## Q-104 backend adoption (2026-10-08)
+
+- `q_backend` at `7d8212dcda9db1d039a3bbe3f8c021f306bb55eb` pins `q-core` to the
+  published tag `v2026.10.08.3`, which resolves to
+  `095c2ce507278dcb814b620db1087fa5b77393a9`. `uv.lock` records the same commit.
+  The package version is `2026.10.8` and the contracts revision is `998a5057`.
+- The adoption adds entry stop and take-profit levels, confirmed from a
+  `TickStore`, and phase-aware exit screening and tick replay to research
+  backtests. It changes no wire contracts, generated schemas, or fixture pins.
+  Job and publish payloads are unchanged because the new trade fields are not
+  serialised.
+- Verification on the consumer commit: the research, backtesting and execution
+  suites passed (`1058 passed, 11 skipped`); the API payload and backtest tests
+  passed (`93 passed`); ruff and black passed on changed paths. Seven integration
+  tests that need Postgres and Redis were not run in this environment. The
+  pre-push CI that runs them has not been run for this commit.
+- Known limitation, a follow-up in `q_core`: a wrong-side entry is reported in
+  `rejected_entries` even when the position cap would also skip it.
