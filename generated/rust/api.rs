@@ -494,6 +494,8 @@ pub struct ChartIndicatorSeries {
     pub color: Option<String>,
     pub key: String,
     pub label: String,
+    pub line_style: Option<String>,
+    pub line_width: Option<f64>,
     pub pane: String,
     pub values: Vec<Option<f64>>,
 }
@@ -674,6 +676,8 @@ pub struct DeploymentChartIndicator {
     pub color: Option<String>,
     pub key: String,
     pub label: String,
+    pub line_style: Option<String>,
+    pub line_width: Option<f64>,
     pub pane: String,
     pub values: Vec<Option<f64>>,
 }

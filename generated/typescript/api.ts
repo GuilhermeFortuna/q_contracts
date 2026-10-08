@@ -306,6 +306,8 @@ export interface ChartIndicatorSeries {
   color?: string | null
   key: string
   label: string
+  line_style?: "solid" | "dashed" | "dotted" | null
+  line_width?: number | null
   pane: "price" | "oscillator"
   values: Array<number | null>
 }
@@ -448,6 +450,8 @@ export interface DeploymentChartIndicator {
   color?: string | null
   key: string
   label: string
+  line_style?: "solid" | "dashed" | "dotted" | null
+  line_width?: number | null
   pane: "price" | "oscillator"
   values: Array<number | null>
 }
