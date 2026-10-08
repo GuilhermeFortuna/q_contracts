@@ -48,4 +48,4 @@
 
 - [x] Run `make check` once after the final change (`240 passed, 7 skipped, 1 deselected`).
 - [x] Record the commands actually run and their results in this plan; do not claim unrun checks passed.
-- [ ] Use `./work board set Q-097 in-review -m "<changes; checks and results; follow-ups>"`. State that Q-099 and Q-101 need the merged commit pushed to the remote.
+- [x] Use `./work board set Q-097 in-review -m "<changes; checks and results; follow-ups>"`. State that Q-099 and Q-101 need the merged commit pushed to the remote.
