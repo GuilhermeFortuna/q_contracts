@@ -736,6 +736,64 @@ components:
       - indicators
       title: BacktestResponse
       type: object
+    BacktestImportRequest:
+      properties:
+        config:
+          $ref: '#/components/schemas/BacktestRequest'
+        provenance:
+          $ref: '#/components/schemas/BacktestProvenance'
+        result:
+          $ref: '#/components/schemas/BacktestResponse'
+      required:
+      - config
+      - result
+      - provenance
+      title: BacktestImportRequest
+      type: object
+    BacktestImportResponse:
+      properties:
+        run_id:
+          title: Run Id
+          type: string
+      required:
+      - run_id
+      title: BacktestImportResponse
+      type: object
+    BacktestOrigin:
+      default: stack
+      enum:
+      - stack
+      - script
+      title: BacktestOrigin
+      type: string
+    BacktestProvenance:
+      properties:
+        git_dirty:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Git Dirty
+        git_revision:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Git Revision
+        script:
+          title: Script
+          type: string
+        strategy_class:
+          title: Strategy Class
+          type: string
+        strategy_source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Strategy Source
+      required:
+      - script
+      - strategy_class
+      title: BacktestProvenance
+      type: object
     BacktestRunDetailResponse:
       properties:
         config:
@@ -761,6 +819,14 @@ components:
           default: false
           title: Is Saved
           type: boolean
+        origin:
+          $ref: '#/components/schemas/BacktestOrigin'
+          default: stack
+        provenance:
+          anyOf:
+          - $ref: '#/components/schemas/BacktestProvenance'
+          - type: 'null'
+          title: Provenance
         result_summary:
           anyOf:
           - additionalProperties: true
@@ -808,6 +874,9 @@ components:
           default: false
           title: Is Saved
           type: boolean
+        origin:
+          $ref: '#/components/schemas/BacktestOrigin'
+          default: stack
         run_id:
           title: Run Id
           type: string
@@ -8123,6 +8192,11 @@ paths:
           title: Offset
           type: integer
       - in: query
+        name: origin
+        required: false
+        schema:
+          $ref: '#/components/schemas/BacktestOrigin'
+      - in: query
         name: symbol
         required: false
         schema:
@@ -8171,6 +8245,39 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
       summary: List Backtests
+      tags:
+      - backtest
+  /api/v1/backtests/import:
+    post:
+      description: 'Import a finished backtest produced outside the stack (for example
+        by a research script). Service-owned rules: ``result.bars`` must be non-empty
+        and ascending in time; every indicator series in ``result.indicators`` must
+        have one value per bar; ``config.ml_filter`` must be absent; each accepted
+        import creates a new run (``result.run_id`` is ignored on input). Script runs
+        are reviewable in history but are not inputs to re-run, optimisation, walk-forward
+        or ML filter training. Retrying the request without an idempotency key creates
+        a second run.'
+      operationId: import_backtest_api_v1_backtests_import_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BacktestImportRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BacktestImportResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Import Backtest
       tags:
       - backtest
   /api/v1/backtests/bulk-delete:

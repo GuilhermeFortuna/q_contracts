@@ -95,3 +95,12 @@ additive and YAML-only with no generated output changes. Q-093 updates
 `q_backend`'s `CONTRACTS_REV` to the merged `q_contracts` commit; no consumer
 regeneration is needed. Do not pin this unpublished branch revision.
 
+## Q-097 imported backtest runs handoff
+
+Q-097 adds `POST /api/v1/backtests/import`, `BacktestProvenance`, and `origin`
+(`stack` or `script`) on backtest run list and detail responses plus an optional
+`origin` filter on `GET /api/v1/backtests`. The change is additive; TypeScript
+and Rust API bindings are regenerated. Q-099 and Q-101 must pin the merged
+`q_contracts` commit pushed to the remote and regenerate vendored bindings as
+part of their own reviewed changes. Do not pin this unpublished branch revision.
+

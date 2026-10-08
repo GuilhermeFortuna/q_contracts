@@ -75,6 +75,21 @@ Contracts follow one-way pinned vendoring (`q_contracts` -> consumers):
 2. **`q_backend` (Q-067 & Q-068):** Pins `q_contracts` commit, vendors Python models, implements catalog/create/edit routes and paper performance endpoints, and recaptures `openapi.yaml`.
 3. **`q_terminal` (Q-069):** Pins `q_contracts` commit, vendors TypeScript / Rust models, and implements terminal configuration editing and performance UI.
 
+## Imported backtest runs
+
+Task **Q-097** adds `POST /api/v1/backtests/import`, which accepts a finished
+`BacktestRequest` configuration, a full `BacktestResponse` result, and a
+`BacktestProvenance` record for runs produced outside the stack (for example by a
+research script).
+
+Run history exposes an `origin` field (`stack` or `script`, default `stack`) on
+list items and detail responses. `GET /api/v1/backtests` accepts an optional
+`origin` query filter. Script runs may include `provenance` on the detail
+response.
+
+Script-origin runs are reviewable in Backtests history but are not inputs to
+re-run, optimisation, walk-forward, or ML filter training.
+
 ## Populating Task
 
-This boundary is populated by task **Q-003** (`Control API and Columnar Schemas`), extended by **Q-039** (`Execution event payloads and command idempotency`), and extended by **Q-066** (`Paper deployment contract extensions`).
+This boundary is populated by task **Q-003** (`Control API and Columnar Schemas`), extended by **Q-039** (`Execution event payloads and command idempotency`), and extended by **Q-066** (`Paper deployment contract extensions`), and extended by **Q-097** (`Imported backtest runs in the control API`).

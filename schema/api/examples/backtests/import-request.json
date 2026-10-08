@@ -1,0 +1,41 @@
+{
+  "config": {
+    "symbol": "WIN$N",
+    "timeframe": "M5",
+    "strategy": "ScriptStrategy",
+    "strategy_params": {
+      "fast_period": 9,
+      "slow_period": 21
+    },
+    "start": "2024-01-02T10:00:00-03:00",
+    "end": "2024-01-02T17:00:00-03:00",
+    "engine": "candle",
+    "initial_capital": 100000.0,
+    "point_value": 0.2
+  },
+  "result": {
+    "metrics": {
+      "total_pnl": 1500.0,
+      "trade_count": 2
+    },
+    "trades": [],
+    "bars": [
+      {
+        "timestamp": 1704193200,
+        "open": 128500.0,
+        "high": 128520.0,
+        "low": 128490.0,
+        "close": 128510.0,
+        "volume": 1200
+      }
+    ],
+    "indicators": []
+  },
+  "provenance": {
+    "script": "research/scripts/run_backtest.py",
+    "strategy_class": "my_strategies.MaCross",
+    "strategy_source": "class MaCross(Strategy): ...",
+    "git_revision": "abc123def456",
+    "git_dirty": false
+  }
+}

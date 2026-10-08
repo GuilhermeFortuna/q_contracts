@@ -6,7 +6,7 @@
 **Architecture:** One additive endpoint and three additive fields in the OpenAPI document; generated types flow to `q_backend` and `q_frontend`.
 **Tech stack:** OpenAPI, the repository's Python generator, Python/TypeScript/Rust outputs, pytest.
 **Spec:** [Specification](../specs/Q-097-imported-backtest-runs-in-the-control-api-spec.md)
-**Status:** written plan awaiting human review.
+**Status:** implemented on task branch; awaiting merge.
 
 ## Global constraints
 
@@ -29,23 +29,23 @@
 **Files:** Modify `schema/api/openapi.yaml`; add fixtures under `schema/api/examples/`; create `tests/test_backtest_import_contracts.py`.
 **Interfaces:** `BacktestImportRequest`, `BacktestImportResponse`, `BacktestProvenance`; `origin` on `BacktestRunListItem` and `BacktestRunDetailResponse`; `provenance` on the detail; `origin` query parameter on the run list.
 
-- [ ] Add failing tests: a complete import fixture validates; fixtures missing `config`, `result` or `provenance` are rejected; an `origin` outside the enum is rejected; existing run list and detail fixtures still validate.
-- [ ] Run `uv run pytest tests/test_backtest_import_contracts.py tests/test_api_consistency.py -q` and confirm the new cases fail because the schemas are missing.
-- [ ] Add the schemas, the path and the query parameter as the spec defines them.
-- [ ] Run the same command and confirm it passes.
-- [ ] Commit this unit.
+- [x] Add failing tests: a complete import fixture validates; fixtures missing `config`, `result` or `provenance` are rejected; an `origin` outside the enum is rejected; existing run list and detail fixtures still validate.
+- [x] Run `uv run pytest tests/test_backtest_import_contracts.py tests/test_api_consistency.py -q` and confirm the new cases fail because the schemas are missing.
+- [x] Add the schemas, the path and the query parameter as the spec defines them.
+- [x] Run the same command and confirm it passes (`21 passed`).
+- [x] Commit this unit.
 
 ### 2. Generate outputs and document
 
 **Files:** Modify `generated/` through the generator; extend `tests/test_generate.py`; modify `schema/api/README.md` and `COMPAT.md`.
 
-- [ ] Add a failing generator test that the three outputs carry the `origin` enum and the `BacktestProvenance` fields.
-- [ ] Regenerate, then run `make check`.
-- [ ] Write the README section and the `COMPAT.md` entry.
-- [ ] Commit this unit.
+- [x] Add a failing generator test that the three outputs carry the `origin` enum and the `BacktestProvenance` fields.
+- [x] Regenerate, then run `make check`.
+- [x] Write the README section and the `COMPAT.md` entry.
+- [x] Commit this unit.
 
 ## Verification and handoff
 
-- [ ] Run `make check` once after the final change.
-- [ ] Record the commands actually run and their results in this plan; do not claim unrun checks passed.
-- [ ] Use `./work board set Q-097 in-review -m "<changes; checks and results; follow-ups>"`. State that Q-099 and Q-101 need the merged commit pushed to the remote.
+- [x] Run `make check` once after the final change (`240 passed, 7 skipped, 1 deselected`).
+- [x] Record the commands actually run and their results in this plan; do not claim unrun checks passed.
+- [x] Use `./work board set Q-097 in-review -m "<changes; checks and results; follow-ups>"`. State that Q-099 and Q-101 need the merged commit pushed to the remote.
