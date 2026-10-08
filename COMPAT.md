@@ -8,8 +8,8 @@ table is updated with the consumer commit and verification evidence.
 | --- | --- | --- | --- |
 | `q_contracts` | `818b2823d830f90aaea0e84785e36095768f1fb8` | `818b2823d830f90aaea0e84785e36095768f1fb8` | — |
 | `q_frontend` | `5774b580e8443598ce57a0460752f4ec83c898be` | `8a9c45299842184d73a82c9c4d6c9fb49dc16885` | — |
-| `q_backend` | `25a1a84d7225743fbbeda809342f3e6f1d4a6d65` (Q-044) | `4e874974e64eef48f375acb3aae10c56380ea6e0` | `v2026.09.15.2` |
-| `q_core` | `415aa59a419bf9a9c7d6bef67d157ddafd09bc40` (`v2026.09.15.2`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
+| `q_backend` | `f1ab2dee44cebf8d4d29563186f4503127333eb3` (research position context release) | `e06a3c9f7f79517b47bea826ecef8f3527655a73` | `v2026.10.08.2` |
+| `q_core` | `7e189227a51e7b3df50762148df79abdda0bd21e` (`v2026.10.08.2`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
 | `q_terminal` | `e510f504259718b4a2f8acd517da3b99bbee8163` | `998a50570905524bfb9af0465a725b170f2970df` | `v2026.09.12` |
 
 Every commit hash above resolves in its repository; verify with
@@ -18,16 +18,15 @@ this table carried a `q_core` hash that resolved nowhere.
 
 ### Open drift
 
-Three different contracts revisions are in use: `q_backend` at `4e87497`,
+Three different contracts revisions are in use: `q_backend` at `e06a3c9`,
 `q_core` and `q_terminal` at `998a5057`, and `q_frontend` at `8a9c452`. Each
 repository's `make contracts-check` passes against the revision it pins, so no
 repository is internally inconsistent, but no single revision is shared across
-the workspace. Closing this means re-vendoring `q_core`, `q_terminal` and
-`q_frontend` at `09400d7` and re-verifying each — a change large enough to
-belong to its own board task, not a pin-record edit.
+the workspace. Aligning revisions requires coordinated re-vendoring and
+verification as a separate task.
 
 The two `q_core` tags in use also differ: `q_terminal` still links
-`v2026.09.12` while `q_backend` pins `v2026.09.15.2`.
+`v2026.09.12` while `q_backend` pins `v2026.10.08.2`.
 
 ## Reference fixture pins
 
@@ -54,8 +53,8 @@ payload-handling role.
 
 ## Verified by
 
-Every row above was re-verified together on 2026-09-16, each repository at the
-commit its row names:
+The September baseline was verified together on 2026-09-16 at the commits
+listed below. Later consumer adoptions are recorded in the dated sections:
 
 - `q_contracts` at `818b282` — `make check`: clean generated-output drift check,
   Black, Ruff, schema validation, `131 passed, 7 skipped`.
@@ -116,3 +115,27 @@ revision; no wire fields or enum values changed.
 The gateway bar contract also documents that an unfinished bounded history scan
 returns the existing HTTP 500 `internal_error` shape rather than incomplete
 success. No new error code or generated payload is required for that correction.
+
+## 2026-10-08 research position context release
+
+- `q_core` tag `v2026.10.08.2` resolves to
+  `7e189227a51e7b3df50762148df79abdda0bd21e`. `make check` passed: formatting,
+  workspace Clippy and tests, reference fixture verification, parity isolation,
+  Python wheel integration tests, Qt C++ harness, and vendored contract verification.
+  The normal pre-push CI also passed before publishing the commit and tag.
+- `q_backend` at `f1ab2dee44cebf8d4d29563186f4503127333eb3` pins this published
+  tag and exact core commit in `pyproject.toml` and `uv.lock`. `uv sync` installed
+  the release; inspection confirmed the candle `strategy_callback` API and the
+  public `ResearchPosition` export. The research suite and focused engine, bridge,
+  signal, and registry baseline tests passed (`229 passed`, two existing Pydantic
+  deprecation warnings) against the published dependency.
+  Publication then passed the normal full pre-push CI: vendored contracts,
+  migrations, Ruff, Black, `2499 passed, 15 skipped` unit tests, and
+  `56 passed` integration tests against disposable PostgreSQL and Redis services.
+- This adoption adds optional actual-position context to research strategy hooks.
+  It changes no wire contracts, generated schemas, or fixture provenance pins.
+  The package version is `2026.10.8`; the release tag distinguishes this second
+  release of the day from `v2026.10.08`.
+- The compatibility record passed `q_contracts`' canonical `make check`:
+  generated-output verification, Black, Ruff, schema validation, and
+  `245 passed, 7 skipped, 1 deselected`.
