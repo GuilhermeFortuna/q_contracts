@@ -179,6 +179,29 @@ pub struct BacktestEquityArtifactResponse {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct BacktestImportRequest {
+    pub config: BacktestRequest,
+    pub provenance: BacktestProvenance,
+    pub result: BacktestResponse,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct BacktestImportResponse {
+    pub run_id: String,
+}
+
+pub type BacktestOrigin = String;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct BacktestProvenance {
+    pub git_dirty: Option<bool>,
+    pub git_revision: Option<String>,
+    pub script: String,
+    pub strategy_class: String,
+    pub strategy_source: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BacktestRequest {
     pub costs: Option<TransactionCostConfig>,
     pub day_trade: Option<bool>,
@@ -220,6 +243,8 @@ pub struct BacktestRunDetailResponse {
     pub error_message: Option<String>,
     pub finished_at: Option<String>,
     pub is_saved: Option<bool>,
+    pub origin: Option<BacktestOrigin>,
+    pub provenance: Option<BacktestProvenance>,
     pub result_summary: Option<serde_json::Value>,
     pub run_id: String,
     pub started_at: Option<String>,
@@ -233,6 +258,7 @@ pub struct BacktestRunDetailResponse {
 pub struct BacktestRunListItem {
     pub created_at: String,
     pub is_saved: Option<bool>,
+    pub origin: Option<BacktestOrigin>,
     pub run_id: String,
     pub status: String,
     pub strategy: String,

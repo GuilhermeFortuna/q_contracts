@@ -159,6 +159,26 @@ export interface BacktestEquityArtifactResponse {
   run_id: string
 }
 
+export interface BacktestImportRequest {
+  config: BacktestRequest
+  provenance: BacktestProvenance
+  result: BacktestResponse
+}
+
+export interface BacktestImportResponse {
+  run_id: string
+}
+
+export type BacktestOrigin = "stack" | "script"
+
+export interface BacktestProvenance {
+  git_dirty?: boolean | null
+  git_revision?: string | null
+  script: string
+  strategy_class: string
+  strategy_source?: string | null
+}
+
 export interface BacktestRequest {
   costs?: TransactionCostConfig | null
   day_trade?: boolean
@@ -198,6 +218,8 @@ export interface BacktestRunDetailResponse {
   error_message?: string | null
   finished_at?: string | null
   is_saved?: boolean
+  origin?: BacktestOrigin
+  provenance?: BacktestProvenance | null
   result_summary?: Record<string, unknown> | null
   run_id: string
   started_at?: string | null
@@ -210,6 +232,7 @@ export interface BacktestRunDetailResponse {
 export interface BacktestRunListItem {
   created_at: string
   is_saved?: boolean
+  origin?: BacktestOrigin
   run_id: string
   status: string
   strategy: string
