@@ -9,7 +9,7 @@ table is updated with the consumer commit and verification evidence.
 | `q_contracts` | `818b2823d830f90aaea0e84785e36095768f1fb8` | `818b2823d830f90aaea0e84785e36095768f1fb8` | — |
 | `q_frontend` | `5774b580e8443598ce57a0460752f4ec83c898be` | `8a9c45299842184d73a82c9c4d6c9fb49dc16885` | — |
 | `q_backend` | `f1ab2dee44cebf8d4d29563186f4503127333eb3` (research position context release) | `e06a3c9f7f79517b47bea826ecef8f3527655a73` | `v2026.10.08.2` |
-| `q_core` | `7e189227a51e7b3df50762148df79abdda0bd21e` (`v2026.10.08.2`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
+| `q_core` | `095c2ce507278dcb814b620db1087fa5b77393a9` (`v2026.10.08.3`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
 | `q_terminal` | `e510f504259718b4a2f8acd517da3b99bbee8163` | `998a50570905524bfb9af0465a725b170f2970df` | `v2026.09.12` |
 
 Every commit hash above resolves in its repository; verify with
@@ -139,3 +139,13 @@ success. No new error code or generated payload is required for that correction.
 - The compatibility record passed `q_contracts`' canonical `make check`:
   generated-output verification, Black, Ruff, schema validation, and
   `245 passed, 7 skipped, 1 deselected`.
+
+## Q-104 intermediate core release (2026-10-08)
+
+`q_core` `v2026.10.08.3` resolves to
+`095c2ce507278dcb814b620db1087fa5b77393a9`. It adds lazy custom screen/tick exit
+callbacks and runtime entry-level transport, preserving legacy callbacks.
+Fresh `make check` passed, covering Rust tests, fixtures, parity isolation,
+Python wheel integration, the Qt harness and contracts drift. Publication's
+pre-push CI also passed. Backend adoption and its verification are still in
+progress under Q-104; update the backend row when its consumer commit is verified.
