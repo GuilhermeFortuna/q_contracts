@@ -124,7 +124,10 @@ def test_gateway_routes_parse():
         "/v1/symbols/search",
         "/v1/available_range",
         "/v1/ohlcv",
+        "/v1/ohlcv/recent",
         "/v1/ticks",
+        "/v1/ticks/page",
+        "/v1/trades",
     }
 
 

@@ -139,7 +139,7 @@ endpoints:
       content_type: application/octet-stream
       format: npz
       equal_length_requirement: true
-      arrays:
+      arrays: &ohlcv_columns
         time:
           dtype: int64
           description: Raw MT5 epoch seconds.
@@ -176,6 +176,22 @@ endpoints:
           Request again with start set to one second after the last returned bar's
           time and the same end, and repeat until a response reports truncated: false.
           A continuation response may hold no bars.
+
+  /v1/ohlcv/recent:
+    method: GET
+    description: >
+      Existing bounded recent-bar endpoint, recorded here to keep gateway route
+      discovery consistent. Includes the latest forming bar when MT5 supplies it.
+    query_parameters:
+      symbol: {type: string, required: true}
+      timeframe: {type: string, required: true}
+      count: {type: integer, required: true, minimum: 1, maximum: 5000}
+    response:
+      status: 200
+      content_type: application/octet-stream
+      format: npz
+      equal_length_requirement: true
+      arrays: *ohlcv_columns
 
   /v1/ticks:
     method: GET
@@ -225,6 +241,50 @@ endpoints:
         flags:
           dtype: int32
           description: Tick state and event flags.
+
+  /v1/ticks/page:
+    method: GET
+    description: >
+      Bounded forward scan of COPY_TICKS_ALL history using raw MT5 epoch milliseconds.
+      The initial call triggers terminal history synchronization; returned ticks are reused,
+      not fetched again for verification. A successful scan can jump across empty dates.
+      Native errors (including partial results with an error) fail the page, never confirm
+      empty history. A full batch withholds its last timestamp group and returns that
+      timestamp as the inclusive next cursor. The binding's second precision may replay
+      a prefix which is filtered against start_msc. Batches expand up to one million rows
+      if necessary to preserve duplicate timestamps and make progress. limit is a target,
+      not a hard returned-row limit; every response has fewer than one million rows.
+      Exhaustion describes this successful provider response, not global broker retention.
+    query_parameters:
+      symbol: {type: string, required: true}
+      start_msc: {type: integer, required: true, minimum: 1}
+      end_msc: {type: integer, required: true, exclusive: true, description: Must exceed start_msc.}
+      limit: {type: integer, required: false, default: 250000, minimum: 1, maximum: 1000000}
+    response:
+      status: 200
+      content_type: application/octet-stream
+      format: npz
+      equal_length_requirement: true
+      arrays:
+        time_msc: {dtype: int64}
+        bid: {dtype: float64}
+        ask: {dtype: float64}
+        last: {dtype: float64}
+        volume: {dtype: float64}
+        flags: {dtype: int32}
+      metadata:
+        next_cursor_msc: {type: [integer, "null"], description: Null exactly when exhausted; otherwise greater than start_msc and last_msc, less than end_msc.}
+        exhausted: {type: boolean}
+        first_msc: {type: [integer, "null"]}
+        last_msc: {type: [integer, "null"]}
+        row_count: {type: integer, minimum: 0}
+    errors:
+      invalid_range: 400
+      symbol_not_found: 404
+      ticks_unavailable: 503
+      tick_page_no_progress: 503
+      ticks_busy: 503
+      ticks_timeout: 503
 
   /v1/trades:
     method: GET
