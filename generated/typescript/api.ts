@@ -598,6 +598,18 @@ export interface DiscoveryAbStatusResponse {
   status: "queued" | "running" | "completed" | "failed"
 }
 
+export interface DiscoveryCandidateActivityResponse {
+  candidate_id: string
+  finished_windows: number
+  generation?: number | null
+  phase: string
+  strategy: string
+  total_windows: number
+  trial_budget: number
+  trials: number
+  window_index?: number | null
+}
+
 export interface EdgeStatusResponse {
   checked_at?: string | null
   mt5_connected?: boolean | null
@@ -1928,10 +1940,12 @@ export interface StrategySearchConfig {
 }
 
 export interface StrategySearchResultsResponse {
+  artifacts_available?: boolean
   best?: StrategySearchCandidateResponse | null
   candidates: Array<StrategySearchCandidateResponse>
   lake_paths?: Record<string, unknown> | null
   objective_mode?: string | null
+  provisional?: boolean
   run_id: string
   search_config?: Record<string, unknown> | null
   status: string
@@ -1962,21 +1976,51 @@ export interface StrategySearchStartResponse {
 }
 
 export interface StrategySearchStatusResponse {
+  active_candidates?: Array<DiscoveryCandidateActivityResponse>
   backtest_config?: Record<string, unknown> | null
   candidate_id?: string | null
+  completed_candidates?: number | null
   current_candidate: number
   error?: string | null
+  finished_at?: string | null
+  finished_windows?: number | null
   generation?: number | null
   logs?: Array<string> | null
   phase?: "optimizing" | "testing" | "done" | null
+  planned_windows?: number | null
+  progress?: number | null
   run_id: string
   search_config?: Record<string, unknown> | null
+  settled_trials?: number | null
+  stage?: string | null
+  started_at?: string | null
   status: string
   strategy?: string | null
   total_candidates: number
   total_generations?: number | null
   total_windows?: number | null
   window_index?: number | null
+}
+
+export interface StrategySearchTrialResponse {
+  candidate_id: string
+  error?: string | null
+  finished_at?: string | null
+  generation: number
+  metrics: Record<string, unknown>
+  objective_value?: number | null
+  parameters: Record<string, unknown>
+  started_at?: string | null
+  state: "completed" | "pruned" | "error"
+  trial_number: number
+  window_index: number
+}
+
+export interface StrategySearchTrialsResponse {
+  items: Array<StrategySearchTrialResponse>
+  limit: number
+  offset: number
+  total: number
 }
 
 export interface StudyConfig {

@@ -873,6 +873,19 @@ fn default_discovery_ab_status_response_progress() -> Option<f64> {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DiscoveryCandidateActivityResponse {
+    pub candidate_id: String,
+    pub finished_windows: i64,
+    pub generation: Option<i64>,
+    pub phase: String,
+    pub strategy: String,
+    pub total_windows: i64,
+    pub trial_budget: i64,
+    pub trials: i64,
+    pub window_index: Option<i64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EdgeStatusResponse {
     pub checked_at: Option<String>,
     pub mt5_connected: Option<bool>,
@@ -2874,14 +2887,26 @@ fn default_strategy_search_config_latents_enabled() -> Option<bool> {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StrategySearchResultsResponse {
+    #[serde(default = "default_strategy_search_results_response_artifacts_available")]
+    pub artifacts_available: Option<bool>,
     pub best: Option<StrategySearchCandidateResponse>,
     pub candidates: Vec<StrategySearchCandidateResponse>,
     pub lake_paths: Option<serde_json::Value>,
     pub objective_mode: Option<String>,
+    #[serde(default = "default_strategy_search_results_response_provisional")]
+    pub provisional: Option<bool>,
     pub run_id: String,
     pub search_config: Option<serde_json::Value>,
     pub status: String,
     pub summary: Option<serde_json::Value>,
+}
+
+fn default_strategy_search_results_response_artifacts_available() -> Option<bool> {
+    Some(true)
+}
+
+fn default_strategy_search_results_response_provisional() -> Option<bool> {
+    Some(false)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2917,21 +2942,53 @@ pub struct StrategySearchStartResponse {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StrategySearchStatusResponse {
+    pub active_candidates: Option<Vec<DiscoveryCandidateActivityResponse>>,
     pub backtest_config: Option<serde_json::Value>,
     pub candidate_id: Option<String>,
+    pub completed_candidates: Option<i64>,
     pub current_candidate: f64,
     pub error: Option<String>,
+    pub finished_at: Option<String>,
+    pub finished_windows: Option<i64>,
     pub generation: Option<i64>,
     pub logs: Option<Vec<String>>,
     pub phase: Option<String>,
+    pub planned_windows: Option<i64>,
+    pub progress: Option<f64>,
     pub run_id: String,
     pub search_config: Option<serde_json::Value>,
+    pub settled_trials: Option<i64>,
+    pub stage: Option<String>,
+    pub started_at: Option<String>,
     pub status: String,
     pub strategy: Option<String>,
     pub total_candidates: i64,
     pub total_generations: Option<i64>,
     pub total_windows: Option<i64>,
     pub window_index: Option<i64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct StrategySearchTrialResponse {
+    pub candidate_id: String,
+    pub error: Option<String>,
+    pub finished_at: Option<String>,
+    pub generation: i64,
+    pub metrics: serde_json::Value,
+    pub objective_value: Option<f64>,
+    pub parameters: serde_json::Value,
+    pub started_at: Option<String>,
+    pub state: String,
+    pub trial_number: i64,
+    pub window_index: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct StrategySearchTrialsResponse {
+    pub items: Vec<StrategySearchTrialResponse>,
+    pub limit: i64,
+    pub offset: i64,
+    pub total: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

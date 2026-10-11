@@ -6482,6 +6482,14 @@ components:
           default: {}
           title: Summary
           type: object
+        provisional:
+          default: false
+          title: Provisional
+          type: boolean
+        artifacts_available:
+          default: true
+          title: Artifacts Available
+          type: boolean
       required:
       - run_id
       - status
@@ -6642,6 +6650,54 @@ components:
           - type: integer
           - type: 'null'
           title: Window Index
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Started At
+        finished_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Finished At
+        progress:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Progress
+        completed_candidates:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Completed Candidates
+        finished_windows:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Finished Windows
+        planned_windows:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Planned Windows
+        settled_trials:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Settled Trials
+        stage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Stage
+        active_candidates:
+          default: []
+          items:
+            $ref: '#/components/schemas/DiscoveryCandidateActivityResponse'
+          title: Active Candidates
+          type: array
       required:
       - run_id
       - status
@@ -8098,6 +8154,133 @@ components:
         roc_auc:
           $ref: '#/components/schemas/MlFilterNullableFloat'
       title: MlFilterValidationMetrics
+      type: object
+    DiscoveryCandidateActivityResponse:
+      properties:
+        candidate_id:
+          title: Candidate Id
+          type: string
+        finished_windows:
+          title: Finished Windows
+          type: integer
+        generation:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Generation
+        phase:
+          title: Phase
+          type: string
+        strategy:
+          title: Strategy
+          type: string
+        total_windows:
+          title: Total Windows
+          type: integer
+        trial_budget:
+          title: Trial Budget
+          type: integer
+        trials:
+          title: Trials
+          type: integer
+        window_index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Window Index
+      required:
+      - candidate_id
+      - strategy
+      - total_windows
+      - finished_windows
+      - phase
+      - trials
+      - trial_budget
+      title: DiscoveryCandidateActivityResponse
+      type: object
+    StrategySearchTrialResponse:
+      properties:
+        candidate_id:
+          title: Candidate Id
+          type: string
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+        finished_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Finished At
+        generation:
+          title: Generation
+          type: integer
+        metrics:
+          additionalProperties: true
+          title: Metrics
+          type: object
+        objective_value:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Objective Value
+        parameters:
+          additionalProperties: true
+          title: Parameters
+          type: object
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Started At
+        state:
+          enum:
+          - completed
+          - pruned
+          - error
+          title: State
+          type: string
+        trial_number:
+          title: Trial Number
+          type: integer
+        window_index:
+          title: Window Index
+          type: integer
+      required:
+      - candidate_id
+      - generation
+      - window_index
+      - trial_number
+      - state
+      - parameters
+      - metrics
+      title: StrategySearchTrialResponse
+      type: object
+    StrategySearchTrialsResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/StrategySearchTrialResponse'
+          title: Items
+          type: array
+        limit:
+          title: Limit
+          type: integer
+        offset:
+          title: Offset
+          type: integer
+        total:
+          title: Total
+          type: integer
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      title: StrategySearchTrialsResponse
       type: object
 info:
   description: Backend API for fetching market data and executing orders using MetaTrader
@@ -12282,3 +12465,130 @@ paths:
       summary: Get Ml Filter Training Status
       tags:
       - ml-filters
+  /api/v1/strategy-search/{run_id}/trials:
+    get:
+      operationId: get_strategy_search_trials_api_v1_strategy_search__run_id__trials_get
+      parameters:
+      - in: path
+        name: run_id
+        required: true
+        schema:
+          title: Run Id
+          type: string
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 500
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+      - in: query
+        name: candidate_id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Candidate Id
+      - in: query
+        name: generation
+        required: false
+        schema:
+          anyOf:
+          - minimum: -1
+            type: integer
+          - type: 'null'
+          title: Generation
+      - in: query
+        name: window_index
+        required: false
+        schema:
+          anyOf:
+          - minimum: 0
+            type: integer
+          - type: 'null'
+          title: Window Index
+      - in: query
+        name: state
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - completed
+            - pruned
+            - error
+            type: string
+          - type: 'null'
+          title: State
+      - in: query
+        name: objective_min
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Objective Min
+      - in: query
+        name: objective_max
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Objective Max
+      - in: query
+        name: q
+        required: false
+        schema:
+          anyOf:
+          - maxLength: 200
+            type: string
+          - type: 'null'
+          title: Q
+      - in: query
+        name: sort
+        required: false
+        schema:
+          default: finished_at
+          enum:
+          - finished_at
+          - trial_number
+          - objective_value
+          - candidate_id
+          - window_index
+          - state
+          title: Sort
+          type: string
+      - in: query
+        name: descending
+        required: false
+        schema:
+          default: true
+          title: Descending
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StrategySearchTrialsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Strategy Search Trials
+      tags:
+      - strategy-search
