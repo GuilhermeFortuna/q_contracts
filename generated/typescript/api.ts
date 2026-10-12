@@ -169,6 +169,12 @@ export interface BacktestImportResponse {
   run_id: string
 }
 
+export interface BacktestNote {
+  code: string
+  details?: Record<string, unknown>
+  message: string
+}
+
 export type BacktestOrigin = "stack" | "script"
 
 export interface BacktestProvenance {
@@ -208,6 +214,7 @@ export interface BacktestResponse {
   indicators: Array<ChartIndicatorSeries>
   metrics: Record<string, unknown>
   ml_filter_summary?: MlFilterBacktestSummary | null
+  notes?: Array<BacktestNote>
   run_id?: string | null
   trades: Array<Record<string, unknown>>
 }

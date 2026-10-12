@@ -260,6 +260,13 @@ pub struct BacktestImportResponse {
     pub run_id: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct BacktestNote {
+    pub code: String,
+    pub details: Option<serde_json::Value>,
+    pub message: String,
+}
+
 pub type BacktestOrigin = String;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -352,6 +359,7 @@ pub struct BacktestResponse {
     pub indicators: Vec<ChartIndicatorSeries>,
     pub metrics: serde_json::Value,
     pub ml_filter_summary: Option<MlFilterBacktestSummary>,
+    pub notes: Option<Vec<BacktestNote>>,
     pub run_id: Option<String>,
     pub trades: Vec<serde_json::Value>,
 }
