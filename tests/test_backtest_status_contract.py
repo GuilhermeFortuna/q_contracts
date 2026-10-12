@@ -20,6 +20,8 @@ PROGRESS_FIELDS = (
     "bars_total",
     "candles_replayed",
     "candles_substituted",
+    "activity",
+    "phase_history",
 )
 
 
@@ -93,6 +95,13 @@ def test_each_documented_phase_validates(registry, phase):
         {"progress": 1.5},
         {"progress": -0.1},
         {"bars_total": 1.5},
+        {"activity": {"kind": "invented", "started_at": "2026-10-12T07:14:21Z"}},
+        {"activity": {"kind": "reading_ticks"}},
+        {
+            "phase_history": [
+                {"phase": "invented", "started_at": "2026-10-12T07:14:21Z"}
+            ]
+        },
     ],
 )
 def test_out_of_contract_progress_values_are_rejected(registry, override):

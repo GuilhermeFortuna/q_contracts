@@ -977,8 +977,78 @@ components:
       - status
       title: BacktestStartResponse
       type: object
+    BacktestActivity:
+      properties:
+        kind:
+          enum:
+          - loading_candles
+          - loading_ticks
+          - computing
+          - reading_m1
+          - reading_ticks
+          - saving
+          type: string
+          title: Kind
+        started_at:
+          format: date-time
+          type: string
+          title: Started At
+        range_start:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Range Start
+        range_end:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Range End
+      required:
+      - kind
+      - started_at
+      title: BacktestActivity
+      type: object
+    BacktestPhaseTiming:
+      properties:
+        phase:
+          enum:
+          - queued
+          - loading_data
+          - preparing
+          - simulating
+          - saving
+          type: string
+          title: Phase
+        started_at:
+          format: date-time
+          type: string
+          title: Started At
+        finished_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Finished At
+      required:
+      - phase
+      - started_at
+      title: BacktestPhaseTiming
+      type: object
     BacktestStatusResponse:
       properties:
+        activity:
+          anyOf:
+          - $ref: '#/components/schemas/BacktestActivity'
+          - type: 'null'
+        phase_history:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/BacktestPhaseTiming'
+            type: array
+          - type: 'null'
+          title: Phase History
         bars_total:
           anyOf:
           - type: integer
