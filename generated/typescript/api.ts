@@ -123,6 +123,13 @@ export interface AuditEventResponse {
   payload: Record<string, unknown>
 }
 
+export interface BacktestActivity {
+  kind: "loading_candles" | "loading_ticks" | "computing" | "reading_m1" | "reading_ticks" | "saving"
+  range_end?: string | null
+  range_start?: string | null
+  started_at: string
+}
+
 export interface BacktestConfig {
   costs?: TransactionCostConfig | null
   day_trade?: boolean
@@ -176,6 +183,12 @@ export interface BacktestNote {
 }
 
 export type BacktestOrigin = "stack" | "script"
+
+export interface BacktestPhaseTiming {
+  finished_at?: string | null
+  phase: "queued" | "loading_data" | "preparing" | "simulating" | "saving"
+  started_at: string
+}
 
 export interface BacktestProvenance {
   git_dirty?: boolean | null
@@ -265,9 +278,20 @@ export interface BacktestStartResponse {
 }
 
 export interface BacktestStatusResponse {
+  activity?: BacktestActivity | null
+  bars_total?: number | null
+  candles_replayed?: number | null
+  candles_substituted?: number | null
   error?: string | null
+  message?: string | null
+  phase?: "queued" | "loading_data" | "preparing" | "simulating" | "saving" | null
+  phase_history?: Array<BacktestPhaseTiming> | null
+  progress?: number | null
   run_id: string
+  simulated_until?: string | null
+  started_at?: string | null
   status: string
+  updated_at?: string | null
 }
 
 export interface BacktestTradesArtifactResponse {

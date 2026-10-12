@@ -155,6 +155,14 @@ pub struct AuditEventResponse {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct BacktestActivity {
+    pub kind: String,
+    pub range_end: Option<String>,
+    pub range_start: Option<String>,
+    pub started_at: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BacktestConfig {
     pub costs: Option<TransactionCostConfig>,
     #[serde(default = "default_backtest_config_day_trade")]
@@ -268,6 +276,13 @@ pub struct BacktestNote {
 }
 
 pub type BacktestOrigin = String;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct BacktestPhaseTiming {
+    pub finished_at: Option<String>,
+    pub phase: String,
+    pub started_at: String,
+}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BacktestProvenance {
@@ -436,9 +451,20 @@ pub struct BacktestStartResponse {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BacktestStatusResponse {
+    pub activity: Option<BacktestActivity>,
+    pub bars_total: Option<i64>,
+    pub candles_replayed: Option<i64>,
+    pub candles_substituted: Option<i64>,
     pub error: Option<String>,
+    pub message: Option<String>,
+    pub phase: Option<String>,
+    pub phase_history: Option<Vec<BacktestPhaseTiming>>,
+    pub progress: Option<f64>,
     pub run_id: String,
+    pub simulated_until: Option<String>,
+    pub started_at: Option<String>,
     pub status: String,
+    pub updated_at: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
