@@ -6854,6 +6854,23 @@ components:
       - ask
       title: Tick
       type: object
+    TickAvailableRangeResponse:
+      properties:
+        end:
+          title: End
+          type: string
+        start:
+          title: Start
+          type: string
+        symbol:
+          title: Symbol
+          type: string
+      required:
+      - symbol
+      - start
+      - end
+      title: TickAvailableRangeResponse
+      type: object
     TransactionCostConfig:
       properties:
         cost_bps:
@@ -10511,6 +10528,39 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
       summary: Get Market Ticks
+      tags:
+      - market
+  /api/v1/market/ticks/{symbol}/available-range:
+    get:
+      description: 'Returns the tick history the active data provider can serve for
+        a symbol.
+
+
+        ``start`` is the earliest tick the gateway/terminal serves (or the local lake''s
+
+        envelope in local mode); ``end`` is the present for live providers.'
+      operationId: get_market_tick_available_range_api_v1_market_ticks__symbol__available_range_get
+      parameters:
+      - in: path
+        name: symbol
+        required: true
+        schema:
+          title: Symbol
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TickAvailableRangeResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Market Tick Available Range
       tags:
       - market
   /api/v1/neural/models:

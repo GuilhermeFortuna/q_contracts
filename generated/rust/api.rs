@@ -3069,6 +3069,13 @@ fn default_tick_volume() -> Option<f64> {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TickAvailableRangeResponse {
+    pub end: String,
+    pub start: String,
+    pub symbol: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TradeHistoryPending {
     pub status: String,
     pub status_token: String,

@@ -2057,6 +2057,12 @@ export interface Tick {
   volume?: number | null
 }
 
+export interface TickAvailableRangeResponse {
+  end: string
+  start: string
+  symbol: string
+}
+
 export interface TradeHistoryPending {
   status: "backfill_pending"
   status_token: string
