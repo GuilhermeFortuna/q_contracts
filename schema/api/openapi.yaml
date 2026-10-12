@@ -1159,6 +1159,29 @@ components:
       - study_ids
       title: BulkDeleteOptimizationsRequest
       type: object
+    BulkDeleteResearchFiguresRequest:
+      oneOf:
+      - additionalProperties: false
+        properties:
+          figure_ids:
+            items:
+              type: string
+            title: Figure Ids
+            type: array
+        required:
+        - figure_ids
+        title: BulkDeleteResearchFiguresByIds
+        type: object
+      - additionalProperties: false
+        properties:
+          collection:
+            title: Collection
+            type: string
+        required:
+        - collection
+        title: BulkDeleteResearchFiguresByCollection
+        type: object
+      title: BulkDeleteResearchFiguresRequest
     BulkDeleteResponse:
       properties:
         deleted:
@@ -5839,6 +5862,251 @@ components:
       - label
       - description
       title: RiskSizingCapability
+      type: object
+    ResearchCollectionSummary:
+      properties:
+        count:
+          title: Count
+          type: integer
+        name:
+          title: Name
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - name
+      - count
+      - updated_at
+      title: ResearchCollectionSummary
+      type: object
+    ResearchFigureCreateRequest:
+      properties:
+        collection:
+          maxLength: 120
+          minLength: 1
+          title: Collection
+          type: string
+        content:
+          discriminator:
+            mapping:
+              image: '#/components/schemas/ResearchFigureImageContent'
+              plotly: '#/components/schemas/ResearchFigurePlotlyContent'
+            propertyName: kind
+          oneOf:
+          - $ref: '#/components/schemas/ResearchFigureImageContent'
+          - $ref: '#/components/schemas/ResearchFigurePlotlyContent'
+          title: Content
+        notes:
+          anyOf:
+          - maxLength: 4000
+            type: string
+          - type: 'null'
+          title: Notes
+        provenance:
+          anyOf:
+          - $ref: '#/components/schemas/ResearchFigureProvenance'
+          - type: 'null'
+          title: Provenance
+        replace:
+          default: true
+          title: Replace
+          type: boolean
+        title:
+          maxLength: 200
+          minLength: 1
+          title: Title
+          type: string
+      required:
+      - title
+      - collection
+      - content
+      title: ResearchFigureCreateRequest
+      type: object
+    ResearchFigureCreateResponse:
+      properties:
+        figure_id:
+          title: Figure Id
+          type: string
+        replaced:
+          title: Replaced
+          type: boolean
+      required:
+      - figure_id
+      - replaced
+      title: ResearchFigureCreateResponse
+      type: object
+    ResearchFigureImageContent:
+      properties:
+        data:
+          title: Data
+          type: string
+        height:
+          exclusiveMinimum: 0
+          title: Height
+          type: integer
+        kind:
+          const: image
+          title: Kind
+          type: string
+        media_type:
+          enum:
+          - image/png
+          - image/svg+xml
+          title: Media Type
+          type: string
+        width:
+          exclusiveMinimum: 0
+          title: Width
+          type: integer
+      required:
+      - kind
+      - media_type
+      - data
+      - width
+      - height
+      title: ResearchFigureImageContent
+      type: object
+    ResearchFigureListResponse:
+      properties:
+        collections:
+          items:
+            $ref: '#/components/schemas/ResearchCollectionSummary'
+          title: Collections
+          type: array
+        items:
+          items:
+            $ref: '#/components/schemas/ResearchFigureMetadata'
+          title: Items
+          type: array
+        limit:
+          title: Limit
+          type: integer
+        offset:
+          title: Offset
+          type: integer
+        total:
+          title: Total
+          type: integer
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      - collections
+      title: ResearchFigureListResponse
+      type: object
+    ResearchFigureMetadata:
+      properties:
+        byte_size:
+          title: Byte Size
+          type: integer
+        collection:
+          title: Collection
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        figure_id:
+          title: Figure Id
+          type: string
+        height:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Height
+        kind:
+          title: Kind
+          type: string
+        media_type:
+          title: Media Type
+          type: string
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        provenance:
+          anyOf:
+          - $ref: '#/components/schemas/ResearchFigureProvenance'
+          - type: 'null'
+          title: Provenance
+        revision:
+          title: Revision
+          type: integer
+        title:
+          title: Title
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        width:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Width
+      required:
+      - figure_id
+      - title
+      - collection
+      - kind
+      - media_type
+      - byte_size
+      - revision
+      - created_at
+      - updated_at
+      title: ResearchFigureMetadata
+      type: object
+    ResearchFigurePlotlyContent:
+      properties:
+        figure:
+          properties:
+            data:
+              items:
+                additionalProperties: true
+                type: object
+              title: Data
+              type: array
+            layout:
+              anyOf:
+              - additionalProperties: true
+                type: object
+              - type: 'null'
+              title: Layout
+          required:
+          - data
+          title: Figure
+          type: object
+        kind:
+          const: plotly
+          title: Kind
+          type: string
+      required:
+      - kind
+      - figure
+      title: ResearchFigurePlotlyContent
+      type: object
+    ResearchFigureProvenance:
+      properties:
+        git_dirty:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Git Dirty
+        git_revision:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Git Revision
+        script:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Script
+      title: ResearchFigureProvenance
       type: object
     SearchSpaceConfig:
       properties:
@@ -12827,3 +13095,222 @@ paths:
       summary: Get Strategy Search Trials
       tags:
       - strategy-search
+  /api/v1/research/figures:
+    get:
+      description: List research figures metadata with collection counts.
+      operationId: list_research_figures_api_v1_research_figures_get
+      parameters:
+      - in: query
+        name: collection
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Collection
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 500
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchFigureListResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Research Figures
+      tags:
+      - research-figures
+    post:
+      description: Store a research figure.
+      operationId: create_research_figure_api_v1_research_figures_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResearchFigureCreateRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchFigureCreateResponse'
+          description: Successful Response
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Payload Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Store Research Figure
+      tags:
+      - research-figures
+  /api/v1/research/figures/bulk-delete:
+    post:
+      description: Delete multiple research figures by ids or collection.
+      operationId: bulk_delete_research_figures_api_v1_research_figures_bulk_delete_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkDeleteResearchFiguresRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkDeleteResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Bulk Delete Research Figures
+      tags:
+      - research-figures
+  /api/v1/research/figures/{figure_id}:
+    delete:
+      description: Delete a research figure and its stored content.
+      operationId: delete_research_figure_api_v1_research_figures__figure_id__delete
+      parameters:
+      - in: path
+        name: figure_id
+        required: true
+        schema:
+          title: Figure Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Research Figure
+      tags:
+      - research-figures
+    get:
+      description: Get metadata for a single research figure.
+      operationId: get_research_figure_api_v1_research_figures__figure_id__get
+      parameters:
+      - in: path
+        name: figure_id
+        required: true
+        schema:
+          title: Figure Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchFigureMetadata'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Research Figure
+      tags:
+      - research-figures
+  /api/v1/research/figures/{figure_id}/content:
+    get:
+      description: Retrieve stored content for a research figure.
+      operationId: get_research_figure_content_api_v1_research_figures__figure_id__content_get
+      parameters:
+      - in: path
+        name: figure_id
+        required: true
+        schema:
+          title: Figure Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+            image/png:
+              schema:
+                format: binary
+                type: string
+            image/svg+xml:
+              schema:
+                type: string
+          description: Successful Response
+          headers:
+            Content-Security-Policy:
+              description: Sandboxing Content Security Policy
+              schema:
+                type: string
+            ETag:
+              description: Revision entity tag
+              schema:
+                type: string
+            X-Content-Type-Options:
+              description: Must be nosniff
+              schema:
+                type: string
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Research Figure Content
+      tags:
+      - research-figures
+

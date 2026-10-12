@@ -483,6 +483,8 @@ pub struct BulkDeleteOptimizationsRequest {
     pub study_ids: Vec<String>,
 }
 
+pub type BulkDeleteResearchFiguresRequest = serde_json::Value;
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BulkDeleteResponse {
     pub deleted: i64,
@@ -2615,6 +2617,82 @@ pub struct PositionResponse {
     pub quantity: String,
     pub side: String,
     pub updated_at: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchCollectionSummary {
+    pub count: i64,
+    pub name: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchFigureCreateRequest {
+    pub collection: String,
+    pub content: serde_json::Value,
+    pub notes: Option<String>,
+    pub provenance: Option<ResearchFigureProvenance>,
+    #[serde(default = "default_research_figure_create_request_replace")]
+    pub replace: Option<bool>,
+    pub title: String,
+}
+
+fn default_research_figure_create_request_replace() -> Option<bool> {
+    Some(true)
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchFigureCreateResponse {
+    pub figure_id: String,
+    pub replaced: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchFigureImageContent {
+    pub data: String,
+    pub height: i64,
+    pub kind: String,
+    pub media_type: String,
+    pub width: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchFigureListResponse {
+    pub collections: Vec<ResearchCollectionSummary>,
+    pub items: Vec<ResearchFigureMetadata>,
+    pub limit: i64,
+    pub offset: i64,
+    pub total: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchFigureMetadata {
+    pub byte_size: i64,
+    pub collection: String,
+    pub created_at: String,
+    pub figure_id: String,
+    pub height: Option<i64>,
+    pub kind: String,
+    pub media_type: String,
+    pub notes: Option<String>,
+    pub provenance: Option<ResearchFigureProvenance>,
+    pub revision: i64,
+    pub title: String,
+    pub updated_at: String,
+    pub width: Option<i64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchFigurePlotlyContent {
+    pub figure: serde_json::Value,
+    pub kind: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchFigureProvenance {
+    pub git_dirty: Option<bool>,
+    pub git_revision: Option<String>,
+    pub script: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
