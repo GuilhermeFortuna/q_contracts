@@ -4999,6 +4999,198 @@ components:
       - bar_count
       title: OhlcvAvailableRangeResponse
       type: object
+    IndicatorCatalogEntry:
+      properties:
+        category:
+          title: Category
+          type: string
+        id:
+          title: Id
+          type: string
+        label:
+          title: Label
+          type: string
+        outputs:
+          items:
+            $ref: '#/components/schemas/IndicatorOutputSpec'
+          title: Outputs
+          type: array
+        pane:
+          title: Pane
+          type: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/IndicatorParameterSpec'
+          title: Parameters
+          type: array
+        requiredData:
+          title: Required Data
+          type: string
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+      required:
+      - id
+      - label
+      - category
+      - pane
+      - requiredData
+      - parameters
+      - outputs
+      title: IndicatorCatalogEntry
+      type: object
+    IndicatorCatalogResponse:
+      properties:
+        indicators:
+          items:
+            $ref: '#/components/schemas/IndicatorCatalogEntry'
+          title: Indicators
+          type: array
+      required:
+      - indicators
+      title: IndicatorCatalogResponse
+      type: object
+    IndicatorOutputSpec:
+      properties:
+        key:
+          title: Key
+          type: string
+        label:
+          title: Label
+          type: string
+        pane:
+          title: Pane
+          type: string
+      required:
+      - key
+      - label
+      - pane
+      title: IndicatorOutputSpec
+      type: object
+    IndicatorParameterSpec:
+      properties:
+        choices:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Choices
+        default:
+          anyOf:
+          - type: integer
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Default
+        maximum:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Maximum
+        minimum:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Minimum
+        name:
+          title: Name
+          type: string
+        type:
+          title: Type
+          type: string
+      required:
+      - name
+      - type
+      - default
+      title: IndicatorParameterSpec
+      type: object
+    MarketIndicatorRequest:
+      properties:
+        id:
+          title: Id
+          type: string
+        parameters:
+          additionalProperties: true
+          title: Parameters
+          type: object
+      required:
+      - id
+      title: MarketIndicatorRequest
+      type: object
+    MarketIndicatorSeriesOutput:
+      properties:
+        key:
+          title: Key
+          type: string
+        pane:
+          title: Pane
+          type: string
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+        unavailableReason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unavailable Reason
+        values:
+          items:
+            anyOf:
+            - type: number
+            - type: 'null'
+          title: Values
+          type: array
+      required:
+      - key
+      - pane
+      - values
+      title: MarketIndicatorSeriesOutput
+      type: object
+    MarketIndicatorSeriesRequest:
+      properties:
+        end:
+          title: End
+          type: string
+        indicators:
+          items:
+            $ref: '#/components/schemas/MarketIndicatorRequest'
+          title: Indicators
+          type: array
+        start:
+          title: Start
+          type: string
+        timeframe:
+          title: Timeframe
+          type: string
+      required:
+      - timeframe
+      - start
+      - end
+      - indicators
+      title: MarketIndicatorSeriesRequest
+      type: object
+    MarketIndicatorSeriesResponse:
+      properties:
+        series:
+          items:
+            $ref: '#/components/schemas/MarketIndicatorSeriesOutput'
+          title: Series
+          type: array
+        timestamps:
+          items:
+            type: string
+          title: Timestamps
+          type: array
+      required:
+      - timestamps
+      - series
+      title: MarketIndicatorSeriesResponse
+      type: object
     OhlcvBarResponse:
       properties:
         close:
@@ -10739,6 +10931,53 @@ paths:
                 type: array
           description: Successful Response
       summary: Get Market Instruments
+      tags:
+      - market
+  /api/v1/market/indicators:
+    get:
+      description: Return the chart indicator catalog (parameters, outputs, and data requirements).
+      operationId: get_market_indicator_catalog_api_v1_market_indicators_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndicatorCatalogResponse'
+          description: Successful Response
+      summary: Get Market Indicator Catalog
+      tags:
+      - market
+  /api/v1/market/indicators/{symbol}/series:
+    post:
+      description: Compute indicator series aligned to OHLCV bars in the requested range.
+      operationId: post_market_indicator_series_api_v1_market_indicators__symbol__series_post
+      parameters:
+      - in: path
+        name: symbol
+        required: true
+        schema:
+          title: Symbol
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketIndicatorSeriesRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketIndicatorSeriesResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Post Market Indicator Series
       tags:
       - market
   /api/v1/market/ohlcv/{symbol}:

@@ -1658,6 +1658,41 @@ pub struct HistoryPageResponse {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct IndicatorCatalogEntry {
+    pub category: String,
+    pub id: String,
+    pub label: String,
+    pub outputs: Vec<IndicatorOutputSpec>,
+    pub pane: String,
+    pub parameters: Vec<IndicatorParameterSpec>,
+    pub requiredData: String,
+    pub unit: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct IndicatorCatalogResponse {
+    pub indicators: Vec<IndicatorCatalogEntry>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct IndicatorOutputSpec {
+    pub key: String,
+    pub label: String,
+    pub pane: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct IndicatorParameterSpec {
+    pub choices: Option<Vec<String>>,
+    pub default: serde_json::Value,
+    pub maximum: Option<f64>,
+    pub minimum: Option<f64>,
+    pub name: String,
+    #[serde(rename = "type")]
+    pub r#type: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct IngestJobRequest {
     pub end: String,
     #[serde(default = "default_ingest_job_request_kind")]
@@ -1871,6 +1906,35 @@ pub struct ManifestFile {
     pub checksum: String,
     pub path: String,
     pub size_bytes: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MarketIndicatorRequest {
+    pub id: String,
+    pub parameters: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MarketIndicatorSeriesOutput {
+    pub key: String,
+    pub pane: String,
+    pub unavailableReason: Option<String>,
+    pub unit: Option<String>,
+    pub values: Vec<Option<f64>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MarketIndicatorSeriesRequest {
+    pub end: String,
+    pub indicators: Vec<MarketIndicatorRequest>,
+    pub start: String,
+    pub timeframe: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MarketIndicatorSeriesResponse {
+    pub series: Vec<MarketIndicatorSeriesOutput>,
+    pub timestamps: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

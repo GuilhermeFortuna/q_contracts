@@ -1065,6 +1065,36 @@ export interface HistoryPageResponse {
   topic: string
 }
 
+export interface IndicatorCatalogEntry {
+  category: string
+  id: string
+  label: string
+  outputs: Array<IndicatorOutputSpec>
+  pane: string
+  parameters: Array<IndicatorParameterSpec>
+  requiredData: string
+  unit?: string | null
+}
+
+export interface IndicatorCatalogResponse {
+  indicators: Array<IndicatorCatalogEntry>
+}
+
+export interface IndicatorOutputSpec {
+  key: string
+  label: string
+  pane: string
+}
+
+export interface IndicatorParameterSpec {
+  choices?: Array<string> | null
+  default: number | number | string | null
+  maximum?: number | null
+  minimum?: number | null
+  name: string
+  type: string
+}
+
 export interface IngestJobRequest {
   end: string
   kind?: "bars" | "ticks"
@@ -1199,6 +1229,31 @@ export interface ManifestFile {
   checksum: string
   path: string
   size_bytes: number
+}
+
+export interface MarketIndicatorRequest {
+  id: string
+  parameters?: Record<string, unknown>
+}
+
+export interface MarketIndicatorSeriesOutput {
+  key: string
+  pane: string
+  unavailableReason?: string | null
+  unit?: string | null
+  values: Array<number | null>
+}
+
+export interface MarketIndicatorSeriesRequest {
+  end: string
+  indicators: Array<MarketIndicatorRequest>
+  start: string
+  timeframe: string
+}
+
+export interface MarketIndicatorSeriesResponse {
+  series: Array<MarketIndicatorSeriesOutput>
+  timestamps: Array<string>
 }
 
 export interface MarketSnapshotResponse {
