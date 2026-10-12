@@ -190,3 +190,23 @@ progress under Q-104; update the backend row when its consumer commit is verifie
 - The `q_core` commit and tag are pushed to origin. The `q_backend` pin commit
   is local only, and `q_backend` `development` also carries the unpushed
   `0b402df` breakeven change, which needs this pin.
+
+## q_core v2026.10.12.3 release and q_backend adoption (2026-10-12)
+
+- `q_core` tag `v2026.10.12.3` resolves to
+  `70df284e46f6a827ab4522d6874c3c7d7ac7d3e4`. It is the third release of the day
+  and follows `v2026.10.12.2` (the Q-111 research indicator kernels, resolving to
+  `5f4c9b8739181d123e642ac862972eec8e377970`). It corrects `quote_spread_bars`,
+  which counted a quote for time before its bar's open, and rejects an
+  exponentially weighted half-life above `5e8`, whose readiness count used to
+  wrap. `make check` passed on the release commit. Contracts revision `998a5057`
+  is unchanged.
+- `q_backend` at `490786a` pins `q-core` to `v2026.10.12.3` in `pyproject.toml`
+  and `uv.lock`, resolving to the commit above. Focused verification on the
+  released wheel: `tests/market_data/test_indicator_catalog.py`,
+  `tests/market_data/test_quote_spread.py`, `tests/api/test_market_indicators.py`,
+  `tests/features` and `tests/backtesting/test_q111_wrappers.py` passed
+  (`268 passed`). The full pre-push CI for this commit has not been run.
+- The `q_core` commit and tag are pushed to origin. The `q_backend` pin and the
+  series and quote-feature corrections that need it are merged into `development`
+  locally (`b840b8a`) and are not pushed.
