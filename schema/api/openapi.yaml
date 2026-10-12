@@ -729,12 +729,37 @@ components:
           - $ref: '#/components/schemas/MlFilterBacktestSummary'
           - type: 'null'
           title: Ml Filter Summary
+        notes:
+          default: []
+          items:
+            $ref: '#/components/schemas/BacktestNote'
+          title: Notes
+          type: array
       required:
       - metrics
       - trades
       - bars
       - indicators
       title: BacktestResponse
+      type: object
+    BacktestNote:
+      description: Run-level message about how a backtest was produced. Codes are stable; new producers may add codes without a schema change.
+      properties:
+        code:
+          title: Code
+          type: string
+        message:
+          title: Message
+          type: string
+        details:
+          additionalProperties: true
+          default: {}
+          title: Details
+          type: object
+      required:
+      - code
+      - message
+      title: BacktestNote
       type: object
     BacktestImportRequest:
       properties:
