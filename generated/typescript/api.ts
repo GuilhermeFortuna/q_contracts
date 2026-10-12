@@ -307,6 +307,8 @@ export interface BulkDeleteOptimizationsRequest {
   study_ids: Array<string>
 }
 
+export type BulkDeleteResearchFiguresRequest = { figure_ids: Array<string> } | { collection: string }
+
 export interface BulkDeleteResponse {
   deleted: number
   not_found: Array<string>
@@ -1761,6 +1763,69 @@ export interface PositionResponse {
   quantity: string
   side: string
   updated_at: string
+}
+
+export interface ResearchCollectionSummary {
+  count: number
+  name: string
+  updated_at: string
+}
+
+export interface ResearchFigureCreateRequest {
+  collection: string
+  content: ResearchFigureImageContent | ResearchFigurePlotlyContent
+  notes?: string | null
+  provenance?: ResearchFigureProvenance | null
+  replace?: boolean
+  title: string
+}
+
+export interface ResearchFigureCreateResponse {
+  figure_id: string
+  replaced: boolean
+}
+
+export interface ResearchFigureImageContent {
+  data: string
+  height: number
+  kind: "image"
+  media_type: "image/png" | "image/svg+xml"
+  width: number
+}
+
+export interface ResearchFigureListResponse {
+  collections: Array<ResearchCollectionSummary>
+  items: Array<ResearchFigureMetadata>
+  limit: number
+  offset: number
+  total: number
+}
+
+export interface ResearchFigureMetadata {
+  byte_size: number
+  collection: string
+  created_at: string
+  figure_id: string
+  height?: number | null
+  kind: string
+  media_type: string
+  notes?: string | null
+  provenance?: ResearchFigureProvenance | null
+  revision: number
+  title: string
+  updated_at: string
+  width?: number | null
+}
+
+export interface ResearchFigurePlotlyContent {
+  figure: { data: Array<Record<string, unknown>>; layout?: Record<string, unknown> | null }
+  kind: "plotly"
+}
+
+export interface ResearchFigureProvenance {
+  git_dirty?: boolean | null
+  git_revision?: string | null
+  script?: string | null
 }
 
 export interface RiskEventListResponse {
