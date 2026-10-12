@@ -8,8 +8,8 @@ table is updated with the consumer commit and verification evidence.
 | --- | --- | --- | --- |
 | `q_contracts` | `818b2823d830f90aaea0e84785e36095768f1fb8` | `818b2823d830f90aaea0e84785e36095768f1fb8` | — |
 | `q_frontend` | `5774b580e8443598ce57a0460752f4ec83c898be` | `8a9c45299842184d73a82c9c4d6c9fb49dc16885` | — |
-| `q_backend` | `7d8212dcda9db1d039a3bbe3f8c021f306bb55eb` (Q-104 stop and target orders) | `e06a3c9f7f79517b47bea826ecef8f3527655a73` | `v2026.10.08.3` |
-| `q_core` | `095c2ce507278dcb814b620db1087fa5b77393a9` (`v2026.10.08.3`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
+| `q_backend` | `b97f83af2e47e1c17629c85e6989411457c86b52` (q-core pin `v2026.10.12`) | `e06a3c9f7f79517b47bea826ecef8f3527655a73` | `v2026.10.12` |
+| `q_core` | `9872b41645ee32125190fb959104ff31b98494e5` (`v2026.10.12`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
 | `q_terminal` | `e510f504259718b4a2f8acd517da3b99bbee8163` | `998a50570905524bfb9af0465a725b170f2970df` | `v2026.09.12` |
 
 Every commit hash above resolves in its repository; verify with
@@ -168,3 +168,25 @@ progress under Q-104; update the backend row when its consumer commit is verifie
   pre-push CI that runs them has not been run for this commit.
 - Known limitation, a follow-up in `q_core`: a wrong-side entry is reported in
   `rejected_entries` even when the position cap would also skip it.
+
+## q_core v2026.10.12 release and q_backend adoption (2026-10-12)
+
+- `q_core` tag `v2026.10.12` resolves to
+  `9872b41645ee32125190fb959104ff31b98494e5`. It is the second release after
+  `v2026.10.10` and carries the intrabar breakeven emergency stops
+  (`engine.BREAKEVEN_INTRABAR`). `make check` passed on the release commit with
+  zero failing checks: formatting, workspace Clippy and tests, fixtures, parity
+  isolation, Python wheel tests, Qt harness, and contracts drift. The build logs
+  still show environment-only warnings (hardlink fallback on the cache volume and
+  a gold-linker deprecation notice for the `q-qt` test binary); no code warnings.
+  Contracts revision `998a5057` is unchanged.
+- `q_backend` at `b97f83af2e47e1c17629c85e6989411457c86b52` pins `q-core` to
+  `v2026.10.12` in `pyproject.toml` and `uv.lock`, resolving to
+  `9872b41645ee32125190fb959104ff31b98494e5`. `uv sync` installed
+  `q-core==2026.10.12`, and `engine.BREAKEVEN_INTRABAR` is present. Focused
+  verification: `tests/backtesting`, `tests/execution/test_evaluator_q_core.py`
+  and `tests/test_no_cross_repo_paths.py` passed (`727 passed, 11 skipped`).
+  The full pre-push CI for this commit has not been run.
+- The `q_core` commit and tag are pushed to origin. The `q_backend` pin commit
+  is local only, and `q_backend` `development` also carries the unpushed
+  `0b402df` breakeven change, which needs this pin.
