@@ -8523,6 +8523,40 @@ paths:
       summary: Get Backtest Status
       tags:
       - backtest
+  /api/v1/backtest/{run_id}/cancel:
+    post:
+      description: 'Request cancellation of an active backtest run.
+
+
+        Cancellation is cooperative: the run is marked cancelled immediately and
+
+        the worker stops at its next checkpoint. Cancelling a run that already
+
+        finished returns its final status unchanged.'
+      operationId: cancel_backtest_api_v1_backtest__run_id__cancel_post
+      parameters:
+      - in: path
+        name: run_id
+        required: true
+        schema:
+          title: Run Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BacktestStatusResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Cancel Backtest
+      tags:
+      - backtest
   /api/v1/backtest/{run_id}/result:
     get:
       description: Return the full chart payload for a completed async backtest run.
