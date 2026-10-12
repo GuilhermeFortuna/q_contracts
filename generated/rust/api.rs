@@ -436,9 +436,18 @@ pub struct BacktestStartResponse {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BacktestStatusResponse {
+    pub bars_total: Option<i64>,
+    pub candles_replayed: Option<i64>,
+    pub candles_substituted: Option<i64>,
     pub error: Option<String>,
+    pub message: Option<String>,
+    pub phase: Option<String>,
+    pub progress: Option<f64>,
     pub run_id: String,
+    pub simulated_until: Option<String>,
+    pub started_at: Option<String>,
     pub status: String,
+    pub updated_at: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

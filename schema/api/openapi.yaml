@@ -979,17 +979,73 @@ components:
       type: object
     BacktestStatusResponse:
       properties:
+        bars_total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Bars Total
+        candles_replayed:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Candles Replayed
+        candles_substituted:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Candles Substituted
         error:
           anyOf:
           - type: string
           - type: 'null'
           title: Error
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+        phase:
+          anyOf:
+          - enum:
+            - queued
+            - loading_data
+            - preparing
+            - simulating
+            - saving
+            type: string
+          - type: 'null'
+          title: Phase
+        progress:
+          anyOf:
+          - maximum: 1.0
+            minimum: 0.0
+            type: number
+          - type: 'null'
+          title: Progress
         run_id:
           title: Run Id
           type: string
+        simulated_until:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Simulated Until
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Started At
         status:
           title: Status
           type: string
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Updated At
       required:
       - run_id
       - status

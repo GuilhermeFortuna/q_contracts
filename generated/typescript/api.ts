@@ -265,9 +265,18 @@ export interface BacktestStartResponse {
 }
 
 export interface BacktestStatusResponse {
+  bars_total?: number | null
+  candles_replayed?: number | null
+  candles_substituted?: number | null
   error?: string | null
+  message?: string | null
+  phase?: "queued" | "loading_data" | "preparing" | "simulating" | "saving" | null
+  progress?: number | null
   run_id: string
+  simulated_until?: string | null
+  started_at?: string | null
   status: string
+  updated_at?: string | null
 }
 
 export interface BacktestTradesArtifactResponse {
