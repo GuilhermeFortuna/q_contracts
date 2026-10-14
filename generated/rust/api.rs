@@ -527,13 +527,27 @@ fn default_categorical_param_type() -> Option<String> {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ChartIndicatorSeries {
+    pub baseline: Option<f64>,
     pub color: Option<String>,
+    pub fill_opacity: Option<f64>,
+    pub fill_to: Option<String>,
     pub key: String,
+    #[serde(default = "default_chart_indicator_series_kind")]
+    pub kind: Option<String>,
     pub label: String,
     pub line_style: Option<String>,
     pub line_width: Option<f64>,
+    pub negative_color: Option<String>,
     pub pane: String,
+    pub position: Option<String>,
+    pub shape: Option<String>,
+    pub size: Option<f64>,
+    pub start_index: Option<Vec<Option<i64>>>,
     pub values: Vec<Option<f64>>,
+}
+
+fn default_chart_indicator_series_kind() -> Option<String> {
+    Some("line".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

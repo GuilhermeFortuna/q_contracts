@@ -336,12 +336,21 @@ export interface CategoricalParam {
 }
 
 export interface ChartIndicatorSeries {
+  baseline?: number | null
   color?: string | null
+  fill_opacity?: number | null
+  fill_to?: string | null
   key: string
+  kind?: "line" | "step" | "markers" | "histogram" | "segment"
   label: string
   line_style?: "solid" | "dashed" | "dotted" | null
   line_width?: number | null
+  negative_color?: string | null
   pane: "price" | "oscillator"
+  position?: "value" | "above-bar" | "below-bar" | null
+  shape?: "circle" | "square" | "diamond" | "triangle-up" | "triangle-down" | "cross" | null
+  size?: number | null
+  start_index?: Array<number | null> | null
   values: Array<number | null>
 }
 
