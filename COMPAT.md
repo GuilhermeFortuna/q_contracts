@@ -7,8 +7,8 @@ table is updated with the consumer commit and verification evidence.
 | Repository | Repository commit | Contracts commit | `q_core` tag pinned |
 | --- | --- | --- | --- |
 | `q_contracts` | `818b2823d830f90aaea0e84785e36095768f1fb8` | `818b2823d830f90aaea0e84785e36095768f1fb8` | — |
-| `q_frontend` | `5774b580e8443598ce57a0460752f4ec83c898be` | `8a9c45299842184d73a82c9c4d6c9fb49dc16885` | — |
-| `q_backend` | `b97f83af2e47e1c17629c85e6989411457c86b52` (q-core pin `v2026.10.12`) | `e06a3c9f7f79517b47bea826ecef8f3527655a73` | `v2026.10.12` |
+| `q_frontend` | `f5598ef` (`feat/trade-chart-series-kinds`) | `dd2706d` | — |
+| `q_backend` | `d894203` (`feat/trade-chart-series-kinds`, q-core pin `v2026.10.12`) | `dd2706d` | `v2026.10.12` |
 | `q_core` | `9872b41645ee32125190fb959104ff31b98494e5` (`v2026.10.12`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
 | `q_terminal` | `e510f504259718b4a2f8acd517da3b99bbee8163` | `998a50570905524bfb9af0465a725b170f2970df` | `v2026.09.12` |
 
