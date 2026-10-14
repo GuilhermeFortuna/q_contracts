@@ -1318,6 +1318,77 @@ components:
             type: number
           - type: 'null'
           title: Line Width
+        kind:
+          default: line
+          enum:
+          - line
+          - step
+          - markers
+          - histogram
+          - segment
+          title: Kind
+          type: string
+        shape:
+          anyOf:
+          - enum:
+            - circle
+            - square
+            - diamond
+            - triangle-up
+            - triangle-down
+            - cross
+            type: string
+          - type: 'null'
+          title: Shape
+        size:
+          anyOf:
+          - exclusiveMinimum: 0
+            maximum: 32
+            type: number
+          - type: 'null'
+          title: Size
+        position:
+          anyOf:
+          - enum:
+            - value
+            - above-bar
+            - below-bar
+            type: string
+          - type: 'null'
+          title: Position
+        negative_color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Negative Color
+        baseline:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Baseline
+        fill_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fill To
+        fill_opacity:
+          anyOf:
+          - exclusiveMaximum: 1
+            exclusiveMinimum: 0
+            type: number
+          - type: 'null'
+          title: Fill Opacity
+        start_index:
+          anyOf:
+          - items:
+              anyOf:
+              - type: integer
+                minimum: 0
+              - type: 'null'
+            type: array
+          - type: 'null'
+          title: Start Index
+          description: Bar position of each segment's start, aligned with values. Used only by kind segment.
         pane:
           enum:
           - price
