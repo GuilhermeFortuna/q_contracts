@@ -2811,23 +2811,99 @@ pub struct ResearchStudyRenameRequest {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ResearchStudySeriesInput {
+    #[serde(default = "default_research_study_series_input_baseline")]
+    pub baseline: Option<f64>,
     pub color: Option<String>,
+    #[serde(default = "default_research_study_series_input_fill_opacity")]
+    pub fillOpacity: Option<f64>,
+    pub fillTo: Option<String>,
     pub key: String,
+    #[serde(default = "default_research_study_series_input_kind")]
+    pub kind: Option<String>,
     pub label: String,
     pub lineStyle: Option<String>,
     pub lineWidth: Option<f64>,
+    pub negativeColor: Option<String>,
     pub pane: String,
+    #[serde(default = "default_research_study_series_input_position")]
+    pub position: Option<String>,
+    #[serde(default = "default_research_study_series_input_shape")]
+    pub shape: Option<String>,
+    #[serde(default = "default_research_study_series_input_size")]
+    pub size: Option<f64>,
     pub values: Vec<Option<f64>>,
+}
+
+fn default_research_study_series_input_baseline() -> Option<f64> {
+    Some(0.0)
+}
+
+fn default_research_study_series_input_fill_opacity() -> Option<f64> {
+    Some(0.15)
+}
+
+fn default_research_study_series_input_kind() -> Option<String> {
+    Some("line".to_owned())
+}
+
+fn default_research_study_series_input_position() -> Option<String> {
+    Some("value".to_owned())
+}
+
+fn default_research_study_series_input_shape() -> Option<String> {
+    Some("circle".to_owned())
+}
+
+fn default_research_study_series_input_size() -> Option<f64> {
+    Some(8.0)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ResearchStudySeriesMetadata {
+    #[serde(default = "default_research_study_series_metadata_baseline")]
+    pub baseline: Option<f64>,
     pub color: Option<String>,
+    #[serde(default = "default_research_study_series_metadata_fill_opacity")]
+    pub fillOpacity: Option<f64>,
+    pub fillTo: Option<String>,
     pub key: String,
+    #[serde(default = "default_research_study_series_metadata_kind")]
+    pub kind: Option<String>,
     pub label: String,
     pub lineStyle: Option<String>,
     pub lineWidth: Option<f64>,
+    pub negativeColor: Option<String>,
     pub pane: String,
+    #[serde(default = "default_research_study_series_metadata_position")]
+    pub position: Option<String>,
+    #[serde(default = "default_research_study_series_metadata_shape")]
+    pub shape: Option<String>,
+    #[serde(default = "default_research_study_series_metadata_size")]
+    pub size: Option<f64>,
+}
+
+fn default_research_study_series_metadata_baseline() -> Option<f64> {
+    Some(0.0)
+}
+
+fn default_research_study_series_metadata_fill_opacity() -> Option<f64> {
+    Some(0.15)
+}
+
+fn default_research_study_series_metadata_kind() -> Option<String> {
+    Some("line".to_owned())
+}
+
+fn default_research_study_series_metadata_position() -> Option<String> {
+    Some("value".to_owned())
+}
+
+fn default_research_study_series_metadata_shape() -> Option<String> {
+    Some("circle".to_owned())
+}
+
+fn default_research_study_series_metadata_size() -> Option<f64> {
+    Some(8.0)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
