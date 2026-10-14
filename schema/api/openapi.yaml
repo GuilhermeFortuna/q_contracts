@@ -5970,6 +5970,279 @@ components:
       - updated_at
       title: PositionResponse
       type: object
+    ResearchStudyCreateRequest:
+      properties:
+        name:
+          maxLength: 120
+          minLength: 1
+          title: Name
+          type: string
+        notes:
+          anyOf:
+          - maxLength: 4000
+            type: string
+          - type: 'null'
+          title: Notes
+        provenance:
+          anyOf:
+          - $ref: '#/components/schemas/ResearchFigureProvenance'
+          - type: 'null'
+          title: Provenance
+        replace:
+          default: true
+          title: Replace
+          type: boolean
+        series:
+          items:
+            $ref: '#/components/schemas/ResearchStudySeriesInput'
+          maxItems: 32
+          minItems: 1
+          title: Series
+          type: array
+        symbol:
+          minLength: 1
+          title: Symbol
+          type: string
+        timeframe:
+          minLength: 1
+          title: Timeframe
+          type: string
+        timestamps:
+          items:
+            type: string
+          title: Timestamps
+          type: array
+      required:
+      - name
+      - symbol
+      - timeframe
+      - timestamps
+      - series
+      title: ResearchStudyCreateRequest
+      type: object
+    ResearchStudyCreateResponse:
+      properties:
+        replaced:
+          title: Replaced
+          type: boolean
+        studyId:
+          title: Studyid
+          type: string
+      required:
+      - studyId
+      - replaced
+      title: ResearchStudyCreateResponse
+      type: object
+    ResearchStudyListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ResearchStudyMetadata'
+          title: Items
+          type: array
+      required:
+      - items
+      title: ResearchStudyListResponse
+      type: object
+    ResearchStudyMetadata:
+      properties:
+        createdAt:
+          title: Createdat
+          type: string
+        end:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: End
+        name:
+          title: Name
+          type: string
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        pointCount:
+          minimum: 0
+          title: Pointcount
+          type: integer
+        provenance:
+          anyOf:
+          - $ref: '#/components/schemas/ResearchFigureProvenance'
+          - type: 'null'
+          title: Provenance
+        revision:
+          minimum: 1
+          title: Revision
+          type: integer
+        series:
+          items:
+            $ref: '#/components/schemas/ResearchStudySeriesMetadata'
+          title: Series
+          type: array
+        start:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Start
+        studyId:
+          title: Studyid
+          type: string
+        symbol:
+          title: Symbol
+          type: string
+        timeframe:
+          title: Timeframe
+          type: string
+        updatedAt:
+          title: Updatedat
+          type: string
+      required:
+      - studyId
+      - name
+      - symbol
+      - timeframe
+      - series
+      - pointCount
+      - revision
+      - createdAt
+      - updatedAt
+      title: ResearchStudyMetadata
+      type: object
+    ResearchStudyRenameRequest:
+      properties:
+        name:
+          maxLength: 120
+          minLength: 1
+          title: Name
+          type: string
+      required:
+      - name
+      title: ResearchStudyRenameRequest
+      type: object
+    ResearchStudySeriesInput:
+      properties:
+        color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Color
+        key:
+          minLength: 1
+          title: Key
+          type: string
+        label:
+          minLength: 1
+          title: Label
+          type: string
+        lineStyle:
+          anyOf:
+          - enum:
+            - solid
+            - dashed
+            - dotted
+            type: string
+          - type: 'null'
+          title: Linestyle
+        lineWidth:
+          anyOf:
+          - exclusiveMinimum: 0
+            type: number
+          - type: 'null'
+          title: Linewidth
+        pane:
+          enum:
+          - price
+          - oscillator
+          title: Pane
+          type: string
+        values:
+          items:
+            anyOf:
+            - type: number
+            - type: 'null'
+          title: Values
+          type: array
+      required:
+      - key
+      - label
+      - pane
+      - values
+      title: ResearchStudySeriesInput
+      type: object
+    ResearchStudySeriesMetadata:
+      properties:
+        color:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Color
+        key:
+          title: Key
+          type: string
+        label:
+          title: Label
+          type: string
+        lineStyle:
+          anyOf:
+          - enum:
+            - solid
+            - dashed
+            - dotted
+            type: string
+          - type: 'null'
+          title: Linestyle
+        lineWidth:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Linewidth
+        pane:
+          enum:
+          - price
+          - oscillator
+          title: Pane
+          type: string
+      required:
+      - key
+      - label
+      - pane
+      title: ResearchStudySeriesMetadata
+      type: object
+    ResearchStudySeriesResponse:
+      properties:
+        series:
+          items:
+            $ref: '#/components/schemas/ResearchStudySeriesValues'
+          title: Series
+          type: array
+        timestamps:
+          items:
+            type: string
+          title: Timestamps
+          type: array
+      required:
+      - timestamps
+      - series
+      title: ResearchStudySeriesResponse
+      type: object
+    ResearchStudySeriesValues:
+      properties:
+        key:
+          title: Key
+          type: string
+        values:
+          items:
+            anyOf:
+            - type: number
+            - type: 'null'
+          title: Values
+          type: array
+      required:
+      - key
+      - values
+      title: ResearchStudySeriesValues
+      type: object
     RiskEventListResponse:
       properties:
         items:
@@ -11673,6 +11946,185 @@ paths:
       summary: Get Optimization Results
       tags:
       - optimization
+  /api/v1/research/studies:
+    get:
+      description: List research studies metadata for one symbol, newest update first.
+      operationId: list_research_studies_api_v1_research_studies_get
+      parameters:
+      - in: query
+        name: symbol
+        required: true
+        schema:
+          minLength: 1
+          title: Symbol
+          type: string
+      - in: query
+        name: timeframe
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Timeframe
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchStudyListResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Research Studies
+      tags:
+      - research-studies
+    post:
+      description: Store a research study, or replace the values of the same symbol, timeframe and name.
+      operationId: create_research_study_api_v1_research_studies_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResearchStudyCreateRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchStudyCreateResponse'
+          description: Successful Response
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Payload Too Large
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Store Research Study
+      tags:
+      - research-studies
+  /api/v1/research/studies/{study_id}:
+    delete:
+      description: Delete a research study and its stored values.
+      operationId: delete_research_study_api_v1_research_studies__study_id__delete
+      parameters:
+      - in: path
+        name: study_id
+        required: true
+        schema:
+          title: Study Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Study not found
+      summary: Delete Research Study
+      tags:
+      - research-studies
+    patch:
+      description: Rename a research study. Answers 409 when the new name already exists for its symbol and timeframe.
+      operationId: rename_research_study_api_v1_research_studies__study_id__patch
+      parameters:
+      - in: path
+        name: study_id
+        required: true
+        schema:
+          title: Study Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResearchStudyRenameRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchStudyMetadata'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Study not found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Name already exists
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Rename Research Study
+      tags:
+      - research-studies
+  /api/v1/research/studies/{study_id}/series:
+    get:
+      description: Return the stored values of a study between start and end (inclusive), with null for missing values.
+      operationId: get_research_study_series_api_v1_research_studies__study_id__series_get
+      parameters:
+      - in: path
+        name: study_id
+        required: true
+        schema:
+          title: Study Id
+          type: string
+      - in: query
+        name: start
+        required: true
+        schema:
+          title: Start
+          type: string
+      - in: query
+        name: end
+        required: true
+        schema:
+          title: End
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchStudySeriesResponse'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Study not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Research Study Series
+      tags:
+      - research-studies
   /api/v1/signal-managers:
     get:
       description: Return signal-manager metadata and parameter schemas.

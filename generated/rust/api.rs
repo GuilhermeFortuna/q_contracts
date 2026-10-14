@@ -2760,6 +2760,89 @@ pub struct ResearchFigureProvenance {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchStudyCreateRequest {
+    pub name: String,
+    pub notes: Option<String>,
+    pub provenance: Option<ResearchFigureProvenance>,
+    #[serde(default = "default_research_study_create_request_replace")]
+    pub replace: Option<bool>,
+    pub series: Vec<ResearchStudySeriesInput>,
+    pub symbol: String,
+    pub timeframe: String,
+    pub timestamps: Vec<String>,
+}
+
+fn default_research_study_create_request_replace() -> Option<bool> {
+    Some(true)
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchStudyCreateResponse {
+    pub replaced: bool,
+    pub studyId: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchStudyListResponse {
+    pub items: Vec<ResearchStudyMetadata>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchStudyMetadata {
+    pub createdAt: String,
+    pub end: Option<String>,
+    pub name: String,
+    pub notes: Option<String>,
+    pub pointCount: i64,
+    pub provenance: Option<ResearchFigureProvenance>,
+    pub revision: i64,
+    pub series: Vec<ResearchStudySeriesMetadata>,
+    pub start: Option<String>,
+    pub studyId: String,
+    pub symbol: String,
+    pub timeframe: String,
+    pub updatedAt: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchStudyRenameRequest {
+    pub name: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchStudySeriesInput {
+    pub color: Option<String>,
+    pub key: String,
+    pub label: String,
+    pub lineStyle: Option<String>,
+    pub lineWidth: Option<f64>,
+    pub pane: String,
+    pub values: Vec<Option<f64>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchStudySeriesMetadata {
+    pub color: Option<String>,
+    pub key: String,
+    pub label: String,
+    pub lineStyle: Option<String>,
+    pub lineWidth: Option<f64>,
+    pub pane: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchStudySeriesResponse {
+    pub series: Vec<ResearchStudySeriesValues>,
+    pub timestamps: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchStudySeriesValues {
+    pub key: String,
+    pub values: Vec<Option<f64>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RiskEventListResponse {
     pub items: Vec<RiskEventResponse>,
     pub limit: i64,

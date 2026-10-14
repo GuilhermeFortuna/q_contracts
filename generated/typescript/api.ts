@@ -1883,6 +1883,75 @@ export interface ResearchFigureProvenance {
   script?: string | null
 }
 
+export interface ResearchStudyCreateRequest {
+  name: string
+  notes?: string | null
+  provenance?: ResearchFigureProvenance | null
+  replace?: boolean
+  series: Array<ResearchStudySeriesInput>
+  symbol: string
+  timeframe: string
+  timestamps: Array<string>
+}
+
+export interface ResearchStudyCreateResponse {
+  replaced: boolean
+  studyId: string
+}
+
+export interface ResearchStudyListResponse {
+  items: Array<ResearchStudyMetadata>
+}
+
+export interface ResearchStudyMetadata {
+  createdAt: string
+  end?: string | null
+  name: string
+  notes?: string | null
+  pointCount: number
+  provenance?: ResearchFigureProvenance | null
+  revision: number
+  series: Array<ResearchStudySeriesMetadata>
+  start?: string | null
+  studyId: string
+  symbol: string
+  timeframe: string
+  updatedAt: string
+}
+
+export interface ResearchStudyRenameRequest {
+  name: string
+}
+
+export interface ResearchStudySeriesInput {
+  color?: string | null
+  key: string
+  label: string
+  lineStyle?: "solid" | "dashed" | "dotted" | null
+  lineWidth?: number | null
+  pane: "price" | "oscillator"
+  values: Array<number | null>
+}
+
+export interface ResearchStudySeriesMetadata {
+  color?: string | null
+  key: string
+  label: string
+  lineStyle?: "solid" | "dashed" | "dotted" | null
+  lineWidth?: number | null
+  pane: "price" | "oscillator"
+}
+
+export interface ResearchStudySeriesResponse {
+  series: Array<ResearchStudySeriesValues>
+  timestamps: Array<string>
+}
+
+export interface ResearchStudySeriesValues {
+  key: string
+  values: Array<number | null>
+}
+
 export interface RiskEventListResponse {
   items: Array<RiskEventResponse>
   limit: number
