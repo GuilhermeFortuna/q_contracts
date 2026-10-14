@@ -6150,6 +6150,70 @@ components:
             type: number
           - type: 'null'
           title: Linewidth
+        kind:
+          default: line
+          enum:
+          - line
+          - step
+          - markers
+          - histogram
+          title: Kind
+          type: string
+        shape:
+          anyOf:
+          - enum:
+            - circle
+            - square
+            - diamond
+            - triangle-up
+            - triangle-down
+            - cross
+            type: string
+          - type: 'null'
+          default: circle
+          title: Shape
+        size:
+          anyOf:
+          - exclusiveMinimum: 0
+            maximum: 32
+            type: number
+          - type: 'null'
+          default: 8
+          title: Size
+        position:
+          anyOf:
+          - enum:
+            - value
+            - above-bar
+            - below-bar
+            type: string
+          - type: 'null'
+          default: value
+          title: Position
+        negativeColor:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Negativecolor
+        baseline:
+          anyOf:
+          - type: number
+          - type: 'null'
+          default: 0
+          title: Baseline
+        fillTo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fillto
+        fillOpacity:
+          anyOf:
+          - exclusiveMaximum: 1
+            exclusiveMinimum: 0
+            type: number
+          - type: 'null'
+          default: 0.15
+          title: Fillopacity
         pane:
           enum:
           - price
@@ -6197,6 +6261,70 @@ components:
           - type: number
           - type: 'null'
           title: Linewidth
+        kind:
+          default: line
+          enum:
+          - line
+          - step
+          - markers
+          - histogram
+          title: Kind
+          type: string
+        shape:
+          anyOf:
+          - enum:
+            - circle
+            - square
+            - diamond
+            - triangle-up
+            - triangle-down
+            - cross
+            type: string
+          - type: 'null'
+          default: circle
+          title: Shape
+        size:
+          anyOf:
+          - exclusiveMinimum: 0
+            maximum: 32
+            type: number
+          - type: 'null'
+          default: 8
+          title: Size
+        position:
+          anyOf:
+          - enum:
+            - value
+            - above-bar
+            - below-bar
+            type: string
+          - type: 'null'
+          default: value
+          title: Position
+        negativeColor:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Negativecolor
+        baseline:
+          anyOf:
+          - type: number
+          - type: 'null'
+          default: 0
+          title: Baseline
+        fillTo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fillto
+        fillOpacity:
+          anyOf:
+          - exclusiveMaximum: 1
+            exclusiveMinimum: 0
+            type: number
+          - type: 'null'
+          default: 0.15
+          title: Fillopacity
         pane:
           enum:
           - price

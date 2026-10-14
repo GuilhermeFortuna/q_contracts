@@ -1924,22 +1924,38 @@ export interface ResearchStudyRenameRequest {
 }
 
 export interface ResearchStudySeriesInput {
+  baseline?: number | null
   color?: string | null
+  fillOpacity?: number | null
+  fillTo?: string | null
   key: string
+  kind?: "line" | "step" | "markers" | "histogram"
   label: string
   lineStyle?: "solid" | "dashed" | "dotted" | null
   lineWidth?: number | null
+  negativeColor?: string | null
   pane: "price" | "oscillator"
+  position?: "value" | "above-bar" | "below-bar" | null
+  shape?: "circle" | "square" | "diamond" | "triangle-up" | "triangle-down" | "cross" | null
+  size?: number | null
   values: Array<number | null>
 }
 
 export interface ResearchStudySeriesMetadata {
+  baseline?: number | null
   color?: string | null
+  fillOpacity?: number | null
+  fillTo?: string | null
   key: string
+  kind?: "line" | "step" | "markers" | "histogram"
   label: string
   lineStyle?: "solid" | "dashed" | "dotted" | null
   lineWidth?: number | null
+  negativeColor?: string | null
   pane: "price" | "oscillator"
+  position?: "value" | "above-bar" | "below-bar" | null
+  shape?: "circle" | "square" | "diamond" | "triangle-up" | "triangle-down" | "cross" | null
+  size?: number | null
 }
 
 export interface ResearchStudySeriesResponse {

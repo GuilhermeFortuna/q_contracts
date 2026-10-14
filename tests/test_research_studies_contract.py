@@ -67,6 +67,79 @@ def test_create_request_accepts_valid_payload(
     )
 
 
+def test_create_request_accepts_each_study_plot_kind(
+    openapi_registry: referencing.Registry,
+) -> None:
+    body = valid_create_request()
+    body["series"] = [
+        {"key": "line", "label": "Line", "pane": "price", "values": [1, None]},
+        {
+            "key": "step",
+            "label": "Step",
+            "pane": "price",
+            "kind": "step",
+            "fillTo": "line",
+            "values": [2, 3],
+        },
+        {
+            "key": "markers",
+            "label": "Markers",
+            "pane": "price",
+            "kind": "markers",
+            "shape": "triangle-up",
+            "position": "below-bar",
+            "size": 8,
+            "values": [0, 1],
+        },
+        {
+            "key": "histogram",
+            "label": "Histogram",
+            "pane": "oscillator",
+            "kind": "histogram",
+            "negativeColor": "red",
+            "baseline": 0,
+            "values": [-1, 1],
+        },
+    ]
+    validator_for(openapi_registry, "ResearchStudyCreateRequest").validate(body)
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("kind", "area"),
+        ("shape", "hexagon"),
+        ("size", 0),
+        ("size", 33),
+        ("position", "center"),
+        ("fillOpacity", 0),
+        ("fillOpacity", 1.1),
+    ],
+)
+def test_create_request_rejects_invalid_study_plot_fields(
+    openapi_registry: referencing.Registry, field: str, value: object
+) -> None:
+    body = valid_create_request()
+    body["series"][0][field] = value
+    with pytest.raises(jsonschema.ValidationError):
+        validator_for(openapi_registry, "ResearchStudyCreateRequest").validate(body)
+
+
+def test_metadata_accepts_new_optional_plot_fields(
+    openapi_registry: referencing.Registry,
+) -> None:
+    metadata = {
+        "key": "signal",
+        "label": "Signal",
+        "pane": "price",
+        "kind": "markers",
+        "shape": "circle",
+        "size": 8,
+        "position": "above-bar",
+    }
+    validator_for(openapi_registry, "ResearchStudySeriesMetadata").validate(metadata)
+
+
 @pytest.mark.parametrize(
     "mutate",
     [
