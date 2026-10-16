@@ -6228,6 +6228,7 @@ components:
           - step
           - markers
           - histogram
+          - segment
           title: Kind
           type: string
         shape:
@@ -6285,6 +6286,17 @@ components:
           - type: 'null'
           default: 0.15
           title: Fillopacity
+        startIndex:
+          anyOf:
+          - items:
+              anyOf:
+              - type: integer
+                minimum: 0
+              - type: 'null'
+            type: array
+          - type: 'null'
+          title: Startindex
+          description: Bar position of each segment's start, aligned with values. Used only by kind segment.
         pane:
           enum:
           - price
@@ -6339,6 +6351,7 @@ components:
           - step
           - markers
           - histogram
+          - segment
           title: Kind
           type: string
         shape:
@@ -6396,6 +6409,17 @@ components:
           - type: 'null'
           default: 0.15
           title: Fillopacity
+        startIndex:
+          anyOf:
+          - items:
+              anyOf:
+              - type: integer
+                minimum: 0
+              - type: 'null'
+            type: array
+          - type: 'null'
+          title: Startindex
+          description: Bar position of each segment's start, aligned with values. Used only by kind segment.
         pane:
           enum:
           - price
@@ -6430,6 +6454,17 @@ components:
         key:
           title: Key
           type: string
+        startIndex:
+          anyOf:
+          - items:
+              anyOf:
+              - type: integer
+                minimum: 0
+              - type: 'null'
+            type: array
+          - type: 'null'
+          title: Startindex
+          description: Segment start bar positions for this window, aligned with values. Omitted for non-segment series.
         values:
           items:
             anyOf:

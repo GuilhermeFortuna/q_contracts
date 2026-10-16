@@ -1938,7 +1938,7 @@ export interface ResearchStudySeriesInput {
   fillOpacity?: number | null
   fillTo?: string | null
   key: string
-  kind?: "line" | "step" | "markers" | "histogram"
+  kind?: "line" | "step" | "markers" | "histogram" | "segment"
   label: string
   lineStyle?: "solid" | "dashed" | "dotted" | null
   lineWidth?: number | null
@@ -1947,6 +1947,7 @@ export interface ResearchStudySeriesInput {
   position?: "value" | "above-bar" | "below-bar" | null
   shape?: "circle" | "square" | "diamond" | "triangle-up" | "triangle-down" | "cross" | null
   size?: number | null
+  startIndex?: Array<number | null> | null
   values: Array<number | null>
 }
 
@@ -1956,7 +1957,7 @@ export interface ResearchStudySeriesMetadata {
   fillOpacity?: number | null
   fillTo?: string | null
   key: string
-  kind?: "line" | "step" | "markers" | "histogram"
+  kind?: "line" | "step" | "markers" | "histogram" | "segment"
   label: string
   lineStyle?: "solid" | "dashed" | "dotted" | null
   lineWidth?: number | null
@@ -1965,6 +1966,7 @@ export interface ResearchStudySeriesMetadata {
   position?: "value" | "above-bar" | "below-bar" | null
   shape?: "circle" | "square" | "diamond" | "triangle-up" | "triangle-down" | "cross" | null
   size?: number | null
+  startIndex?: Array<number | null> | null
 }
 
 export interface ResearchStudySeriesResponse {
@@ -1974,6 +1976,7 @@ export interface ResearchStudySeriesResponse {
 
 export interface ResearchStudySeriesValues {
   key: string
+  startIndex?: Array<number | null> | null
   values: Array<number | null>
 }
 

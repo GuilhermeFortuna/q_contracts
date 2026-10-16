@@ -2845,6 +2845,7 @@ pub struct ResearchStudySeriesInput {
     pub shape: Option<String>,
     #[serde(default = "default_research_study_series_input_size")]
     pub size: Option<f64>,
+    pub startIndex: Option<Vec<Option<i64>>>,
     pub values: Vec<Option<f64>>,
 }
 
@@ -2894,6 +2895,7 @@ pub struct ResearchStudySeriesMetadata {
     pub shape: Option<String>,
     #[serde(default = "default_research_study_series_metadata_size")]
     pub size: Option<f64>,
+    pub startIndex: Option<Vec<Option<i64>>>,
 }
 
 fn default_research_study_series_metadata_baseline() -> Option<f64> {
@@ -2929,6 +2931,7 @@ pub struct ResearchStudySeriesResponse {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ResearchStudySeriesValues {
     pub key: String,
+    pub startIndex: Option<Vec<Option<i64>>>,
     pub values: Vec<Option<f64>>,
 }
 
