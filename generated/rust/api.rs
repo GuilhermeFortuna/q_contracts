@@ -1691,8 +1691,14 @@ pub struct IndicatorCatalogResponse {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct IndicatorOutputSpec {
     pub key: String,
+    #[serde(default = "default_indicator_output_spec_kind")]
+    pub kind: Option<String>,
     pub label: String,
     pub pane: String,
+}
+
+fn default_indicator_output_spec_kind() -> Option<String> {
+    Some("line".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2031,6 +2037,56 @@ pub struct MarketTapeTickResponse {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MarketTicksResponse {
     pub ticks: Vec<MarketTapeTickResponse>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MarketVolumeProfileRequest {
+    pub end: String,
+    #[serde(default = "default_market_volume_profile_request_row_ticks")]
+    pub rowTicks: Option<i64>,
+    pub segment: String,
+    pub start: String,
+    #[serde(default = "default_market_volume_profile_request_value_area")]
+    pub valueArea: Option<f64>,
+}
+
+fn default_market_volume_profile_request_row_ticks() -> Option<i64> {
+    Some(1)
+}
+
+fn default_market_volume_profile_request_value_area() -> Option<f64> {
+    Some(0.7)
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MarketVolumeProfileResponse {
+    pub rowSize: Option<f64>,
+    pub segments: Vec<MarketVolumeProfileSegment>,
+    pub tickSize: Option<f64>,
+    pub unavailableReason: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MarketVolumeProfileRowArrays {
+    pub buy: Vec<f64>,
+    pub price: Vec<f64>,
+    pub sell: Vec<f64>,
+    pub unknown: Vec<f64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MarketVolumeProfileSegment {
+    pub buy: f64,
+    pub end: String,
+    pub poc: f64,
+    pub rows: MarketVolumeProfileRowArrays,
+    pub sell: f64,
+    pub start: String,
+    pub total: f64,
+    pub trades: i64,
+    pub unknown: f64,
+    pub vah: f64,
+    pub val: f64,
 }
 
 pub type MlFilterAlgorithm = String;
