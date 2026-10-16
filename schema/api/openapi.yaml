@@ -5128,6 +5128,15 @@ components:
         key:
           title: Key
           type: string
+        kind:
+          anyOf:
+          - enum:
+            - line
+            - step
+            type: string
+          - type: 'null'
+          default: line
+          title: Kind
         label:
           title: Label
           type: string
@@ -5261,6 +5270,141 @@ components:
       - timestamps
       - series
       title: MarketIndicatorSeriesResponse
+      type: object
+    MarketVolumeProfileRequest:
+      properties:
+        end:
+          title: End
+          type: string
+        rowTicks:
+          default: 1
+          maximum: 1000
+          minimum: 1
+          title: Row Ticks
+          type: integer
+        segment:
+          enum:
+          - session
+          - range
+          title: Segment
+          type: string
+        start:
+          title: Start
+          type: string
+        valueArea:
+          default: 0.7
+          maximum: 1
+          minimum: 0.05
+          title: Value Area
+          type: number
+      required:
+      - start
+      - end
+      - segment
+      title: MarketVolumeProfileRequest
+      type: object
+    MarketVolumeProfileRowArrays:
+      properties:
+        buy:
+          items:
+            type: number
+          title: Buy
+          type: array
+        price:
+          items:
+            type: number
+          title: Price
+          type: array
+        sell:
+          items:
+            type: number
+          title: Sell
+          type: array
+        unknown:
+          items:
+            type: number
+          title: Unknown
+          type: array
+      required:
+      - price
+      - buy
+      - sell
+      - unknown
+      title: MarketVolumeProfileRowArrays
+      type: object
+    MarketVolumeProfileSegment:
+      properties:
+        buy:
+          title: Buy
+          type: number
+        end:
+          title: End
+          type: string
+        poc:
+          title: Poc
+          type: number
+        rows:
+          $ref: '#/components/schemas/MarketVolumeProfileRowArrays'
+        sell:
+          title: Sell
+          type: number
+        start:
+          title: Start
+          type: string
+        total:
+          title: Total
+          type: number
+        trades:
+          title: Trades
+          type: integer
+        unknown:
+          title: Unknown
+          type: number
+        val:
+          title: Val
+          type: number
+        vah:
+          title: Vah
+          type: number
+      required:
+      - start
+      - end
+      - total
+      - buy
+      - sell
+      - unknown
+      - trades
+      - poc
+      - vah
+      - val
+      - rows
+      title: MarketVolumeProfileSegment
+      type: object
+    MarketVolumeProfileResponse:
+      properties:
+        rowSize:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Row Size
+        segments:
+          items:
+            $ref: '#/components/schemas/MarketVolumeProfileSegment'
+          title: Segments
+          type: array
+        tickSize:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Tick Size
+        unavailableReason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unavailable Reason
+      required:
+      - segments
+      title: MarketVolumeProfileResponse
       type: object
     OhlcvBarResponse:
       properties:
@@ -11485,6 +11629,45 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
       summary: Post Market Indicator Series
+      tags:
+      - market
+  /api/v1/market/volume-profile/{symbol}:
+    post:
+      description: Build volume-at-price profiles from stored trades for the requested range.
+      operationId: post_market_volume_profile_api_v1_market_volume_profile__symbol__post
+      parameters:
+      - in: path
+        name: symbol
+        required: true
+        schema:
+          title: Symbol
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketVolumeProfileRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketVolumeProfileResponse'
+          description: Successful Response
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Profile row limit exceeded
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Post Market Volume Profile
       tags:
       - market
   /api/v1/market/ohlcv/{symbol}:

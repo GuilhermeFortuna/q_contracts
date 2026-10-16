@@ -1091,6 +1091,7 @@ export interface IndicatorCatalogResponse {
 
 export interface IndicatorOutputSpec {
   key: string
+  kind?: "line" | "step" | null
   label: string
   pane: string
 }
@@ -1296,6 +1297,42 @@ export interface MarketTapeTickResponse {
 
 export interface MarketTicksResponse {
   ticks: Array<MarketTapeTickResponse>
+}
+
+export interface MarketVolumeProfileRequest {
+  end: string
+  rowTicks?: number
+  segment: "session" | "range"
+  start: string
+  valueArea?: number
+}
+
+export interface MarketVolumeProfileResponse {
+  rowSize?: number | null
+  segments: Array<MarketVolumeProfileSegment>
+  tickSize?: number | null
+  unavailableReason?: string | null
+}
+
+export interface MarketVolumeProfileRowArrays {
+  buy: Array<number>
+  price: Array<number>
+  sell: Array<number>
+  unknown: Array<number>
+}
+
+export interface MarketVolumeProfileSegment {
+  buy: number
+  end: string
+  poc: number
+  rows: MarketVolumeProfileRowArrays
+  sell: number
+  start: string
+  total: number
+  trades: number
+  unknown: number
+  vah: number
+  val: number
 }
 
 export type MlFilterAlgorithm = "lightgbm" | "random_forest" | "logistic_regression"
