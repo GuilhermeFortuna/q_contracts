@@ -6,10 +6,10 @@ table is updated with the consumer commit and verification evidence.
 
 | Repository | Repository commit | Contracts commit | `q_core` tag pinned |
 | --- | --- | --- | --- |
-| `q_contracts` | `818b2823d830f90aaea0e84785e36095768f1fb8` | `818b2823d830f90aaea0e84785e36095768f1fb8` | — |
-| `q_frontend` | `f5598ef` (`feat/trade-chart-series-kinds`) | `dd2706d` | — |
-| `q_backend` | `d894203` (`feat/trade-chart-series-kinds`, q-core pin `v2026.10.12`) | `dd2706d` | `v2026.10.12` |
-| `q_core` | `9872b41645ee32125190fb959104ff31b98494e5` (`v2026.10.12`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
+| `q_contracts` | `25bae5aabe2b598508422a72cbb08edc563a4b4d` (volume-profile API schemas) | `25bae5aabe2b598508422a72cbb08edc563a4b4d` | — |
+| `q_frontend` | `9c8a9147aea16552b5334c161cfca2bfc8d836af` (volume-profile review fixes merged) | `25bae5aabe2b598508422a72cbb08edc563a4b4d` | — |
+| `q_backend` | `c40dbb5ced2b4d66e94d0171d325108410936c40` (volume-profile fixes and release adoption) | `25bae5aabe2b598508422a72cbb08edc563a4b4d` | `v2026.10.16` |
+| `q_core` | `66d2acb157fe7a10950d7a765b2df66488ccf1ea` (`v2026.10.16`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
 | `q_terminal` | `e510f504259718b4a2f8acd517da3b99bbee8163` | `998a50570905524bfb9af0465a725b170f2970df` | `v2026.09.12` |
 
 Every commit hash above resolves in its repository; verify with
@@ -18,15 +18,13 @@ this table carried a `q_core` hash that resolved nowhere.
 
 ### Open drift
 
-Three different contracts revisions are in use: `q_backend` at `e06a3c9`,
-`q_core` and `q_terminal` at `998a5057`, and `q_frontend` at `8a9c452`. Each
-repository's `make contracts-check` passes against the revision it pins, so no
-repository is internally inconsistent, but no single revision is shared across
-the workspace. Aligning revisions requires coordinated re-vendoring and
-verification as a separate task.
+`q_backend` and `q_frontend` pin `25bae5a` (the volume-profile API schemas),
+while `q_core` pins `998a5057`. The touched consumers' contract checks pass
+against their own pins. Aligning contracts revisions across all consumers
+remains a separate task.
 
-The two `q_core` tags in use also differ: `q_terminal` still links
-`v2026.09.12` while `q_backend` pins `v2026.10.08.2`.
+`q_backend` now adopts `q_core` `v2026.10.16`; `q_terminal` retains its independently
+managed core pin and is not changed by this release.
 
 ## Reference fixture pins
 
@@ -210,3 +208,29 @@ progress under Q-104; update the backend row when its consumer commit is verifie
 - The `q_core` commit and tag are pushed to origin. The `q_backend` pin and the
   series and quote-feature corrections that need it are merged into `development`
   locally (`b840b8a`) and are not pushed.
+
+## Volume-at-price review release and adoption (2026-10-16)
+
+- `q_core` tag `v2026.10.16` resolves to
+  `66d2acb157fe7a10950d7a765b2df66488ccf1ea`. It includes the Q-116 review
+  fixes for source-order volume sums, full-range value area at a share of one,
+  representable tick indices, overflow-safe POC ties, and checkpoint suffix
+  causality. Package version: `2026.10.16`; contracts revision: `998a5057`.
+- The full canonical `make check` passed: 403 Rust tests, reference-exporter
+  tests and fixture regeneration, parity isolation, Python wheel projection and
+  engine checks, Qt harness, formatting, Clippy, and contracts drift checks.
+  The normal pre-push CI also passed. The release commit and annotated tag are
+  published to origin.
+- `q_backend` at `c40dbb5ced2b4d66e94d0171d325108410936c40` pins the published
+  tag in `pyproject.toml` and `uv.lock`, resolving to the release commit above.
+  `uv sync --frozen` installed `q-core==2026.10.16`. Focused tests in
+  `tests/research/test_volume_at_price.py`, `tests/api/test_market_volume_profile.py`,
+  `tests/api/test_market_indicators.py`, and `tests/market_data/test_indicator_catalog.py`
+  passed (`106 passed`). Ruff and Black passed in the normal commit hook.
+- `q_frontend` at `9c8a9147aea16552b5334c161cfca2bfc8d836af` includes the
+  Q-117 request-boundary, session-placement, and hover fixes. The merged tree
+  passed 39 focused chart, saved-profile, and market utility tests. Chromium
+  verified profile hover and desktop/narrow rendering before integration.
+- Backend and frontend `make contracts-check` passed against their pinned
+  `25bae5a` revision using the documented local contracts checkout option.
+  Their `development` changes are committed locally and have not been pushed.
