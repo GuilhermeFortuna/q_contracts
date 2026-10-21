@@ -8,8 +8,8 @@ table is updated with the consumer commit and verification evidence.
 | --- | --- | --- | --- |
 | `q_contracts` | `25bae5aabe2b598508422a72cbb08edc563a4b4d` (volume-profile API schemas) | `25bae5aabe2b598508422a72cbb08edc563a4b4d` | — |
 | `q_frontend` | `9c8a9147aea16552b5334c161cfca2bfc8d836af` (volume-profile review fixes merged) | `25bae5aabe2b598508422a72cbb08edc563a4b4d` | — |
-| `q_backend` | `c40dbb5ced2b4d66e94d0171d325108410936c40` (volume-profile fixes and release adoption) | `25bae5aabe2b598508422a72cbb08edc563a4b4d` | `v2026.10.16` |
-| `q_core` | `66d2acb157fe7a10950d7a765b2df66488ccf1ea` (`v2026.10.16`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
+| `q_backend` | `ecb15761f3223e32a6dbb7169125dbf14cc14277` (tick-backed backtest review fixes and release adoption) | `25bae5aabe2b598508422a72cbb08edc563a4b4d` | `v2026.10.20` |
+| `q_core` | `d72df0f1e9b97d4d800b4935b224380ff12fe909` (`v2026.10.20`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
 | `q_terminal` | `e510f504259718b4a2f8acd517da3b99bbee8163` | `998a50570905524bfb9af0465a725b170f2970df` | `v2026.09.12` |
 
 Every commit hash above resolves in its repository; verify with
@@ -23,7 +23,7 @@ while `q_core` pins `998a5057`. The touched consumers' contract checks pass
 against their own pins. Aligning contracts revisions across all consumers
 remains a separate task.
 
-`q_backend` now adopts `q_core` `v2026.10.16`; `q_terminal` retains its independently
+`q_backend` now adopts `q_core` `v2026.10.20`; `q_terminal` retains its independently
 managed core pin and is not changed by this release.
 
 ## Reference fixture pins
@@ -234,3 +234,24 @@ progress under Q-104; update the backend row when its consumer commit is verifie
 - Backend and frontend `make contracts-check` passed against their pinned
   `25bae5a` revision using the documented local contracts checkout option.
   Their `development` changes are committed locally and have not been pushed.
+
+## Tick-backed backtest review release and adoption (2026-10-20)
+
+- `q_core` tag `v2026.10.20` resolves to
+  `d72df0f1e9b97d4d800b4935b224380ff12fe909`. It preserves every observed price
+  during a screened scan across a protective exit and subsequent resting entry,
+  and rejects stop/target amendments without an intrabar source and OHLC inputs.
+  Package version: `2026.10.20`; contracts revision: `998a5057`.
+- The full canonical `make check` and normal pre-push CI passed, including
+  reference fixtures, workspace tests, Python wheel checks, the Qt harness,
+  formatting, Clippy, and contracts checks. The release tag is published to origin.
+- `q_backend` at `ecb15761f3223e32a6dbb7169125dbf14cc14277` pins the published
+  tag in `pyproject.toml` and `uv.lock`, resolving to the core commit above.
+  It attributes original trade levels to accepted entry decisions, preserves
+  forming-candle observations while flat without invoking user exit hooks,
+  and transports native tick-data failures across session workers with global
+  bar indices. No wire contract changed.
+- `uv sync --frozen` installed the release from its Git tag. Canonical backend
+  CI passed: contracts checks, migrations against disposable Postgres/Redis,
+  Ruff, Black, `3265 passed, 15 skipped` unit tests and `56 passed` serial
+  integration tests. The native engine regression suite passed all 176 tests.
