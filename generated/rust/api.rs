@@ -278,6 +278,15 @@ pub struct BacktestNote {
 pub type BacktestOrigin = String;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct BacktestPerformance {
+    pub basis: PerformanceBasis,
+    pub drawdowns: Vec<DrawdownPeriod>,
+    pub exit_reasons: Vec<ExitReasonStats>,
+    pub portfolio: PortfolioStats,
+    pub trades: SideTradeStats,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BacktestPhaseTiming {
     pub finished_at: Option<String>,
     pub phase: String,
@@ -375,6 +384,7 @@ pub struct BacktestResponse {
     pub metrics: serde_json::Value,
     pub ml_filter_summary: Option<MlFilterBacktestSummary>,
     pub notes: Option<Vec<BacktestNote>>,
+    pub performance: Option<BacktestPerformance>,
     pub run_id: Option<String>,
     pub trades: Vec<serde_json::Value>,
 }
@@ -936,6 +946,17 @@ pub struct DiscoveryCandidateActivityResponse {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DrawdownPeriod {
+    pub depth_pct: f64,
+    pub depth_value: f64,
+    pub duration_days: f64,
+    pub peak_time: String,
+    pub recovery_time: Option<String>,
+    pub trades: i64,
+    pub trough_time: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EdgeStatusResponse {
     pub checked_at: Option<String>,
     pub mt5_connected: Option<bool>,
@@ -1149,6 +1170,14 @@ pub struct ExitQualityScoringConfig {
 
 fn default_exit_quality_scoring_config_enabled() -> Option<bool> {
     Some(false)
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ExitReasonStats {
+    pub pnl: f64,
+    pub reason: String,
+    pub trades: i64,
+    pub win_rate: f64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2733,6 +2762,34 @@ pub struct PendingReconciliationListResponse {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PerformanceBasis {
+    pub equity: String,
+    pub periods_per_year: i64,
+    pub risk_free_rate: f64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PortfolioStats {
+    pub annual_volatility_pct: Option<f64>,
+    pub avg_drawdown_pct: Option<f64>,
+    pub cagr_pct: Option<f64>,
+    pub calmar_ratio: Option<f64>,
+    pub gross_loss: f64,
+    pub gross_profit: f64,
+    pub max_drawdown_duration_days: f64,
+    pub max_drawdown_pct: f64,
+    pub max_drawdown_value: f64,
+    pub net_pnl: f64,
+    pub recovery_factor: Option<f64>,
+    pub return_pct: Option<f64>,
+    pub sharpe_ratio: Option<f64>,
+    pub sortino_ratio: Option<f64>,
+    pub time_in_market_pct: Option<f64>,
+    pub total_commission: f64,
+    pub trades_per_month: Option<f64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PositionListResponse {
     pub items: Vec<PositionResponse>,
     pub limit: i64,
@@ -3024,6 +3081,13 @@ pub struct SearchSpaceConfig {
     pub manager_params: Option<serde_json::Value>,
     pub risk_params: Option<serde_json::Value>,
     pub strategy_params: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SideTradeStats {
+    pub all: TradeStats,
+    pub long: TradeStats,
+    pub short: TradeStats,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -3522,6 +3586,27 @@ pub struct TradeSourceStatus {
     pub symbol: String,
     pub volume_field: String,
     pub volume_unit: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TradeStats {
+    pub avg_hold_seconds: Option<f64>,
+    pub avg_loss: Option<f64>,
+    pub avg_loss_hold_seconds: Option<f64>,
+    pub avg_win: Option<f64>,
+    pub avg_win_hold_seconds: Option<f64>,
+    pub breakeven: i64,
+    pub expectancy: Option<f64>,
+    pub largest_loss: Option<f64>,
+    pub largest_win: Option<f64>,
+    pub losing: i64,
+    pub max_consecutive_losses: i64,
+    pub max_consecutive_wins: i64,
+    pub payoff_ratio: Option<f64>,
+    pub profit_factor: Option<f64>,
+    pub total: i64,
+    pub win_rate: Option<f64>,
+    pub winning: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

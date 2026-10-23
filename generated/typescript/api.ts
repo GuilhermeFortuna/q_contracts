@@ -184,6 +184,14 @@ export interface BacktestNote {
 
 export type BacktestOrigin = "stack" | "script"
 
+export interface BacktestPerformance {
+  basis: PerformanceBasis
+  drawdowns: Array<DrawdownPeriod>
+  exit_reasons: Array<ExitReasonStats>
+  portfolio: PortfolioStats
+  trades: SideTradeStats
+}
+
 export interface BacktestPhaseTiming {
   finished_at?: string | null
   phase: "queued" | "loading_data" | "preparing" | "simulating" | "saving"
@@ -228,6 +236,7 @@ export interface BacktestResponse {
   metrics: Record<string, unknown>
   ml_filter_summary?: MlFilterBacktestSummary | null
   notes?: Array<BacktestNote>
+  performance?: BacktestPerformance | null
   run_id?: string | null
   trades: Array<Record<string, unknown>>
 }
@@ -652,6 +661,16 @@ export interface DiscoveryCandidateActivityResponse {
   window_index?: number | null
 }
 
+export interface DrawdownPeriod {
+  depth_pct: number
+  depth_value: number
+  duration_days: number
+  peak_time: string
+  recovery_time: string | null
+  trades: number
+  trough_time: string
+}
+
 export interface EdgeStatusResponse {
   checked_at?: string | null
   mt5_connected?: boolean | null
@@ -801,6 +820,13 @@ export interface ExitQualityScoringConfig {
   enabled?: boolean
   max_profit_giveback_pct?: number | null
   min_mfe_capture_ratio?: number | null
+}
+
+export interface ExitReasonStats {
+  pnl: number
+  reason: string
+  trades: number
+  win_rate: number
 }
 
 export interface ExitRuleCatalogResponse {
@@ -1847,6 +1873,32 @@ export interface PendingReconciliationListResponse {
   total: number
 }
 
+export interface PerformanceBasis {
+  equity: "closed_trade"
+  periods_per_year: number
+  risk_free_rate: number
+}
+
+export interface PortfolioStats {
+  annual_volatility_pct: number | null
+  avg_drawdown_pct: number | null
+  cagr_pct: number | null
+  calmar_ratio: number | null
+  gross_loss: number
+  gross_profit: number
+  max_drawdown_duration_days: number
+  max_drawdown_pct: number
+  max_drawdown_value: number
+  net_pnl: number
+  recovery_factor: number | null
+  return_pct: number | null
+  sharpe_ratio: number | null
+  sortino_ratio: number | null
+  time_in_market_pct: number | null
+  total_commission: number
+  trades_per_month: number | null
+}
+
 export interface PositionListResponse {
   items: Array<PositionResponse>
   limit: number
@@ -2045,6 +2097,12 @@ export interface SearchSpaceConfig {
   manager_params?: Record<string, unknown>
   risk_params?: Record<string, unknown>
   strategy_params?: Record<string, unknown>
+}
+
+export interface SideTradeStats {
+  all: TradeStats
+  long: TradeStats
+  short: TradeStats
 }
 
 export interface SignalManagerCatalogResponse {
@@ -2384,6 +2442,26 @@ export interface TradeSourceStatus {
   symbol: string
   volume_field: "volume" | "volume_real"
   volume_unit: string
+}
+
+export interface TradeStats {
+  avg_hold_seconds: number | null
+  avg_loss: number | null
+  avg_loss_hold_seconds: number | null
+  avg_win: number | null
+  avg_win_hold_seconds: number | null
+  breakeven: number
+  expectancy: number | null
+  largest_loss: number | null
+  largest_win: number | null
+  losing: number
+  max_consecutive_losses: number
+  max_consecutive_wins: number
+  payoff_ratio: number | null
+  profit_factor: number | null
+  total: number
+  win_rate: number | null
+  winning: number
 }
 
 export interface TransactionCostConfig {

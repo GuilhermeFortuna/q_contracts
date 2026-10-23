@@ -57,8 +57,8 @@ This document records discrepancies discovered while capturing and auditing the 
 
 - **Endpoint / Field:** `BacktestResponse.metrics`, `BacktestResponse.trades`, `BacktestRunDetailResponse.config`, `BacktestRunDetailResponse.result_summary`.
 - **Expectation:** Backtest responses declare strongly-typed schemas for performance metrics (drawdown, win rate, PnL), individual trade records, and run configuration snapshots matching frontend expectations (`BacktestMetrics`, `Trade`, `BacktestRequest`).
-- **Observed Behavior:** The backend Pydantic models use bare `dict[str, Any]` or untyped objects (`additionalProperties: true`), leaving `metrics`, `trades`, and `config` unvalidated in the OpenAPI specification.
-- **Triage Decision:** Later task. Add typed Pydantic models for backtest performance metrics, executed trade records, and serialized configuration snapshots.
+- **Observed Behavior:** The backend Pydantic models use bare `dict[str, Any]` or untyped objects (`additionalProperties: true`), leaving `metrics`, `trades`, and `config` unvalidated in the OpenAPI specification. Backtest performance is now typed: `BacktestResponse.performance` (Q-123) is an optional, nullable `BacktestPerformance` with basis, portfolio ratios, all/long/short trade statistics, drawdown periods and exit-reason breakdown. `BacktestResponse.metrics` and `BacktestResponse.trades` remain free-form, and so do `BacktestRunDetailResponse.config` and `result_summary`.
+- **Triage Decision:** Partly resolved by Q-123 for performance. Still open: executed trade records (`trades`), serialized configuration snapshots (`config`), and the legacy `metrics` dictionary.
 
 ---
 

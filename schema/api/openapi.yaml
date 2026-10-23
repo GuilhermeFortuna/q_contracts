@@ -735,6 +735,11 @@ components:
             $ref: '#/components/schemas/BacktestNote'
           title: Notes
           type: array
+        performance:
+          anyOf:
+          - $ref: '#/components/schemas/BacktestPerformance'
+          - type: 'null'
+          title: Performance
       required:
       - metrics
       - trades
@@ -761,6 +766,316 @@ components:
       - message
       title: BacktestNote
       type: object
+    PerformanceBasis:
+      properties:
+        equity:
+          enum:
+          - closed_trade
+          title: Equity
+          type: string
+        periods_per_year:
+          type: integer
+          title: Periods Per Year
+        risk_free_rate:
+          title: Risk Free Rate
+          type: number
+      title: PerformanceBasis
+      type: object
+      required:
+      - equity
+      - periods_per_year
+      - risk_free_rate
+      description: What the performance measures are computed from, so a client can state it.
+    PortfolioStats:
+      properties:
+        net_pnl:
+          title: Net Pnl
+          type: number
+        gross_profit:
+          title: Gross Profit
+          type: number
+        gross_loss:
+          title: Gross Loss
+          type: number
+        total_commission:
+          title: Total Commission
+          type: number
+        return_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Return Pct
+        cagr_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Cagr Pct
+        max_drawdown_value:
+          title: Max Drawdown Value
+          type: number
+        max_drawdown_pct:
+          title: Max Drawdown Pct
+          type: number
+        max_drawdown_duration_days:
+          title: Max Drawdown Duration Days
+          type: number
+        avg_drawdown_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Drawdown Pct
+        recovery_factor:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Recovery Factor
+        calmar_ratio:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Calmar Ratio
+        sharpe_ratio:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Sharpe Ratio
+        sortino_ratio:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Sortino Ratio
+        annual_volatility_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Annual Volatility Pct
+        time_in_market_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Time In Market Pct
+        trades_per_month:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Trades Per Month
+      title: PortfolioStats
+      type: object
+      required:
+      - net_pnl
+      - gross_profit
+      - gross_loss
+      - total_commission
+      - return_pct
+      - cagr_pct
+      - max_drawdown_value
+      - max_drawdown_pct
+      - max_drawdown_duration_days
+      - avg_drawdown_pct
+      - recovery_factor
+      - calmar_ratio
+      - sharpe_ratio
+      - sortino_ratio
+      - annual_volatility_pct
+      - time_in_market_pct
+      - trades_per_month
+      description: Equity-curve measures. Percentages are fractions (0.1 is 10%).
+    TradeStats:
+      properties:
+        total:
+          type: integer
+          title: Total
+        winning:
+          type: integer
+          title: Winning
+        losing:
+          type: integer
+          title: Losing
+        breakeven:
+          type: integer
+          title: Breakeven
+        win_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Win Rate
+        profit_factor:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Profit Factor
+        expectancy:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Expectancy
+        avg_win:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Win
+        avg_loss:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Loss
+        payoff_ratio:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Payoff Ratio
+        largest_win:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Largest Win
+        largest_loss:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Largest Loss
+        max_consecutive_wins:
+          type: integer
+          title: Max Consecutive Wins
+        max_consecutive_losses:
+          type: integer
+          title: Max Consecutive Losses
+        avg_hold_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Hold Seconds
+        avg_win_hold_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Win Hold Seconds
+        avg_loss_hold_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Loss Hold Seconds
+      title: TradeStats
+      type: object
+      required:
+      - total
+      - winning
+      - losing
+      - breakeven
+      - win_rate
+      - profit_factor
+      - expectancy
+      - avg_win
+      - avg_loss
+      - payoff_ratio
+      - largest_win
+      - largest_loss
+      - max_consecutive_wins
+      - max_consecutive_losses
+      - avg_hold_seconds
+      - avg_win_hold_seconds
+      - avg_loss_hold_seconds
+      description: Trade-level statistics for one group. An empty group has zero counts and null ratios.
+    SideTradeStats:
+      properties:
+        all:
+          $ref: '#/components/schemas/TradeStats'
+        long:
+          $ref: '#/components/schemas/TradeStats'
+        short:
+          $ref: '#/components/schemas/TradeStats'
+      title: SideTradeStats
+      type: object
+      required:
+      - all
+      - long
+      - short
+    DrawdownPeriod:
+      properties:
+        peak_time:
+          format: date-time
+          title: Peak Time
+          type: string
+        trough_time:
+          format: date-time
+          title: Trough Time
+          type: string
+        recovery_time:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Recovery Time
+        depth_value:
+          title: Depth Value
+          type: number
+        depth_pct:
+          title: Depth Pct
+          type: number
+        duration_days:
+          title: Duration Days
+          type: number
+        trades:
+          type: integer
+          title: Trades
+      title: DrawdownPeriod
+      type: object
+      required:
+      - peak_time
+      - trough_time
+      - recovery_time
+      - depth_value
+      - depth_pct
+      - duration_days
+      - trades
+    ExitReasonStats:
+      properties:
+        reason:
+          title: Reason
+          type: string
+        trades:
+          type: integer
+          title: Trades
+        pnl:
+          title: Pnl
+          type: number
+        win_rate:
+          title: Win Rate
+          type: number
+      title: ExitReasonStats
+      type: object
+      required:
+      - reason
+      - trades
+      - pnl
+      - win_rate
+    BacktestPerformance:
+      properties:
+        basis:
+          $ref: '#/components/schemas/PerformanceBasis'
+        portfolio:
+          $ref: '#/components/schemas/PortfolioStats'
+        trades:
+          $ref: '#/components/schemas/SideTradeStats'
+        drawdowns:
+          items:
+            $ref: '#/components/schemas/DrawdownPeriod'
+          title: Drawdowns
+          type: array
+        exit_reasons:
+          items:
+            $ref: '#/components/schemas/ExitReasonStats'
+          title: Exit Reasons
+          type: array
+      title: BacktestPerformance
+      type: object
+      required:
+      - basis
+      - portfolio
+      - trades
+      - drawdowns
+      - exit_reasons
+      description: Typed performance of a finished backtest, computed from closed trades (Q-123).
     BacktestImportRequest:
       properties:
         config:
