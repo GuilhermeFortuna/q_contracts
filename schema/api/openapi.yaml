@@ -588,6 +588,12 @@ components:
       type: object
     BacktestRequest:
       properties:
+        post_exit_bars:
+          default: 10
+          maximum: 500
+          minimum: 1
+          title: Post Exit Bars
+          type: integer
         costs:
           anyOf:
           - $ref: '#/components/schemas/TransactionCostConfig'
@@ -882,6 +888,44 @@ components:
       description: Equity-curve measures. Percentages are fractions (0.1 is 10%).
     TradeStats:
       properties:
+        excursion_trades:
+          type: integer
+          title: Excursion Trades
+        avg_mfe:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Mfe
+        avg_mae:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Mae
+        mfe_capture:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Mfe Capture
+        median_mfe_capture:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Median Mfe Capture
+        median_time_to_mfe_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Median Time To Mfe Seconds
+        avg_post_exit_return:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Post Exit Return
+        post_exit_continuation_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Post Exit Continuation Rate
         total:
           type: integer
           title: Total
@@ -975,6 +1019,14 @@ components:
       - avg_hold_seconds
       - avg_win_hold_seconds
       - avg_loss_hold_seconds
+      - excursion_trades
+      - avg_mfe
+      - avg_mae
+      - mfe_capture
+      - median_mfe_capture
+      - median_time_to_mfe_seconds
+      - avg_post_exit_return
+      - post_exit_continuation_rate
       description: Trade-level statistics for one group. An empty group has zero counts and null ratios.
     SideTradeStats:
       properties:
@@ -1049,8 +1101,98 @@ components:
       - trades
       - pnl
       - win_rate
+    ExcursionResolutionCounts:
+      properties:
+        tick:
+          type: integer
+        minute:
+          type: integer
+        candle:
+          type: integer
+      required:
+      - tick
+      - minute
+      - candle
+      title: ExcursionResolutionCounts
+      type: object
+    ExcursionSummary:
+      properties:
+        post_exit_bars:
+          type: integer
+        resolution:
+          $ref: '#/components/schemas/ExcursionResolutionCounts'
+      required:
+      - post_exit_bars
+      - resolution
+      title: ExcursionSummary
+      type: object
+    PostExitTradeAnalysis:
+      properties:
+        trade_id:
+          type: string
+        post_exit_mfe_points:
+          anyOf:
+          - type: number
+          - type: 'null'
+        post_exit_mae_points:
+          anyOf:
+          - type: number
+          - type: 'null'
+        post_exit_return_points:
+          anyOf:
+          - type: number
+          - type: 'null'
+        post_exit_bars_observed:
+          type: integer
+      required:
+      - trade_id
+      - post_exit_mfe_points
+      - post_exit_mae_points
+      - post_exit_return_points
+      - post_exit_bars_observed
+      title: PostExitTradeAnalysis
+      type: object
+    PostExitSideStats:
+      properties:
+        avg_post_exit_return:
+          anyOf:
+          - type: number
+          - type: 'null'
+        post_exit_continuation_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+      required:
+      - avg_post_exit_return
+      - post_exit_continuation_rate
+      title: PostExitSideStats
+      type: object
+    PostExitAnalysis:
+      properties:
+        post_exit_bars:
+          type: integer
+        trades:
+          items:
+            $ref: '#/components/schemas/PostExitTradeAnalysis'
+          type: array
+        all:
+          $ref: '#/components/schemas/PostExitSideStats'
+        long:
+          $ref: '#/components/schemas/PostExitSideStats'
+        short:
+          $ref: '#/components/schemas/PostExitSideStats'
+      required:
+      - post_exit_bars
+      - trades
+      - all
+      - long
+      - short
+      title: PostExitAnalysis
+      type: object
     BacktestPerformance:
       properties:
+        excursions:
+          $ref: '#/components/schemas/ExcursionSummary'
         basis:
           $ref: '#/components/schemas/PerformanceBasis'
         portfolio:
@@ -1078,6 +1220,7 @@ components:
       - basis
       - portfolio
       - trades
+      - excursions
       - drawdowns
       - exit_reasons
       - entry_reasons
@@ -1339,6 +1482,7 @@ components:
           - loading_data
           - preparing
           - simulating
+          - measuring
           - saving
           type: string
           title: Phase
@@ -1402,6 +1546,7 @@ components:
             - loading_data
             - preparing
             - simulating
+            - measuring
             - saving
             type: string
           - type: 'null'
@@ -10321,6 +10466,14 @@ paths:
       description: Return the closed trades of a backtest run as CSV.
       operationId: export_backtest_trades_api_v1_backtests__run_id__export_trades_get
       parameters:
+      - in: query
+        name: post_exit_bars
+        required: false
+        schema:
+          default: 10
+          maximum: 500
+          minimum: 1
+          type: integer
       - in: path
         name: run_id
         required: true
@@ -10341,6 +10494,41 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
       summary: Export Backtest Trades
+      tags:
+      - backtest
+  /api/v1/backtests/{run_id}/post-exit:
+    get:
+      operationId: get_backtest_post_exit_api_v1_backtests__run_id__post_exit_get
+      parameters:
+      - in: path
+        name: run_id
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: bars
+        required: false
+        schema:
+          default: 10
+          maximum: 500
+          minimum: 1
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostExitAnalysis'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Run or market data artifact not found
+        '422':
+          description: Validation Error
+      summary: Recalculate Backtest Post Exit Analysis
       tags:
       - backtest
   /api/v1/catalog/datasets:

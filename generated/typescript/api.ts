@@ -188,6 +188,7 @@ export interface BacktestPerformance {
   basis: PerformanceBasis
   drawdowns: Array<DrawdownPeriod>
   entry_reasons: Array<ReasonStats>
+  excursions: ExcursionSummary
   exit_reasons: Array<ReasonStats>
   portfolio: PortfolioStats
   trades: SideTradeStats
@@ -195,7 +196,7 @@ export interface BacktestPerformance {
 
 export interface BacktestPhaseTiming {
   finished_at?: string | null
-  phase: "queued" | "loading_data" | "preparing" | "simulating" | "saving"
+  phase: "queued" | "loading_data" | "preparing" | "simulating" | "measuring" | "saving"
   started_at: string
 }
 
@@ -223,6 +224,7 @@ export interface BacktestRequest {
   ml_filter?: MlFilterConfig | null
   point_value?: number
   position_sizing?: FixedQuantityPositionSizing | FixedSafetyMarginPositionSizing | InverseVolatilityPositionSizing | null
+  post_exit_bars?: number
   start?: string | null
   strategy?: string
   strategy_params?: Record<string, unknown>
@@ -294,7 +296,7 @@ export interface BacktestStatusResponse {
   candles_substituted?: number | null
   error?: string | null
   message?: string | null
-  phase?: "queued" | "loading_data" | "preparing" | "simulating" | "saving" | null
+  phase?: "queued" | "loading_data" | "preparing" | "simulating" | "measuring" | "saving" | null
   phase_history?: Array<BacktestPhaseTiming> | null
   progress?: number | null
   run_id: string
@@ -756,6 +758,17 @@ export interface ErrorResponse {
   code?: string | null
   details?: unknown | null
   message: string
+}
+
+export interface ExcursionResolutionCounts {
+  candle: number
+  minute: number
+  tick: number
+}
+
+export interface ExcursionSummary {
+  post_exit_bars: number
+  resolution: ExcursionResolutionCounts
 }
 
 export interface ExecutionAssumptions {
@@ -1912,6 +1925,27 @@ export interface PositionResponse {
   updated_at: string
 }
 
+export interface PostExitAnalysis {
+  all: PostExitSideStats
+  long: PostExitSideStats
+  post_exit_bars: number
+  short: PostExitSideStats
+  trades: Array<PostExitTradeAnalysis>
+}
+
+export interface PostExitSideStats {
+  avg_post_exit_return: number | null
+  post_exit_continuation_rate: number | null
+}
+
+export interface PostExitTradeAnalysis {
+  post_exit_bars_observed: number
+  post_exit_mae_points: number | null
+  post_exit_mfe_points: number | null
+  post_exit_return_points: number | null
+  trade_id: string
+}
+
 export interface ReasonStats {
   pnl: number
   reason: string
@@ -2449,16 +2483,24 @@ export interface TradeStats {
   avg_hold_seconds: number | null
   avg_loss: number | null
   avg_loss_hold_seconds: number | null
+  avg_mae: number | null
+  avg_mfe: number | null
+  avg_post_exit_return: number | null
   avg_win: number | null
   avg_win_hold_seconds: number | null
   breakeven: number
+  excursion_trades: number
   expectancy: number | null
   largest_loss: number | null
   largest_win: number | null
   losing: number
   max_consecutive_losses: number
   max_consecutive_wins: number
+  median_mfe_capture: number | null
+  median_time_to_mfe_seconds: number | null
+  mfe_capture: number | null
   payoff_ratio: number | null
+  post_exit_continuation_rate: number | null
   profit_factor: number | null
   total: number
   win_rate: number | null
