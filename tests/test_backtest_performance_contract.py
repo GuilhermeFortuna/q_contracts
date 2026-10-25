@@ -103,6 +103,9 @@ def _performance() -> dict:
             },
         ],
         "exit_reasons": [{"reason": "tp", "trades": 2, "pnl": 500.0, "win_rate": 1.0}],
+        "entry_reasons": [
+            {"reason": "breakout", "trades": 2, "pnl": 500.0, "win_rate": 1.0}
+        ],
     }
 
 
@@ -131,6 +134,16 @@ def test_performance_basis_is_closed_trade_only(
 ) -> None:
     payload = _performance()
     payload["basis"]["equity"] = "mark_to_market"
+
+    with pytest.raises(jsonschema.ValidationError):
+        _validator(openapi_registry, "BacktestPerformance").validate(payload)
+
+
+def test_missing_entry_reasons_is_rejected(
+    openapi_registry: referencing.Registry,
+) -> None:
+    payload = _performance()
+    del payload["entry_reasons"]
 
     with pytest.raises(jsonschema.ValidationError):
         _validator(openapi_registry, "BacktestPerformance").validate(payload)

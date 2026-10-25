@@ -1028,7 +1028,7 @@ components:
       - depth_pct
       - duration_days
       - trades
-    ExitReasonStats:
+    ReasonStats:
       properties:
         reason:
           title: Reason
@@ -1042,7 +1042,7 @@ components:
         win_rate:
           title: Win Rate
           type: number
-      title: ExitReasonStats
+      title: ReasonStats
       type: object
       required:
       - reason
@@ -1064,8 +1064,13 @@ components:
           type: array
         exit_reasons:
           items:
-            $ref: '#/components/schemas/ExitReasonStats'
+            $ref: '#/components/schemas/ReasonStats'
           title: Exit Reasons
+          type: array
+        entry_reasons:
+          items:
+            $ref: '#/components/schemas/ReasonStats'
+          title: Entry Reasons
           type: array
       title: BacktestPerformance
       type: object
@@ -1075,6 +1080,7 @@ components:
       - trades
       - drawdowns
       - exit_reasons
+      - entry_reasons
       description: Typed performance of a finished backtest, computed from closed trades (Q-123).
     BacktestImportRequest:
       properties:

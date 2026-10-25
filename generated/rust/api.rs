@@ -281,7 +281,8 @@ pub type BacktestOrigin = String;
 pub struct BacktestPerformance {
     pub basis: PerformanceBasis,
     pub drawdowns: Vec<DrawdownPeriod>,
-    pub exit_reasons: Vec<ExitReasonStats>,
+    pub entry_reasons: Vec<ReasonStats>,
+    pub exit_reasons: Vec<ReasonStats>,
     pub portfolio: PortfolioStats,
     pub trades: SideTradeStats,
 }
@@ -1170,14 +1171,6 @@ pub struct ExitQualityScoringConfig {
 
 fn default_exit_quality_scoring_config_enabled() -> Option<bool> {
     Some(false)
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct ExitReasonStats {
-    pub pnl: f64,
-    pub reason: String,
-    pub trades: i64,
-    pub win_rate: f64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2808,6 +2801,14 @@ pub struct PositionResponse {
     pub quantity: String,
     pub side: String,
     pub updated_at: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ReasonStats {
+    pub pnl: f64,
+    pub reason: String,
+    pub trades: i64,
+    pub win_rate: f64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
