@@ -6,9 +6,9 @@ table is updated with the consumer commit and verification evidence.
 
 | Repository | Repository commit | Contracts commit | `q_core` tag pinned |
 | --- | --- | --- | --- |
-| `q_contracts` | `25bae5aabe2b598508422a72cbb08edc563a4b4d` (volume-profile API schemas) | `25bae5aabe2b598508422a72cbb08edc563a4b4d` | — |
-| `q_frontend` | `9c8a9147aea16552b5334c161cfca2bfc8d836af` (volume-profile review fixes merged) | `25bae5aabe2b598508422a72cbb08edc563a4b4d` | — |
-| `q_backend` | `3fb55723ca7df8a584e30d6e78e11ff11885c46d` (tick-backed backtest review fixes and release adoption) | `25bae5aabe2b598508422a72cbb08edc563a4b4d` | `v2026.10.20` |
+| `q_contracts` | `bf602c9c7bad907680d3ce98327439efe0f4c5bf` (backtest entry reasons) | `bf602c9c7bad907680d3ce98327439efe0f4c5bf` | — |
+| `q_frontend` | `91d1f10` (Q-129 entry reasons, unpushed) | `bf602c9c7bad907680d3ce98327439efe0f4c5bf` | — |
+| `q_backend` | `60f5bb3` (Q-129 entry reasons, unpushed) | `bf602c9c7bad907680d3ce98327439efe0f4c5bf` | `v2026.10.20` |
 | `q_core` | `d72df0f1e9b97d4d800b4935b224380ff12fe909` (`v2026.10.20`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
 | `q_terminal` | `e510f504259718b4a2f8acd517da3b99bbee8163` | `998a50570905524bfb9af0465a725b170f2970df` | `v2026.09.12` |
 
@@ -18,10 +18,9 @@ this table carried a `q_core` hash that resolved nowhere.
 
 ### Open drift
 
-`q_backend` and `q_frontend` pin `25bae5a` (the volume-profile API schemas),
-while `q_core` pins `998a5057`. The touched consumers' contract checks pass
-against their own pins. Aligning contracts revisions across all consumers
-remains a separate task.
+`q_backend` and `q_frontend` pin `bf602c9` (Q-129 entry reasons), while
+`q_core` pins `998a5057`. The touched consumers' contract checks pass against
+their own pins. Aligning the `q_core` contracts revision remains a separate task.
 
 `q_backend` now adopts `q_core` `v2026.10.20`; `q_terminal` retains its independently
 managed core pin and is not changed by this release.
@@ -259,3 +258,21 @@ progress under Q-104; update the backend row when its consumer commit is verifie
   foreign contracts checkouts work from linked worktrees as well as primary
   checkouts. Two focused Git fixtures cover those cases. The core release and
   backend adoption are published on their respective `development` branches.
+
+## Backtest entry reasons (Q-129, 2026-10-25)
+
+- `q_contracts` at `bf602c9c7bad907680d3ce98327439efe0f4c5bf` renames
+  `ExitReasonStats` to `ReasonStats` and adds the required `entry_reasons`
+  array to `BacktestPerformance`. The rename breaks the Q-123 performance
+  schema for any consumer still on an older revision, so each consumer moves to
+  this revision in the same change. `make check` passed: `309 passed, 7 skipped`.
+- `q_backend` at `60f5bb3` pins `bf602c9` and passes `make contracts-check`
+  against that revision from a local clone, because the commit is unpushed.
+  Focused research, backtesting, analytics, performance and payload-guard tests
+  pass, and Ruff and Black are clean. Six optimization and API tests need the
+  dev Postgres on `localhost:5434`, which is not running in this workspace.
+- `q_frontend` at `91d1f10` pins `bf602c9` and passes `make contracts-check`
+  from a local clone, `pnpm typecheck`, and `pnpm lint` with no errors. The full
+  Vitest suite passed under `TZ=America/Sao_Paulo`: `271` files and `1406` tests.
+- Both consumer commits are local. Nothing has been pushed.
+

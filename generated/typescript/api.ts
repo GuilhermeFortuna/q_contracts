@@ -187,7 +187,8 @@ export type BacktestOrigin = "stack" | "script"
 export interface BacktestPerformance {
   basis: PerformanceBasis
   drawdowns: Array<DrawdownPeriod>
-  exit_reasons: Array<ExitReasonStats>
+  entry_reasons: Array<ReasonStats>
+  exit_reasons: Array<ReasonStats>
   portfolio: PortfolioStats
   trades: SideTradeStats
 }
@@ -820,13 +821,6 @@ export interface ExitQualityScoringConfig {
   enabled?: boolean
   max_profit_giveback_pct?: number | null
   min_mfe_capture_ratio?: number | null
-}
-
-export interface ExitReasonStats {
-  pnl: number
-  reason: string
-  trades: number
-  win_rate: number
 }
 
 export interface ExitRuleCatalogResponse {
@@ -1916,6 +1910,13 @@ export interface PositionResponse {
   quantity: string
   side: string
   updated_at: string
+}
+
+export interface ReasonStats {
+  pnl: number
+  reason: string
+  trades: number
+  win_rate: number
 }
 
 export interface ResearchCollectionSummary {
