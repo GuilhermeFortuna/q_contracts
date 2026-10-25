@@ -282,6 +282,7 @@ pub struct BacktestPerformance {
     pub basis: PerformanceBasis,
     pub drawdowns: Vec<DrawdownPeriod>,
     pub entry_reasons: Vec<ReasonStats>,
+    pub excursions: ExcursionSummary,
     pub exit_reasons: Vec<ReasonStats>,
     pub portfolio: PortfolioStats,
     pub trades: SideTradeStats,
@@ -328,6 +329,8 @@ pub struct BacktestRequest {
     #[serde(default = "default_backtest_request_point_value")]
     pub point_value: Option<f64>,
     pub position_sizing: Option<serde_json::Value>,
+    #[serde(default = "default_backtest_request_post_exit_bars")]
+    pub post_exit_bars: Option<i64>,
     pub start: Option<String>,
     #[serde(default = "default_backtest_request_strategy")]
     pub strategy: Option<String>,
@@ -368,6 +371,10 @@ fn default_backtest_request_initial_capital() -> Option<f64> {
 
 fn default_backtest_request_point_value() -> Option<f64> {
     Some(1.0)
+}
+
+fn default_backtest_request_post_exit_bars() -> Option<i64> {
+    Some(10)
 }
 
 fn default_backtest_request_strategy() -> Option<String> {
@@ -1073,6 +1080,19 @@ pub struct ErrorResponse {
     pub code: Option<String>,
     pub details: Option<serde_json::Value>,
     pub message: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ExcursionResolutionCounts {
+    pub candle: i64,
+    pub minute: i64,
+    pub tick: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ExcursionSummary {
+    pub post_exit_bars: i64,
+    pub resolution: ExcursionResolutionCounts,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2804,6 +2824,30 @@ pub struct PositionResponse {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PostExitAnalysis {
+    pub all: PostExitSideStats,
+    pub long: PostExitSideStats,
+    pub post_exit_bars: i64,
+    pub short: PostExitSideStats,
+    pub trades: Vec<PostExitTradeAnalysis>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PostExitSideStats {
+    pub avg_post_exit_return: Option<f64>,
+    pub post_exit_continuation_rate: Option<f64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PostExitTradeAnalysis {
+    pub post_exit_bars_observed: i64,
+    pub post_exit_mae_points: Option<f64>,
+    pub post_exit_mfe_points: Option<f64>,
+    pub post_exit_return_points: Option<f64>,
+    pub trade_id: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ReasonStats {
     pub pnl: f64,
     pub reason: String,
@@ -3594,16 +3638,24 @@ pub struct TradeStats {
     pub avg_hold_seconds: Option<f64>,
     pub avg_loss: Option<f64>,
     pub avg_loss_hold_seconds: Option<f64>,
+    pub avg_mae: Option<f64>,
+    pub avg_mfe: Option<f64>,
+    pub avg_post_exit_return: Option<f64>,
     pub avg_win: Option<f64>,
     pub avg_win_hold_seconds: Option<f64>,
     pub breakeven: i64,
+    pub excursion_trades: i64,
     pub expectancy: Option<f64>,
     pub largest_loss: Option<f64>,
     pub largest_win: Option<f64>,
     pub losing: i64,
     pub max_consecutive_losses: i64,
     pub max_consecutive_wins: i64,
+    pub median_mfe_capture: Option<f64>,
+    pub median_time_to_mfe_seconds: Option<f64>,
+    pub mfe_capture: Option<f64>,
     pub payoff_ratio: Option<f64>,
+    pub post_exit_continuation_rate: Option<f64>,
     pub profit_factor: Option<f64>,
     pub total: i64,
     pub win_rate: Option<f64>,

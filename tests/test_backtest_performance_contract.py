@@ -47,6 +47,14 @@ def _trade_stats(total: int = 0) -> dict:
         "avg_hold_seconds": None,
         "avg_win_hold_seconds": None,
         "avg_loss_hold_seconds": None,
+        "excursion_trades": 0,
+        "avg_mfe": None,
+        "avg_mae": None,
+        "mfe_capture": None,
+        "median_mfe_capture": None,
+        "median_time_to_mfe_seconds": None,
+        "avg_post_exit_return": None,
+        "post_exit_continuation_rate": None,
     }
 
 
@@ -106,6 +114,10 @@ def _performance() -> dict:
         "entry_reasons": [
             {"reason": "breakout", "trades": 2, "pnl": 500.0, "win_rate": 1.0}
         ],
+        "excursions": {
+            "post_exit_bars": 10,
+            "resolution": {"tick": 0, "minute": 0, "candle": 0},
+        },
     }
 
 
