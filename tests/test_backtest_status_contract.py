@@ -82,7 +82,8 @@ def test_live_status_validates_with_every_progress_field(registry):
 
 
 @pytest.mark.parametrize(
-    "phase", ["queued", "loading_data", "preparing", "simulating", "saving"]
+    "phase",
+    ["queued", "loading_data", "preparing", "simulating", "measuring", "saving"],
 )
 def test_each_documented_phase_validates(registry, phase):
     validator(registry).validate(live_status(phase=phase))
@@ -114,7 +115,7 @@ def test_generated_typescript_and_rust_expose_the_progress_fields():
     rs = (ROOT / "generated" / "rust" / "api.rs").read_text(encoding="utf-8")
 
     assert (
-        'phase?: "queued" | "loading_data" | "preparing" | "simulating" | "saving" | null'
+        'phase?: "queued" | "loading_data" | "preparing" | "simulating" | "measuring" | "saving" | null'
         in ts
     )
     assert "progress?: number | null" in ts
