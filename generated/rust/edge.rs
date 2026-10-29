@@ -15,6 +15,7 @@ pub struct AccountResponse {
     pub server: String,
     pub terminal_trade_allowed: bool,
     pub trade_allowed: bool,
+    pub trade_mode: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

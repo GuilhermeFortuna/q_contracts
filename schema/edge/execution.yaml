@@ -1,10 +1,10 @@
 # Execution Edge Wire Contract
-# Schema major: 1, version: "1.0"
+# Schema major: 1, version: "1.1"
 # Governed by process-level obligations in schema/edge/OBLIGATIONS.md
 
 schema_name: execution-edge
 schema_major: 1
-schema_version: "1.0"
+schema_version: "1.1"
 obligations: schema/edge/OBLIGATIONS.md
 
 description: >
