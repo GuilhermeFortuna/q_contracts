@@ -276,3 +276,21 @@ progress under Q-104; update the backend row when its consumer commit is verifie
   Vitest suite passed under `TZ=America/Sao_Paulo`: `271` files and `1406` tests.
 - Both consumer commits are local. Nothing has been pushed.
 
+
+## Strategy files (Q-134, 2026-10-29)
+
+- `q_contracts` at `2e9f5201a667fe7cbc72a4f67e0d57b751192ab6` adds the
+  strategy file list and strategy version routes, the `bool` and `time`
+  parameter types, and the `strategy_file`, `strategy_version_id` and bundle
+  hash fields on backtest requests and runs. The change is additive; generated
+  TypeScript and Rust outputs are regenerated. `make check` passed:
+  `310 passed, 7 skipped`.
+- `q_backend` at `87c5639` pins `2e9f520` and passes `make contracts-check`
+  from a local clone, because the commit is unpushed. The API and worker tests
+  for strategy files, the backtest, import, storage and research suites pass
+  (`1722 passed, 11 skipped`). Seven optimization and stream tests need the dev
+  Postgres on `localhost:5434`, which is not running in this workspace.
+- `q_frontend` at `307f394` pins `2e9f520` and passes `make contracts-check`
+  from a local clone, `pnpm typecheck`, and `pnpm lint` with no errors. The full
+  Vitest suite passed under `TZ=America/Sao_Paulo`: `275` files and `1436` tests.
+- Both consumer commits are local. Nothing has been pushed.

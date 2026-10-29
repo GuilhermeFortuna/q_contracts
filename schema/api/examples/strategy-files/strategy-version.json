@@ -1,0 +1,28 @@
+{
+  "version_id": "7c1e0a5d-2b9f-4e83-a6d1-5f0c9b8e2a47",
+  "strategy_id": "late_session_trend",
+  "class_name": "LateSessionTrendStrategy",
+  "bundle_hash": "3f9a1c0d7b2e4a6915c8d0e2f7b41a93c6d5e0f8a2b7c49d1e3f6a0b8c2d4e5f",
+  "created_at": "2026-10-29T14:30:00-03:00",
+  "parameters": [
+    {
+      "name": "ma_period",
+      "label": "MA period",
+      "type": "int",
+      "default": 20,
+      "min": 2,
+      "max": 200,
+      "step": 1
+    }
+  ],
+  "source_files": [
+    {
+      "path": "late_session_trend.py",
+      "content": "from ._lib.ticks import ceil_tick\n"
+    },
+    {
+      "path": "_lib/ticks.py",
+      "content": "def ceil_tick(price: float, tick: float) -> float:\n    return round(price / tick + 0.5) * tick\n"
+    }
+  ]
+}
