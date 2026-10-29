@@ -5950,7 +5950,6 @@ components:
           anyOf:
           - $ref: '#/components/schemas/Mt5OrdersAccountResponse'
           - type: 'null'
-          title: Account
         capability:
           enum:
           - available
