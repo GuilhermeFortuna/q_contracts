@@ -667,6 +667,14 @@ components:
             - $ref: '#/components/schemas/InverseVolatilityPositionSizing'
           - type: 'null'
           title: Position Sizing
+        strategy_file:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          description: Id of a strategy file in the strategy directory. Mutually exclusive
+            with strategy, entries and strategy_version_id.
+          title: Strategy File
         start:
           anyOf:
           - format: date-time
@@ -682,6 +690,14 @@ components:
           default: {}
           title: Strategy Params
           type: object
+        strategy_version_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          description: Strategy version to re-run from history. Mutually exclusive with
+            strategy, entries and strategy_file.
+          title: Strategy Version Id
         symbol:
           title: Symbol
           type: string
@@ -1343,6 +1359,21 @@ components:
         timeframe:
           title: Timeframe
           type: string
+        strategy_bundle_hash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          description: Bundle hash of the strategy file version (first eight characters
+            are shown in history). Null for registry and script runs.
+          title: Strategy Bundle Hash
+        strategy_version_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          description: Strategy version the run executed. Null for registry and script runs.
+          title: Strategy Version Id
       required:
       - run_id
       - symbol
@@ -1387,6 +1418,21 @@ components:
         timeframe:
           title: Timeframe
           type: string
+        strategy_bundle_hash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          description: Bundle hash of the strategy file version (first eight characters
+            are shown in history). Null for registry and script runs.
+          title: Strategy Bundle Hash
+        strategy_version_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          description: Strategy version the run executed. Null for registry and script runs.
+          title: Strategy Version Id
       required:
       - run_id
       - symbol
@@ -7823,6 +7869,8 @@ components:
           - type: integer
           - type: number
           - type: string
+          - type: boolean
+          description: A time default is an "HH:MM" string; a bool default is a boolean.
           title: Default
         exit_group:
           anyOf:
@@ -7893,6 +7941,8 @@ components:
           - int
           - float
           - categorical
+          - bool
+          - time
           title: Type
           type: string
       required:
@@ -7901,6 +7951,114 @@ components:
       - type
       - default
       title: StrategyParamSpec
+      type: object
+    StrategyFile:
+      properties:
+        bundle_hash:
+          title: Bundle Hash
+          type: string
+        class_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Class Name
+        description:
+          default: ''
+          title: Description
+          type: string
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+        id:
+          title: Id
+          type: string
+        label:
+          title: Label
+          type: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/StrategyParamSpec'
+          title: Parameters
+          type: array
+        uses_tick_hooks:
+          default: false
+          title: Uses Tick Hooks
+          type: boolean
+        valid:
+          title: Valid
+          type: boolean
+      required:
+      - id
+      - label
+      - bundle_hash
+      - valid
+      - error
+      - parameters
+      title: StrategyFile
+      type: object
+    StrategyFileListResponse:
+      properties:
+        strategy_files:
+          items:
+            $ref: '#/components/schemas/StrategyFile'
+          title: Strategy Files
+          type: array
+      required:
+      - strategy_files
+      title: StrategyFileListResponse
+      type: object
+    StrategySourceFile:
+      properties:
+        content:
+          title: Content
+          type: string
+        path:
+          title: Path
+          type: string
+      required:
+      - path
+      - content
+      title: StrategySourceFile
+      type: object
+    StrategyVersionResponse:
+      properties:
+        bundle_hash:
+          title: Bundle Hash
+          type: string
+        class_name:
+          title: Class Name
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/StrategyParamSpec'
+          title: Parameters
+          type: array
+        source_files:
+          items:
+            $ref: '#/components/schemas/StrategySourceFile'
+          title: Source Files
+          type: array
+        strategy_id:
+          title: Strategy Id
+          type: string
+        version_id:
+          title: Version Id
+          type: string
+      required:
+      - version_id
+      - strategy_id
+      - class_name
+      - bundle_hash
+      - created_at
+      - parameters
+      - source_files
+      title: StrategyVersionResponse
       type: object
     StrategySearchCandidateEquityArtifactResponse:
       properties:
@@ -13254,6 +13412,54 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
       summary: Delete Custom Strategy
+      tags:
+      - strategies
+  /api/v1/strategy-files:
+    get:
+      description: List the strategy files in the strategy directory, with each file's
+        validation result and parameter specs.
+      operationId: list_strategy_files_api_v1_strategy_files_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StrategyFileListResponse'
+          description: Successful Response
+      summary: List Strategy Files
+      tags:
+      - strategies
+  /api/v1/strategy-versions/{version_id}:
+    get:
+      description: Return a frozen strategy version, including its source files.
+      operationId: get_strategy_version_api_v1_strategy_versions__version_id__get
+      parameters:
+      - in: path
+        name: version_id
+        required: true
+        schema:
+          title: Version Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StrategyVersionResponse'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Strategy version not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Strategy Version
       tags:
       - strategies
   /api/v1/strategy-builder/capabilities:

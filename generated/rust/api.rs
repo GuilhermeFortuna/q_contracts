@@ -334,7 +334,9 @@ pub struct BacktestRequest {
     pub start: Option<String>,
     #[serde(default = "default_backtest_request_strategy")]
     pub strategy: Option<String>,
+    pub strategy_file: Option<String>,
     pub strategy_params: Option<serde_json::Value>,
+    pub strategy_version_id: Option<String>,
     pub symbol: String,
     pub tick_flags: Option<String>,
     #[serde(default = "default_backtest_request_timeframe")]
@@ -413,6 +415,8 @@ pub struct BacktestRunDetailResponse {
     pub started_at: Option<String>,
     pub status: String,
     pub strategy: String,
+    pub strategy_bundle_hash: Option<String>,
+    pub strategy_version_id: Option<String>,
     pub symbol: String,
     pub timeframe: String,
 }
@@ -435,6 +439,8 @@ pub struct BacktestRunListItem {
     pub run_id: String,
     pub status: String,
     pub strategy: String,
+    pub strategy_bundle_hash: Option<String>,
+    pub strategy_version_id: Option<String>,
     pub summary: Option<serde_json::Value>,
     pub symbol: String,
     pub timeframe: String,
@@ -3226,6 +3232,34 @@ pub struct StrategiesResponse {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct StrategyFile {
+    pub bundle_hash: String,
+    pub class_name: Option<String>,
+    #[serde(default = "default_strategy_file_description")]
+    pub description: Option<String>,
+    pub error: Option<String>,
+    pub id: String,
+    pub label: String,
+    pub parameters: Vec<StrategyParamSpec>,
+    #[serde(default = "default_strategy_file_uses_tick_hooks")]
+    pub uses_tick_hooks: Option<bool>,
+    pub valid: bool,
+}
+
+fn default_strategy_file_description() -> Option<String> {
+    Some("".to_owned())
+}
+
+fn default_strategy_file_uses_tick_hooks() -> Option<bool> {
+    Some(false)
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct StrategyFileListResponse {
+    pub strategy_files: Vec<StrategyFile>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StrategyInfo {
     #[serde(default = "default_strategy_info_category")]
     pub category: Option<String>,
@@ -3506,6 +3540,23 @@ pub struct StrategySearchTrialsResponse {
     pub limit: i64,
     pub offset: i64,
     pub total: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct StrategySourceFile {
+    pub content: String,
+    pub path: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct StrategyVersionResponse {
+    pub bundle_hash: String,
+    pub class_name: String,
+    pub created_at: String,
+    pub parameters: Vec<StrategyParamSpec>,
+    pub source_files: Vec<StrategySourceFile>,
+    pub strategy_id: String,
+    pub version_id: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

@@ -1,0 +1,14 @@
+{
+  "symbol": "IND$N",
+  "timeframe": "M5",
+  "strategy_file": "late_session_trend",
+  "strategy_params": {
+    "ma_period": 30,
+    "use_filter": false,
+    "entry_after": "17:05"
+  },
+  "start": "2021-01-01T00:00:00-03:00",
+  "end": "2026-01-01T00:00:00-03:00",
+  "point_value": 1.0,
+  "initial_capital": 100000.0
+}

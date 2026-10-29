@@ -227,7 +227,9 @@ export interface BacktestRequest {
   post_exit_bars?: number
   start?: string | null
   strategy?: string
+  strategy_file?: string | null
   strategy_params?: Record<string, unknown>
+  strategy_version_id?: string | null
   symbol: string
   tick_flags?: string | null
   timeframe?: string
@@ -257,6 +259,8 @@ export interface BacktestRunDetailResponse {
   started_at?: string | null
   status: string
   strategy: string
+  strategy_bundle_hash?: string | null
+  strategy_version_id?: string | null
   symbol: string
   timeframe: string
 }
@@ -268,6 +272,8 @@ export interface BacktestRunListItem {
   run_id: string
   status: string
   strategy: string
+  strategy_bundle_hash?: string | null
+  strategy_version_id?: string | null
   summary?: Record<string, unknown> | null
   symbol: string
   timeframe: string
@@ -2208,6 +2214,22 @@ export interface StrategiesResponse {
   strategies: Array<StrategyInfo>
 }
 
+export interface StrategyFile {
+  bundle_hash: string
+  class_name?: string | null
+  description?: string
+  error: string | null
+  id: string
+  label: string
+  parameters: Array<StrategyParamSpec>
+  uses_tick_hooks?: boolean
+  valid: boolean
+}
+
+export interface StrategyFileListResponse {
+  strategy_files: Array<StrategyFile>
+}
+
 export interface StrategyInfo {
   category?: "trend" | "mean_reversion" | "breakout" | "momentum" | "other"
   description: string
@@ -2236,7 +2258,7 @@ export interface StrategyInterpretRequest {
 
 export interface StrategyParamSpec {
   choices?: Array<string> | null
-  default: number | number | string
+  default: number | number | string | boolean
   exit_group?: "stop_loss" | "trailing" | "target" | "time" | "general" | null
   hint?: string | null
   label: string
@@ -2249,7 +2271,7 @@ export interface StrategyParamSpec {
   search_step?: number | null
   searchable?: boolean
   step?: number | null
-  type: "int" | "float" | "categorical"
+  type: "int" | "float" | "categorical" | "bool" | "time"
 }
 
 export interface StrategySearchCandidateEquityArtifactResponse {
@@ -2399,6 +2421,21 @@ export interface StrategySearchTrialsResponse {
   limit: number
   offset: number
   total: number
+}
+
+export interface StrategySourceFile {
+  content: string
+  path: string
+}
+
+export interface StrategyVersionResponse {
+  bundle_hash: string
+  class_name: string
+  created_at: string
+  parameters: Array<StrategyParamSpec>
+  source_files: Array<StrategySourceFile>
+  strategy_id: string
+  version_id: string
 }
 
 export interface StudyConfig {
