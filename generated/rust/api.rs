@@ -403,10 +403,12 @@ pub struct BacktestResponse {
 pub struct BacktestRunDetailResponse {
     pub config: serde_json::Value,
     pub created_at: String,
+    pub day_trade_session: Option<DayTradeSession>,
     pub error_message: Option<String>,
     pub finished_at: Option<String>,
     #[serde(default = "default_backtest_run_detail_response_is_saved")]
     pub is_saved: Option<bool>,
+    pub order_kinds: Option<Vec<String>>,
     #[serde(default = "default_backtest_run_detail_response_origin")]
     pub origin: Option<BacktestOrigin>,
     pub provenance: Option<BacktestProvenance>,
@@ -432,8 +434,10 @@ fn default_backtest_run_detail_response_origin() -> Option<BacktestOrigin> {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BacktestRunListItem {
     pub created_at: String,
+    pub day_trade_session: Option<DayTradeSession>,
     #[serde(default = "default_backtest_run_list_item_is_saved")]
     pub is_saved: Option<bool>,
+    pub order_kinds: Option<Vec<String>>,
     #[serde(default = "default_backtest_run_list_item_origin")]
     pub origin: Option<BacktestOrigin>,
     pub run_id: String,
@@ -691,6 +695,19 @@ pub struct DatasetManifestResponse {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DayTradeSession {
+    pub close_time: String,
+    #[serde(default = "default_day_trade_session_day_trade")]
+    pub day_trade: Option<bool>,
+    pub end_time: String,
+    pub start_time: String,
+}
+
+fn default_day_trade_session_day_trade() -> Option<bool> {
+    Some(true)
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DecisionListResponse {
     pub items: Vec<DecisionResponse>,
     pub limit: i64,
@@ -792,7 +809,10 @@ pub struct DeploymentDetailResponse {
     pub broker_mode: String,
     pub compiled_config: serde_json::Value,
     pub config_hash: String,
+    #[serde(default = "default_deployment_detail_response_config_revision")]
+    pub config_revision: Option<i64>,
     pub created_at: String,
+    pub day_trade_session: Option<DayTradeSession>,
     pub id: String,
     pub last_bar_close_time: Option<String>,
     pub latest_decision: Option<DecisionResponse>,
@@ -805,16 +825,29 @@ pub struct DeploymentDetailResponse {
     pub pending_action_requested_at: Option<String>,
     pub risk_config: serde_json::Value,
     pub sizing_config: serde_json::Value,
+    #[serde(default = "default_deployment_detail_response_source_kind")]
+    pub source_kind: Option<String>,
+    pub source_strategy_name: Option<String>,
     pub started_at: Option<String>,
     pub stopped_at: Option<String>,
+    pub strategy_bundle_hash: Option<String>,
     pub strategy_name: String,
     pub strategy_version: i64,
+    pub strategy_version_id: Option<String>,
     pub symbol: String,
     pub timeframe: String,
     #[serde(default = "default_deployment_detail_response_unknown_order_count")]
     pub unknown_order_count: Option<i64>,
     pub updated_at: String,
     pub worker_lease: Option<WorkerLeaseResponse>,
+}
+
+fn default_deployment_detail_response_config_revision() -> Option<i64> {
+    Some(1)
+}
+
+fn default_deployment_detail_response_source_kind() -> Option<String> {
+    Some("builtin".to_owned())
 }
 
 fn default_deployment_detail_response_unknown_order_count() -> Option<i64> {
@@ -861,6 +894,8 @@ pub struct DeploymentListResponse {
 pub struct DeploymentSummaryResponse {
     pub broker_mode: String,
     pub config_hash: String,
+    #[serde(default = "default_deployment_summary_response_config_revision")]
+    pub config_revision: Option<i64>,
     pub created_at: String,
     pub id: String,
     pub last_bar_close_time: Option<String>,
@@ -870,13 +905,26 @@ pub struct DeploymentSummaryResponse {
     pub paper_account_id: String,
     pub pending_action: Option<String>,
     pub pending_action_requested_at: Option<String>,
+    #[serde(default = "default_deployment_summary_response_source_kind")]
+    pub source_kind: Option<String>,
+    pub source_strategy_name: Option<String>,
     pub started_at: Option<String>,
     pub stopped_at: Option<String>,
+    pub strategy_bundle_hash: Option<String>,
     pub strategy_name: String,
     pub strategy_version: i64,
+    pub strategy_version_id: Option<String>,
     pub symbol: String,
     pub timeframe: String,
     pub updated_at: String,
+}
+
+fn default_deployment_summary_response_config_revision() -> Option<i64> {
+    Some(1)
+}
+
+fn default_deployment_summary_response_source_kind() -> Option<String> {
+    Some("builtin".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

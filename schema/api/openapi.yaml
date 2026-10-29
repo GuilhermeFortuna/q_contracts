@@ -1374,6 +1374,22 @@ components:
           default: null
           description: Strategy version the run executed. Null for registry and script runs.
           title: Strategy Version Id
+        order_kinds:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          default: null
+          description: Sorted list of order kinds the strategy returned during the run.
+          title: Order Kinds
+        day_trade_session:
+          anyOf:
+          - $ref: '#/components/schemas/DayTradeSession'
+          - type: 'null'
+          default: null
+          description: Day-trade session configuration for the run.
+          title: Day Trade Session
       required:
       - run_id
       - symbol
@@ -1433,6 +1449,22 @@ components:
           default: null
           description: Strategy version the run executed. Null for registry and script runs.
           title: Strategy Version Id
+        order_kinds:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          default: null
+          description: Sorted list of order kinds the strategy returned during the run.
+          title: Order Kinds
+        day_trade_session:
+          anyOf:
+          - $ref: '#/components/schemas/DayTradeSession'
+          - type: 'null'
+          default: null
+          description: Day-trade session configuration for the run.
+          title: Day Trade Session
       required:
       - run_id
       - symbol
@@ -2256,6 +2288,30 @@ components:
       - time_range
       title: DatasetManifestResponse
       type: object
+    DayTradeSession:
+      properties:
+        close_time:
+          default: '17:00'
+          title: Close Time
+          type: string
+        day_trade:
+          default: true
+          title: Day Trade
+          type: boolean
+        end_time:
+          default: '16:00'
+          title: End Time
+          type: string
+        start_time:
+          default: 09:00
+          title: Start Time
+          type: string
+      required:
+      - start_time
+      - end_time
+      - close_time
+      title: DayTradeSession
+      type: object
     DecisionListResponse:
       properties:
         items:
@@ -2629,6 +2685,42 @@ components:
         strategy_version:
           title: Strategy Version
           type: integer
+        config_revision:
+          default: 1
+          title: Config Revision
+          type: integer
+        day_trade_session:
+          anyOf:
+          - $ref: '#/components/schemas/DayTradeSession'
+          - type: 'null'
+          default: null
+          description: Active day-trade session window for the deployment.
+          title: Day Trade Session
+        source_kind:
+          default: builtin
+          description: Source kind of the deployment configuration (builtin, custom, explicit, saved_backtest, strategy_version).
+          title: Source Kind
+          type: string
+        source_strategy_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Source Strategy Name
+        strategy_bundle_hash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          description: Bundle hash of the strategy version.
+          title: Strategy Bundle Hash
+        strategy_version_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          description: Strategy version id when source_kind is strategy_version.
+          title: Strategy Version Id
         symbol:
           title: Symbol
           type: string
@@ -2832,6 +2924,35 @@ components:
         strategy_version:
           title: Strategy Version
           type: integer
+        config_revision:
+          default: 1
+          title: Config Revision
+          type: integer
+        source_kind:
+          default: builtin
+          description: Source kind of the deployment configuration (builtin, custom, explicit, saved_backtest, strategy_version).
+          title: Source Kind
+          type: string
+        source_strategy_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          title: Source Strategy Name
+        strategy_bundle_hash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          description: Bundle hash of the strategy version.
+          title: Strategy Bundle Hash
+        strategy_version_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+          description: Strategy version id when source_kind is strategy_version.
+          title: Strategy Version Id
         symbol:
           title: Symbol
           type: string

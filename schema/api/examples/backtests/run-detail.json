@@ -10,5 +10,9 @@
     "strategy": "MACrossover",
     "engine": "candle"
   },
+  "order_kinds": [
+    "market_close",
+    "market_entry"
+  ],
   "created_at": "2024-01-02T18:00:00-03:00"
 }
