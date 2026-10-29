@@ -1,0 +1,37 @@
+{
+  "id": "c1f7b022-87ad-4d1a-9669-e3bbcead7012",
+  "paper_account_id": "40000000-0000-0000-0000-000000000001",
+  "name": "IND M5 Trend",
+  "broker_mode": "mt5_live",
+  "lifecycle": "draft",
+  "strategy_name": "late_session_trend",
+  "strategy_version": 1,
+  "config_hash": "c0ffee0000000000000000000000000000000000000000000000000000000000",
+  "config_revision": 1,
+  "source_kind": "strategy_version",
+  "source_strategy_name": "late_session_trend",
+  "strategy_version_id": "7c1e0a5d-2b9f-4e83-a6d1-5f0c9b8e2a47",
+  "strategy_bundle_hash": "3f9a1c0d7b2e4a6915c8d0e2f7b41a93c6d5e0f8a2b7c49d1e3f6a0b8c2d4e5f",
+  "day_trade_session": {
+    "day_trade": true,
+    "start_time": "09:00",
+    "end_time": "16:00",
+    "close_time": "17:00"
+  },
+  "symbol": "IND$N",
+  "timeframe": "M5",
+  "live_activation_enabled": true,
+  "compiled_config": {
+    "strategy_version_id": "7c1e0a5d-2b9f-4e83-a6d1-5f0c9b8e2a47",
+    "symbol": "IND$N",
+    "timeframe": "M5"
+  },
+  "sizing_config": {
+    "type": "fixed_quantity",
+    "quantity": 1
+  },
+  "risk_config": {},
+  "unknown_order_count": 0,
+  "created_at": "2026-10-29T15:00:00-03:00",
+  "updated_at": "2026-10-29T15:00:00-03:00"
+}

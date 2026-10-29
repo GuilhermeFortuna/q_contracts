@@ -311,3 +311,11 @@ progress under Q-104; update the backend row when its consumer commit is verifie
   with `Q_BACKEND_PATH` set to the `q_backend` worktree, the gateway capture
   tests pass (`6 passed`).
 - Both repositories' task commits are local. Nothing has been pushed.
+
+## Deploy research strategy versions (Q-136, 2026-10-29)
+
+- `q_contracts` adds `order_kinds` to the backtest run detail and list schemas,
+  the `strategy_version` source kind and its provenance (`strategy_version_id`,
+  `strategy_bundle_hash`) to deployment summary and detail schemas, and the
+  `day_trade_session` to deployment detail and backtest run schemas.
+

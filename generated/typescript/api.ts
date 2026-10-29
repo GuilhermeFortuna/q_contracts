@@ -249,9 +249,11 @@ export interface BacktestResponse {
 export interface BacktestRunDetailResponse {
   config: Record<string, unknown>
   created_at: string
+  day_trade_session?: DayTradeSession | null
   error_message?: string | null
   finished_at?: string | null
   is_saved?: boolean
+  order_kinds?: Array<string> | null
   origin?: BacktestOrigin
   provenance?: BacktestProvenance | null
   result_summary?: Record<string, unknown> | null
@@ -267,7 +269,9 @@ export interface BacktestRunDetailResponse {
 
 export interface BacktestRunListItem {
   created_at: string
+  day_trade_session?: DayTradeSession | null
   is_saved?: boolean
+  order_kinds?: Array<string> | null
   origin?: BacktestOrigin
   run_id: string
   status: string
@@ -461,6 +465,13 @@ export interface DatasetManifestResponse {
   version: number
 }
 
+export interface DayTradeSession {
+  close_time: string
+  day_trade?: boolean
+  end_time: string
+  start_time: string
+}
+
 export interface DecisionListResponse {
   items: Array<DecisionResponse>
   limit: number
@@ -539,7 +550,9 @@ export interface DeploymentDetailResponse {
   broker_mode: string
   compiled_config: Record<string, unknown>
   config_hash: string
+  config_revision?: number
   created_at: string
+  day_trade_session?: DayTradeSession | null
   id: string
   last_bar_close_time?: string | null
   latest_decision?: DecisionResponse | null
@@ -552,10 +565,14 @@ export interface DeploymentDetailResponse {
   pending_action_requested_at?: string | null
   risk_config: Record<string, unknown>
   sizing_config: Record<string, unknown>
+  source_kind?: string
+  source_strategy_name?: string | null
   started_at?: string | null
   stopped_at?: string | null
+  strategy_bundle_hash?: string | null
   strategy_name: string
   strategy_version: number
+  strategy_version_id?: string | null
   symbol: string
   timeframe: string
   unknown_order_count?: number
@@ -594,6 +611,7 @@ export interface DeploymentListResponse {
 export interface DeploymentSummaryResponse {
   broker_mode: string
   config_hash: string
+  config_revision?: number
   created_at: string
   id: string
   last_bar_close_time?: string | null
@@ -603,10 +621,14 @@ export interface DeploymentSummaryResponse {
   paper_account_id: string
   pending_action?: string | null
   pending_action_requested_at?: string | null
+  source_kind?: string
+  source_strategy_name?: string | null
   started_at?: string | null
   stopped_at?: string | null
+  strategy_bundle_hash?: string | null
   strategy_name: string
   strategy_version: number
+  strategy_version_id?: string | null
   symbol: string
   timeframe: string
   updated_at: string
