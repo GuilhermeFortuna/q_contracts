@@ -792,6 +792,7 @@ export interface ExecutionHealthResponse {
   kill_switch_enabled: boolean
   live_capability_locked: boolean
   market_data_status: "online" | "offline" | "stale"
+  mt5_orders: Mt5OrdersStatusResponse
   unknown_order_count: number
   worker_heartbeat_age_s?: number | null
   worker_started_at?: string | null
@@ -1588,6 +1589,18 @@ export interface MlFilterTrainingStatusResponse {
 export interface MlFilterValidationMetrics {
   confusion_matrix?: Array<Array<number>> | null
   roc_auc?: MlFilterNullableFloat
+}
+
+export interface Mt5OrdersAccountResponse {
+  login: number
+  server: string
+  trade_mode: "demo" | "contest" | "real" | null
+}
+
+export interface Mt5OrdersStatusResponse {
+  account: Mt5OrdersAccountResponse | null
+  capability: "available" | "validation_required" | "locked"
+  reason: string | null
 }
 
 export interface NeuralModelDetailResponse {

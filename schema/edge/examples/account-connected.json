@@ -6,5 +6,6 @@
   "terminal_trade_allowed": true,
   "balance": 100000.0,
   "equity": 100000.0,
-  "margin_free": 100000.0
+  "margin_free": 100000.0,
+  "trade_mode": "demo"
 }

@@ -294,3 +294,20 @@ progress under Q-104; update the backend row when its consumer commit is verifie
   from a local clone, `pnpm typecheck`, and `pnpm lint` with no errors. The full
   Vitest suite passed under `TZ=America/Sao_Paulo`: `275` files and `1436` tests.
 - Both consumer commits are local. Nothing has been pushed.
+
+## MT5 demo-account gate (Q-135, 2026-10-29)
+
+- `q_contracts` at `379fb21` adds the required `trade_mode` (`demo`, `contest`
+  or `real`) to the execution-edge account response, and `cb651e0` adds
+  `mt5_orders` (capability, reason and account) to the execution health
+  response. `fce35bb` aligns the OpenAPI account reference with the backend
+  schema. The execution-edge contract moves to version `1.1`; its schema major
+  stays `1`. The data gateway contract is unchanged at `1.0`.
+- `q_backend` at `74b2825` pins `fce35bb` and passes `make contracts-check`
+  against the local clone, because the commits are unpushed. The gateway,
+  execution, and execution API suites pass (`275 passed, 1 skipped`), and Ruff
+  and Black are clean for the changed files.
+- `q_contracts` `make check` passed at `fce35bb`: `310 passed, 7 skipped`. Run
+  with `Q_BACKEND_PATH` set to the `q_backend` worktree, the gateway capture
+  tests pass (`6 passed`).
+- Both repositories' task commits are local. Nothing has been pushed.

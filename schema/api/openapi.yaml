@@ -3380,6 +3380,8 @@ components:
           - stale
           title: Market Data Status
           type: string
+        mt5_orders:
+          $ref: '#/components/schemas/Mt5OrdersStatusResponse'
         unknown_order_count:
           title: Unknown Order Count
           type: integer
@@ -3407,6 +3409,7 @@ components:
       - market_data_status
       - kill_switch_enabled
       - live_capability_locked
+      - mt5_orders
       - unknown_order_count
       - deployments
       - checked_at
@@ -5917,6 +5920,53 @@ components:
       required:
       - segments
       title: MarketVolumeProfileResponse
+      type: object
+    Mt5OrdersAccountResponse:
+      properties:
+        login:
+          title: Login
+          type: integer
+        server:
+          title: Server
+          type: string
+        trade_mode:
+          anyOf:
+          - enum:
+            - demo
+            - contest
+            - real
+            type: string
+          - type: 'null'
+          title: Trade Mode
+      required:
+      - login
+      - server
+      - trade_mode
+      title: Mt5OrdersAccountResponse
+      type: object
+    Mt5OrdersStatusResponse:
+      properties:
+        account:
+          anyOf:
+          - $ref: '#/components/schemas/Mt5OrdersAccountResponse'
+          - type: 'null'
+        capability:
+          enum:
+          - available
+          - validation_required
+          - locked
+          title: Capability
+          type: string
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+      required:
+      - capability
+      - reason
+      - account
+      title: Mt5OrdersStatusResponse
       type: object
     OhlcvBarResponse:
       properties:

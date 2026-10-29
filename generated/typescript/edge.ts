@@ -12,6 +12,7 @@ export interface AccountResponse {
   server: string
   terminal_trade_allowed: boolean
   trade_allowed: boolean
+  trade_mode: "demo" | "contest" | "real"
 }
 
 export interface CheckRequest {

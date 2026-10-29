@@ -1123,6 +1123,7 @@ pub struct ExecutionHealthResponse {
     pub kill_switch_enabled: bool,
     pub live_capability_locked: bool,
     pub market_data_status: String,
+    pub mt5_orders: Mt5OrdersStatusResponse,
     pub unknown_order_count: i64,
     pub worker_heartbeat_age_s: Option<f64>,
     pub worker_started_at: Option<String>,
@@ -2434,6 +2435,20 @@ pub struct MlFilterTrainingStatusResponse {
 pub struct MlFilterValidationMetrics {
     pub confusion_matrix: Option<Vec<Vec<i64>>>,
     pub roc_auc: Option<MlFilterNullableFloat>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Mt5OrdersAccountResponse {
+    pub login: i64,
+    pub server: String,
+    pub trade_mode: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Mt5OrdersStatusResponse {
+    pub account: Option<Mt5OrdersAccountResponse>,
+    pub capability: String,
+    pub reason: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
