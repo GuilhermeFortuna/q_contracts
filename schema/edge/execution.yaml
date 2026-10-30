@@ -4,14 +4,15 @@
 
 schema_name: execution-edge
 schema_major: 1
-schema_version: "1.1"
+schema_version: "1.2"
 obligations: schema/edge/OBLIGATIONS.md
 
 description: >
   Wire contract for the live order execution edge process running alongside
   a MetaTrader 5 terminal under Windows/Wine. The execution edge exposes quote
-  retrieval, pre-submission checks, order submission, intent outcome lookup,
-  open positions, and deal history.
+  retrieval, pre-submission checks, order submission (market, pending and
+  protective actions), intent outcome lookup, open positions, working pending
+  orders, and deal history.
 
 network:
   binding: loopback_only
@@ -96,16 +97,35 @@ operations:
   submit:
     method: POST
     path: /v1/submit
-    description: Submit an order with intent-at-most-once semantics.
+    description: >
+      Submit a request with intent-at-most-once semantics. The action selects
+      deal (market order, optionally with sl and tp), pending (stop or limit
+      order with price and optional expiration), sltp (new levels for an open
+      position) or remove (cancel a working pending order). Every action shares
+      the same intent rules. Accepted deal and pending submissions report the
+      broker's order ticket. Accepted sltp reports the position ticket and remove
+      reports the removed order ticket. Omitting action keeps the 1.1 market order
+      shape, which refuses sl and tp.
     request: schema/edge/execution/submit-request.schema.json
     response: schema/edge/execution/submit-outcome.schema.json
 
   lookup:
     method: POST
     path: /v1/lookup
-    description: Query intent execution outcome against terminal history over a time window.
+    description: >
+      Query intent execution outcome against terminal history over a time window.
+      With kind deal (the default) it answers LookupOutcome; with kind pending it
+      answers PendingLookupOutcome, which can report a pending order still placed
+      at the broker, filled, cancelled, expired or rejected.
     request: schema/edge/execution/lookup-request.schema.json
     response: schema/edge/execution/lookup-outcome.schema.json
+
+  orders:
+    method: GET
+    path: /v1/orders
+    description: List pending orders resting at the broker and not yet filled, cancelled or expired.
+    request: schema/edge/execution/orders-request.schema.json
+    response: schema/edge/execution/orders-response.schema.json
 
   positions:
     method: GET
@@ -157,6 +177,10 @@ endpoints:
     method: GET
     request: schema/edge/execution/positions-request.schema.json
     response: schema/edge/execution/positions-response.schema.json
+  /v1/orders:
+    method: GET
+    request: schema/edge/execution/orders-request.schema.json
+    response: schema/edge/execution/orders-response.schema.json
   /v1/deals:
     method: POST
     request: schema/edge/execution/deals-request.schema.json

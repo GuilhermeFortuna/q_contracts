@@ -167,9 +167,9 @@ export interface ExecutionOrderState {
   updated_at: string
 }
 
-export type ExecutionOrderStatus = "intent" | "submitted" | "filled" | "rejected" | "unknown" | "cancelled"
+export type ExecutionOrderStatus = "intent" | "submitted" | "working" | "filled" | "rejected" | "unknown" | "cancelled" | "expired"
 
-export type ExecutionOrderType = "market"
+export type ExecutionOrderType = "market" | "stop" | "limit"
 
 export interface ExecutionPosition {
   average_entry_price?: Decimal | null

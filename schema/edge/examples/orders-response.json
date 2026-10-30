@@ -1,0 +1,15 @@
+[
+  {
+    "ticket": 223344,
+    "symbol": "PETR4",
+    "type": 4,
+    "volume": 100.0,
+    "price": 41.50,
+    "sl": 40.90,
+    "tp": 42.50,
+    "expiration": 1710003600,
+    "magic": 1,
+    "comment": "q:018f6c3889ab700080000000",
+    "time_setup": 1710000000
+  }
+]

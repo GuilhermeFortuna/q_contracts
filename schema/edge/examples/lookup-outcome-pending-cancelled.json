@@ -1,0 +1,5 @@
+{
+  "outcome": "cancelled",
+  "reason": "Removed by the execution worker",
+  "closes_intent": true
+}

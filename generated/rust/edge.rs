@@ -1,4 +1,4 @@
-// GENERATED FILE - DO NOT EDIT. Source schemas: schema/edge/common/error.schema.json, schema/edge/common/health.schema.json, schema/edge/execution/account-request.schema.json, schema/edge/execution/account-response.schema.json, schema/edge/execution/check-request.schema.json, schema/edge/execution/check-response.schema.json, schema/edge/execution/deal.schema.json, schema/edge/execution/deals-request.schema.json, schema/edge/execution/deals-response.schema.json, schema/edge/execution/lookup-outcome.schema.json, schema/edge/execution/lookup-request.schema.json, schema/edge/execution/order.schema.json, schema/edge/execution/position.schema.json, schema/edge/execution/positions-request.schema.json, schema/edge/execution/positions-response.schema.json, schema/edge/execution/quote-request.schema.json, schema/edge/execution/quote-response.schema.json, schema/edge/execution/submit-outcome.schema.json, schema/edge/execution/submit-request.schema.json
+// GENERATED FILE - DO NOT EDIT. Source schemas: schema/edge/common/error.schema.json, schema/edge/common/health.schema.json, schema/edge/execution/account-request.schema.json, schema/edge/execution/account-response.schema.json, schema/edge/execution/check-request.schema.json, schema/edge/execution/check-response.schema.json, schema/edge/execution/deal.schema.json, schema/edge/execution/deals-request.schema.json, schema/edge/execution/deals-response.schema.json, schema/edge/execution/lookup-outcome.schema.json, schema/edge/execution/lookup-request.schema.json, schema/edge/execution/order.schema.json, schema/edge/execution/orders-request.schema.json, schema/edge/execution/orders-response.schema.json, schema/edge/execution/pending-lookup-outcome.schema.json, schema/edge/execution/position.schema.json, schema/edge/execution/positions-request.schema.json, schema/edge/execution/positions-response.schema.json, schema/edge/execution/quote-request.schema.json, schema/edge/execution/quote-response.schema.json, schema/edge/execution/submit-outcome.schema.json, schema/edge/execution/submit-request.schema.json, schema/edge/execution/working-order.schema.json
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -64,8 +64,10 @@ pub struct ExecutionDeal {
     pub fee: Option<f64>,
     pub magic: Option<i64>,
     pub order_ticket: i64,
+    pub position_id: Option<i64>,
     pub price: f64,
     pub profit: Option<f64>,
+    pub reason: Option<String>,
     pub swap: Option<f64>,
     pub symbol: String,
     pub ticket: i64,
@@ -79,6 +81,7 @@ pub struct ExecutionDeal {
 pub struct ExecutionOrder {
     pub comment: Option<String>,
     pub deviation: Option<i64>,
+    pub expiration: Option<i64>,
     pub magic: Option<i64>,
     pub price: Option<f64>,
     pub side: Option<String>,
@@ -132,9 +135,53 @@ pub enum LookupOutcome {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LookupRequest {
     pub intent_id: String,
+    #[serde(default = "default_lookup_request_kind")]
+    pub kind: Option<String>,
     pub magic: Option<i64>,
     pub window_end: serde_json::Value,
     pub window_start: serde_json::Value,
+}
+
+fn default_lookup_request_kind() -> Option<String> {
+    Some("deal".to_owned())
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct OrdersRequest {
+    pub symbol: Option<String>,
+}
+
+pub type OrdersResponse = Vec<WorkingOrder>;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum PendingLookupOutcome {
+    Placed {
+        pub closes_intent: String,
+        pub order_ticket: i64,
+    },
+    Filled {
+        pub closes_intent: String,
+        pub deals: Vec<ExecutionDeal>,
+    },
+    Cancelled {
+        pub closes_intent: String,
+        pub reason: Option<String>,
+    },
+    Expired {
+        pub closes_intent: String,
+    },
+    Rejected {
+        pub closes_intent: String,
+        pub reason: Option<String>,
+        pub retcode: i64,
+    },
+    NotFound {
+        pub closes_intent: String,
+    },
+    Unavailable {
+        pub closes_intent: String,
+        pub reason: String,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -176,6 +223,28 @@ pub enum SubmitOutcome {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SubmitRequest {
+    pub action: Option<String>,
     pub intent_id: String,
-    pub order: ExecutionOrder,
+    pub order: Option<ExecutionOrder>,
+    pub order_ticket: Option<i64>,
+    pub position: Option<i64>,
+    pub sl: Option<f64>,
+    pub symbol: Option<String>,
+    pub tp: Option<f64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct WorkingOrder {
+    pub comment: Option<String>,
+    pub expiration: Option<serde_json::Value>,
+    pub magic: Option<i64>,
+    pub price: f64,
+    pub sl: Option<f64>,
+    pub symbol: String,
+    pub ticket: i64,
+    pub time_setup: Option<i64>,
+    pub tp: Option<f64>,
+    #[serde(rename = "type")]
+    pub r#type: i64,
+    pub volume: f64,
 }
