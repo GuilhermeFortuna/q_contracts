@@ -319,3 +319,22 @@ progress under Q-104; update the backend row when its consumer commit is verifie
   `strategy_bundle_hash`) to deployment summary and detail schemas, and the
   `day_trade_session` to deployment detail and backtest run schemas.
 
+
+## Stop, limit and protective orders on MT5 (Q-137, 2026-10-29)
+
+- The execution-edge contract moves to version `1.2` (schema major `1`), an
+  additive minor change. `submit-request` gains an `action` (`deal` by default,
+  `pending`, `sltp`, `remove`) with per-action required fields, and `order` gains
+  `expiration`. `deal` gains `position_id` and `reason`. `GET /v1/orders` lists
+  working pending orders (`working-order`). `lookup-request` gains `kind`
+  (`deal` by default); `kind: pending` answers `pending-lookup-outcome`, which
+  adds `placed`, `cancelled` and `expired` to the existing filled, rejected,
+  not-found and unavailable outcomes. `lookup-outcome` keeps its four members.
+- The stream `execution-common` enums gain order types `stop` and `limit`, and
+  statuses `working` and `expired`.
+- The backend refuses pending and protective intents when the edge advertises
+  a `schema_version` below `1.2`.
+- Generated Python, Rust and TypeScript output is regenerated. The Rust emitter
+  writes `pub` on enum struct-variant fields and boolean `const` values as
+  `String`; this already applies to the existing outcome enums and is recorded
+  as a follow-up, not changed here.
