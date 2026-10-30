@@ -8,8 +8,8 @@ table is updated with the consumer commit and verification evidence.
 | --- | --- | --- | --- |
 | `q_contracts` | `bf602c9c7bad907680d3ce98327439efe0f4c5bf` (backtest entry reasons) | `bf602c9c7bad907680d3ce98327439efe0f4c5bf` | — |
 | `q_frontend` | `91d1f10` (Q-129 entry reasons, unpushed) | `bf602c9c7bad907680d3ce98327439efe0f4c5bf` | — |
-| `q_backend` | `60f5bb3` (Q-129 entry reasons, unpushed) | `bf602c9c7bad907680d3ce98327439efe0f4c5bf` | `v2026.10.20` |
-| `q_core` | `d72df0f1e9b97d4d800b4935b224380ff12fe909` (`v2026.10.20`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
+| `q_backend` | `69b3a6a58d41c836debc1fe35f3948e13d6adbaf` (q_core `v2026.10.30` adoption, unpushed) | `df1dfd5376fe1c57f190bc1ec0984fadb39b1485` | `v2026.10.30` |
+| `q_core` | `3fbecfdf9d824cfc48f8a72d1754f5b0d37c00d3` (`v2026.10.30`) | `998a50570905524bfb9af0465a725b170f2970df` | — |
 | `q_terminal` | `e510f504259718b4a2f8acd517da3b99bbee8163` | `998a50570905524bfb9af0465a725b170f2970df` | `v2026.09.12` |
 
 Every commit hash above resolves in its repository; verify with
@@ -18,11 +18,12 @@ this table carried a `q_core` hash that resolved nowhere.
 
 ### Open drift
 
-`q_backend` and `q_frontend` pin `bf602c9` (Q-129 entry reasons), while
-`q_core` pins `998a5057`. The touched consumers' contract checks pass against
-their own pins. Aligning the `q_core` contracts revision remains a separate task.
+`q_backend` pins `df1dfd5` (Q-137 execution edge 1.2) and `q_frontend` pins
+`bf602c9` (Q-129 entry reasons), while `q_core` pins `998a5057`. The touched
+consumers' contract checks pass against their own pins. Aligning the `q_core`
+contracts revision remains a separate task.
 
-`q_backend` now adopts `q_core` `v2026.10.20`; `q_terminal` retains its independently
+`q_backend` now adopts `q_core` `v2026.10.30`; `q_terminal` retains its independently
 managed core pin and is not changed by this release.
 
 ## Reference fixture pins
@@ -339,3 +340,20 @@ progress under Q-104; update the backend row when its consumer commit is verifie
   writes `pub` on enum struct-variant fields and boolean `const` values as
   `String`; this already applies to the existing outcome enums and is recorded
   as a follow-up, not changed here.
+
+## q_core v2026.10.30 release and q_backend adoption (2026-10-30)
+
+- `q_core` tag `v2026.10.30` resolves to
+  `3fbecfdf9d824cfc48f8a72d1754f5b0d37c00d3`. A timed exit now ends with the
+  trades it was set for: an exit that leaves no trade open clears it, so it no
+  longer closes a later trade. Package version: `2026.10.30`; contracts
+  revision: `998a5057`.
+- The pre-push CI pipeline passed, including the reference fixtures, workspace
+  tests, Python wheel checks, formatting and Clippy. The release commit and tag
+  are published to origin.
+- `q_backend` at `69b3a6a58d41c836debc1fe35f3948e13d6adbaf` pins the
+  published tag in `pyproject.toml` and `uv.lock`, resolving to the core commit
+  above, and adds a research regression test for the timed exit. No wire contract changed.
+- `uv sync --frozen` installed `q-core==2026.10.30` from its Git tag. Focused
+  suites `tests/research`, `tests/execution` and `tests/backtesting` pass
+  (`1790 passed, 11 skipped`). The backend commit is local and unpushed.
