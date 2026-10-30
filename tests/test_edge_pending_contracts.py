@@ -24,7 +24,7 @@ def test_execution_contract_declares_edge_1_2_and_orders_operation():
     assert "/v1/orders" in doc["endpoints"]
 
 
-def test_submit_request_action_defaults_to_deal_and_keeps_market_shape():
+def test_submit_request_without_action_keeps_market_shape():
     validator = load_execution_validator("submit-request.schema.json")
     market = {
         "intent_id": "018f6c38-89ab-7000-8000-000000000001",

@@ -102,8 +102,10 @@ operations:
       deal (market order, optionally with sl and tp), pending (stop or limit
       order with price and optional expiration), sltp (new levels for an open
       position) or remove (cancel a working pending order). Every action shares
-      the same intent rules. Accepted pending orders report their order ticket
-      in the submit outcome.
+      the same intent rules. Accepted deal and pending submissions report the
+      broker's order ticket. Accepted sltp reports the position ticket and remove
+      reports the removed order ticket. Omitting action keeps the 1.1 market order
+      shape, which refuses sl and tp.
     request: schema/edge/execution/submit-request.schema.json
     response: schema/edge/execution/submit-outcome.schema.json
 

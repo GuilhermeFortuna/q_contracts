@@ -323,8 +323,9 @@ progress under Q-104; update the backend row when its consumer commit is verifie
 ## Stop, limit and protective orders on MT5 (Q-137, 2026-10-29)
 
 - The execution-edge contract moves to version `1.2` (schema major `1`), an
-  additive minor change. `submit-request` gains an `action` (`deal` by default,
-  `pending`, `sltp`, `remove`) with per-action required fields, and `order` gains
+  additive minor change. `submit-request` gains an `action` (`deal`, `pending`,
+  `sltp`, `remove`) with per-action required fields; omitting it keeps the 1.1
+  market order shape, which refuses protective levels. `order` gains
   `expiration`. `deal` gains `position_id` and `reason`. `GET /v1/orders` lists
   working pending orders (`working-order`). `lookup-request` gains `kind`
   (`deal` by default); `kind: pending` answers `pending-lookup-outcome`, which

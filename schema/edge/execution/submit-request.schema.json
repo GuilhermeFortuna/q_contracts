@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "edge/execution/submit-request",
   "title": "SubmitRequest",
-  "description": "Request to the execution edge carrying a caller-minted intent identifier. The action selects one of four operations, each under the same at-most-once intent rules: deal (market order, optionally with protective levels), pending (buy or sell stop or limit order resting at the broker), sltp (new protective levels for an open position) and remove (cancel a working pending order). deal is assumed when action is omitted.",
+  "description": "Request to the execution edge carrying a caller-minted intent identifier. The action selects one of four operations, each under the same at-most-once intent rules: deal (market order, optionally with protective levels), pending (buy or sell stop or limit order resting at the broker), sltp (new protective levels for an open position) and remove (cancel a working pending order). When action is omitted the request is a plain market order without protective levels, as in edge 1.1; sl and tp are then refused, so protective levels always name an explicit deal or pending action.",
   "type": "object",
   "properties": {
     "intent_id": {
@@ -12,7 +12,6 @@
     "action": {
       "type": "string",
       "enum": ["deal", "pending", "sltp", "remove"],
-      "default": "deal",
       "description": "Operation requested. deal and pending carry an order; sltp carries symbol, position, sl and tp; remove carries symbol and order_ticket."
     },
     "order": {

@@ -171,7 +171,7 @@ class QuoteResponse:
 @dataclass(frozen=True)
 class SubmitRequest:
     intent_id: str
-    action: Literal["deal", "pending", "sltp", "remove"] | None = "deal"
+    action: Literal["deal", "pending", "sltp", "remove"] | None = None
     order: ExecutionOrder | None = None
     order_ticket: int | None = None
     position: int | None = None

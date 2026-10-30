@@ -223,7 +223,6 @@ pub enum SubmitOutcome {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SubmitRequest {
-    #[serde(default = "default_submit_request_action")]
     pub action: Option<String>,
     pub intent_id: String,
     pub order: Option<ExecutionOrder>,
@@ -232,10 +231,6 @@ pub struct SubmitRequest {
     pub sl: Option<f64>,
     pub symbol: Option<String>,
     pub tp: Option<f64>,
-}
-
-fn default_submit_request_action() -> Option<String> {
-    Some("deal".to_owned())
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
