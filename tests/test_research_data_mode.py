@@ -14,15 +14,15 @@ def schemas():
     )["components"]["schemas"]
 
 
-def test_data_mode_is_optional_and_defaults_to_bars(schemas):
+def test_data_mode_is_optional_and_defaults_to_auto(schemas):
     request = schemas["BacktestRequest"]
     assert "research_data_mode" not in request["required"]
     mode = request["properties"]["research_data_mode"]
-    assert mode["default"] == "bars"
-    for value in ("bars", "ticks"):
+    assert mode["default"] == "auto"
+    for value in ("auto", "bars", "ticks"):
         jsonschema.validate(value, mode)
     with pytest.raises(jsonschema.ValidationError):
-        jsonschema.validate("auto", mode)
+        jsonschema.validate("guess", mode)
 
 
 def test_discovery_distinguishes_required_and_optional_tick_hooks(schemas):

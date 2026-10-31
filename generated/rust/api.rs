@@ -382,7 +382,7 @@ fn default_backtest_request_post_exit_bars() -> Option<i64> {
 }
 
 fn default_backtest_request_research_data_mode() -> Option<String> {
-    Some("bars".to_owned())
+    Some("auto".to_owned())
 }
 
 fn default_backtest_request_strategy() -> Option<String> {

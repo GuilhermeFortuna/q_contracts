@@ -668,11 +668,12 @@ components:
           - type: 'null'
           title: Position Sizing
         research_data_mode:
-          default: bars
+          default: auto
           enum:
+          - auto
           - bars
           - ticks
-          description: Strategy-file backtests only. Ticks synchronizes completed sessions and builds candles from the same tick store used for execution. Bars uses provider candles without ticks.
+          description: Strategy-file backtests only. Auto selects ticks for tick hooks or restarts once when an order requires them. Explicit bars/ticks pin historical reruns. Ticks synchronizes completed sessions and builds candles from the execution tick store.
           title: Research Data Mode
           type: string
         strategy_file:
