@@ -667,6 +667,14 @@ components:
             - $ref: '#/components/schemas/InverseVolatilityPositionSizing'
           - type: 'null'
           title: Position Sizing
+        research_data_mode:
+          default: bars
+          enum:
+          - bars
+          - ticks
+          description: Strategy-file backtests only. Ticks synchronizes completed sessions and builds candles from the same tick store used for execution. Bars uses provider candles without ticks.
+          title: Research Data Mode
+          type: string
         strategy_file:
           anyOf:
           - type: string
@@ -8153,6 +8161,10 @@ components:
             $ref: '#/components/schemas/StrategyParamSpec'
           title: Parameters
           type: array
+        requires_tick_data:
+          default: false
+          title: Requires Tick Data
+          type: boolean
         uses_tick_hooks:
           default: false
           title: Uses Tick Hooks
