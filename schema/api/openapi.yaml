@@ -667,6 +667,15 @@ components:
             - $ref: '#/components/schemas/InverseVolatilityPositionSizing'
           - type: 'null'
           title: Position Sizing
+        research_data_mode:
+          default: auto
+          enum:
+          - auto
+          - bars
+          - ticks
+          description: Strategy-file backtests only. Auto selects ticks for tick hooks or restarts once when an order requires them. Explicit bars/ticks pin historical reruns. Ticks synchronizes completed sessions and builds candles from the execution tick store.
+          title: Research Data Mode
+          type: string
         strategy_file:
           anyOf:
           - type: string
@@ -8153,6 +8162,10 @@ components:
             $ref: '#/components/schemas/StrategyParamSpec'
           title: Parameters
           type: array
+        requires_tick_data:
+          default: false
+          title: Requires Tick Data
+          type: boolean
         uses_tick_hooks:
           default: false
           title: Uses Tick Hooks

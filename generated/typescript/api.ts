@@ -225,6 +225,7 @@ export interface BacktestRequest {
   point_value?: number
   position_sizing?: FixedQuantityPositionSizing | FixedSafetyMarginPositionSizing | InverseVolatilityPositionSizing | null
   post_exit_bars?: number
+  research_data_mode?: "auto" | "bars" | "ticks"
   start?: string | null
   strategy?: string
   strategy_file?: string | null
@@ -2257,6 +2258,7 @@ export interface StrategyFile {
   id: string
   label: string
   parameters: Array<StrategyParamSpec>
+  requires_tick_data?: boolean
   uses_tick_hooks?: boolean
   valid: boolean
 }

@@ -331,6 +331,8 @@ pub struct BacktestRequest {
     pub position_sizing: Option<serde_json::Value>,
     #[serde(default = "default_backtest_request_post_exit_bars")]
     pub post_exit_bars: Option<i64>,
+    #[serde(default = "default_backtest_request_research_data_mode")]
+    pub research_data_mode: Option<String>,
     pub start: Option<String>,
     #[serde(default = "default_backtest_request_strategy")]
     pub strategy: Option<String>,
@@ -377,6 +379,10 @@ fn default_backtest_request_point_value() -> Option<f64> {
 
 fn default_backtest_request_post_exit_bars() -> Option<i64> {
     Some(10)
+}
+
+fn default_backtest_request_research_data_mode() -> Option<String> {
+    Some("auto".to_owned())
 }
 
 fn default_backtest_request_strategy() -> Option<String> {
@@ -3304,6 +3310,8 @@ pub struct StrategyFile {
     pub id: String,
     pub label: String,
     pub parameters: Vec<StrategyParamSpec>,
+    #[serde(default = "default_strategy_file_requires_tick_data")]
+    pub requires_tick_data: Option<bool>,
     #[serde(default = "default_strategy_file_uses_tick_hooks")]
     pub uses_tick_hooks: Option<bool>,
     pub valid: bool,
@@ -3311,6 +3319,10 @@ pub struct StrategyFile {
 
 fn default_strategy_file_description() -> Option<String> {
     Some("".to_owned())
+}
+
+fn default_strategy_file_requires_tick_data() -> Option<bool> {
+    Some(false)
 }
 
 fn default_strategy_file_uses_tick_hooks() -> Option<bool> {
